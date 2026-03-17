@@ -57,21 +57,86 @@
   }
 
   /* ── LAYOUT ── */
-  .app {
+  /* ── LAYOUT (mode-controlled via JS) ── */
+
+  /* ── MODE TOGGLE ── */
+  .mode-toggle-bar {
+    background: var(--ink);
+    border-bottom: 3px solid var(--gold);
+    padding: 8px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .mode-label {
+    font-size: 12px;
+    color: #8888aa;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .btn-toggle-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 18px;
+    background: transparent;
+    border: 1.5px solid var(--gold);
+    border-radius: 6px;
+    color: var(--gold);
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .btn-toggle-preview:hover { background: rgba(201,168,76,0.12); }
+  .btn-toggle-preview svg { flex-shrink: 0; }
+
+  /* Preview mode OFF (default) */
+  .app.form-only {
+    display: block;
+  }
+  .app.form-only .form-panel {
+    max-width: 780px;
+    margin: 0 auto;
+    border-right: none;
+    max-height: none;
+    position: static;
+  }
+  .app.form-only .preview-panel {
+    display: none;
+  }
+
+  /* Preview mode ON */
+  .app.split-view {
     display: grid;
     grid-template-columns: 420px 1fr;
-    min-height: calc(100vh - 175px);
+  }
+  .app.split-view .form-panel {
+    max-width: none;
+    margin: 0;
+    border-right: 1px solid var(--border);
+    max-height: calc(100vh - 200px);
+    position: sticky;
+    top: 0;
+  }
+  .app.split-view .preview-panel {
+    display: block;
+  }
+
+  .app {
+    min-height: calc(100vh - 200px);
   }
 
   /* ── FORM PANEL ── */
   .form-panel {
     background: var(--white);
-    border-right: 1px solid var(--border);
     padding: 36px 32px;
     overflow-y: auto;
-    max-height: calc(100vh - 175px);
-    position: sticky;
-    top: 0;
   }
 
   .step-label {
@@ -199,7 +264,7 @@
     background: #e8e4dc;
     padding: 40px;
     overflow-y: auto;
-    max-height: calc(100vh - 175px);
+    max-height: calc(100vh - 200px);
   }
 
   .preview-placeholder {
@@ -604,6 +669,10 @@
     .page-number { bottom: 12px; right: 20px; }
     #document-output { display: block !important; }
     .btn-print { display: none !important; }
+    #mode-toggle-bar { display: none !important; }
+    .form-panel { display: none !important; }
+    .app { display: block !important; }
+    .preview-panel { padding: 0; background: none; max-height: none; overflow: visible; }
 
     /* Hide browser-added header/footer text */
     @page {
@@ -625,7 +694,18 @@
   </div>
 </header>
 
-<div class="app">
+<!-- ── MODE TOGGLE BAR ── -->
+<div class="mode-toggle-bar" id="mode-toggle-bar">
+  <span class="mode-label" id="mode-label">Editing mode — fill in the form, then generate</span>
+  <button class="btn-toggle-preview" onclick="togglePreview()" id="btn-toggle-preview" style="display:none;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/>
+    </svg>
+    <span id="toggle-label">Show Preview</span>
+  </button>
+</div>
+
+<div class="app form-only" id="app-container">
 
   <!-- ══════════════ FORM PANEL ══════════════ -->
   <div class="form-panel">
@@ -1102,7 +1182,7 @@
 
     <div id="policy-checklist"></div>
 
-    <button class="btn-generate" onclick="generateDoc()">Generate Policy Document</button>
+    <button class="btn-generate" onclick="generateAndPreview()">Generate Document</button>
     <button class="btn-print" id="btn-print" onclick="window.print()">🖨 Print / Save as PDF</button>
 
   </div>
@@ -1896,6 +1976,50 @@ function getPronoun(dirs, terms) {
   return 'their';
 }
 
+// ── PREVIEW MODE TOGGLE ──────────────────────────────────────────────────────
+let previewVisible = false;
+
+function togglePreview() {
+  previewVisible = !previewVisible;
+  applyPreviewMode();
+}
+
+function applyPreviewMode() {
+  const app = document.getElementById('app-container');
+  const toggleBtn = document.getElementById('btn-toggle-preview');
+  const toggleLabel = document.getElementById('toggle-label');
+  const modeLabel = document.getElementById('mode-label');
+
+  if (previewVisible) {
+    app.classList.remove('form-only');
+    app.classList.add('split-view');
+    if (toggleLabel) toggleLabel.textContent = 'Hide Preview';
+    if (modeLabel) modeLabel.textContent = 'Preview mode — document shown alongside the form';
+    // Scroll preview into view smoothly
+    const output = document.getElementById('document-output');
+    if (output && output.classList.contains('visible')) {
+      setTimeout(() => output.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    }
+  } else {
+    app.classList.remove('split-view');
+    app.classList.add('form-only');
+    if (toggleLabel) toggleLabel.textContent = 'Show Preview';
+    if (modeLabel) modeLabel.textContent = 'Editing mode — fill in the form, then generate';
+    // Scroll back to top of form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function generateAndPreview() {
+  generateDoc();
+  // Switch to preview mode after generating
+  previewVisible = true;
+  applyPreviewMode();
+  // Show the toggle button now that a doc has been generated
+  const toggleBtn = document.getElementById('btn-toggle-preview');
+  if (toggleBtn) toggleBtn.style.display = 'flex';
+}
+
 // ── Live update (stub — generate on button) ──
 function liveUpdate() { /* update on generate */ }
 
@@ -2654,9 +2778,6 @@ function generateDoc() {
 
   document.getElementById('placeholder').style.display = 'none';
   document.getElementById('btn-print').classList.add('visible');
-
-  // Scroll preview into view
-  output.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
 </body>
