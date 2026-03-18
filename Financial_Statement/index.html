@@ -1946,11 +1946,6 @@ function selectEntity(el, type) {
   liveUpdate();
 }
 
-function updateEntityType() {
-  // Legacy — kept for compatibility, delegates to selectEntity state
-  liveUpdate();
-}
-
 // ── REPORT TYPE + SUBTYPE LOGIC ──────────────────────────────────────────────
 function onReportTypeChange() {
   const type = getRadio('reportType');
@@ -3326,9 +3321,55 @@ function generateDoc() {
   }
 
   // ── LOAN CERTIFICATE PAGES (Company, CC, Trust) ──
-  const loanCertPages = (entityType === 'company' || entityType === 'cc' || entityType === 'trust')
-    ? buildLoanCertPages(co, yearEnd)
-    : '';
+  // Built inline so caLetterhead() (a nested fn) is in scope
+  let loanCertPages = '';
+  if (entityType === 'company' || entityType === 'cc' || entityType === 'trust') {
+    const certs = getLoanCerts();
+    loanCertPages = certs.map(cert => {
+      const lcName      = cert.name   || '[BORROWER / LENDER]';
+      const lcAmtFmt    = cert.amount ? formatNumber(cert.amount) : '[AMOUNT]';
+      const lcDebitAmt  = cert.balance === 'debit'  ? lcAmtFmt : '';
+      const lcCreditAmt = cert.balance === 'credit' ? lcAmtFmt : '';
+      const lcSigned    = cert.date
+        ? `<p style="margin-top:36px;font-size:10pt;">SIGNED AT ${cert.date}.</p>`
+        : `<p style="margin-top:36px;font-size:10pt;">SIGNED AT <span style="display:inline-block;min-width:200px;border-bottom:1px solid #333;">&nbsp;</span> ON <span style="display:inline-block;min-width:40px;border-bottom:1px solid #333;">&nbsp;</span> DAY OF <span style="display:inline-block;min-width:120px;border-bottom:1px solid #333;">&nbsp;</span> ${new Date().getFullYear()}.</p>`;
+      return `
+  <div class="doc-page">
+    ${caLetterhead()}
+    <div style="text-align:center;margin:28px 0 20px;">
+      <h2 style="font-size:13pt;letter-spacing:0.08em;text-transform:uppercase;margin:0 0 16px;">LOAN CERTIFICATE</h2>
+      <p style="font-size:11pt;font-weight:700;margin:0 0 4px;">${coUpper}</p>
+      <p style="font-size:10.5pt;margin:0 0 4px;">LOAN AS AT ${yearEnd ? yearEnd.toUpperCase() : '[YEAR END]'}</p>
+      <p style="font-size:10.5pt;margin:0 0 20px;">LOAN FROM/(TO):&nbsp;&nbsp;<strong>${lcName}</strong></p>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-family:'Libre Baskerville',serif;font-size:10pt;margin-bottom:24px;">
+      <thead>
+        <tr>
+          <td style="width:60%;padding:4px 0;"></td>
+          <td style="width:20%;text-align:right;font-weight:700;padding:4px 8px;border-bottom:1.5px solid #333;">DEBIT</td>
+          <td style="width:20%;text-align:right;font-weight:700;padding:4px 8px;border-bottom:1.5px solid #333;">CREDIT</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px 0 4px;vertical-align:top;">Loan account balance at end of year</td>
+          <td style="text-align:right;padding:8px 8px 4px;vertical-align:top;">${lcDebitAmt}</td>
+          <td style="text-align:right;padding:8px 8px 4px;vertical-align:top;">${lcCreditAmt}</td>
+        </tr>
+        <tr><td colspan="3" style="border-top:1px solid #ccc;padding-top:2px;"></td></tr>
+      </tbody>
+    </table>
+    <div style="font-size:10pt;line-height:1.7;margin-bottom:8px;">
+      <p>I, the undersigned, hereby certify that I have scrutinised the entries in my loan account in the records of the entity and that I agree with the balance as set out above. The loan is unsecured.</p>
+    </div>
+    ${lcSigned}
+    <div style="margin-top:50px;">
+      <div style="border-bottom:1px solid #333;width:280px;margin-bottom:6px;">&nbsp;</div>
+      <p style="font-size:10pt;font-weight:700;margin:0;">LENDER/(BORROWER)</p>
+    </div>
+  </div>`;
+    }).join('');
+  }
 
   let assembledPages = '';
 
@@ -3477,64 +3518,6 @@ function getLoanCerts() {
     certs.push({ name, balance, amount, date });
   }
   return certs;
-}
-
-function buildLoanCertPages(co, yearEnd) {
-  const certs = getLoanCerts();
-  if (!certs.length) return '';
-  const coUpper = co.toUpperCase();
-
-  return certs.map(cert => {
-    const loanName   = cert.name   || '[BORROWER / LENDER]';
-    const amtFormatted = cert.amount ? formatNumber(cert.amount) : '[AMOUNT]';
-    const debitAmt   = cert.balance === 'debit'  ? amtFormatted : '';
-    const creditAmt  = cert.balance === 'credit' ? amtFormatted : '';
-    const signedLine = cert.date
-      ? `<p style="margin-top:36px;font-size:10pt;">SIGNED AT ${cert.date}.</p>`
-      : `<p style="margin-top:36px;font-size:10pt;">SIGNED AT <span style="display:inline-block;min-width:200px;border-bottom:1px solid #333;">&nbsp;</span> ON <span style="display:inline-block;min-width:40px;border-bottom:1px solid #333;">&nbsp;</span> DAY OF <span style="display:inline-block;min-width:120px;border-bottom:1px solid #333;">&nbsp;</span> ${new Date().getFullYear()}.</p>`;
-
-    return `
-  <div class="doc-page">
-    ${caLetterhead()}
-    <div style="text-align:center;margin:28px 0 20px;">
-      <h2 style="font-size:13pt;letter-spacing:0.08em;text-transform:uppercase;margin:0 0 16px;">LOAN CERTIFICATE</h2>
-      <p style="font-size:11pt;font-weight:700;margin:0 0 4px;">${coUpper}</p>
-      <p style="font-size:10.5pt;margin:0 0 4px;">LOAN AS AT ${yearEnd ? yearEnd.toUpperCase() : '[YEAR END]'}</p>
-      <p style="font-size:10.5pt;margin:0 0 20px;">LOAN FROM/(TO):&nbsp;&nbsp;<strong>${loanName}</strong></p>
-    </div>
-
-    <table style="width:100%;border-collapse:collapse;font-family:'Libre Baskerville',serif;font-size:10pt;margin-bottom:24px;">
-      <thead>
-        <tr>
-          <td style="width:60%;padding:4px 0;"></td>
-          <td style="width:20%;text-align:right;font-weight:700;padding:4px 8px;border-bottom:1.5px solid #333;">DEBIT</td>
-          <td style="width:20%;text-align:right;font-weight:700;padding:4px 8px;border-bottom:1.5px solid #333;">CREDIT</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding:8px 0 4px;vertical-align:top;">Loan account balance at end of year</td>
-          <td style="text-align:right;padding:8px 8px 4px;vertical-align:top;">${debitAmt}</td>
-          <td style="text-align:right;padding:8px 8px 4px;vertical-align:top;">${creditAmt}</td>
-        </tr>
-        <tr>
-          <td colspan="3" style="border-top:1px solid #ccc;padding-top:2px;"></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div style="font-size:10pt;line-height:1.7;margin-bottom:8px;">
-      <p>I, the undersigned, hereby certify that I have scrutinised the entries in my loan account in the records of the entity and that I agree with the balance as set out above. The loan is unsecured.</p>
-    </div>
-
-    ${signedLine}
-
-    <div style="margin-top:50px;">
-      <div style="border-bottom:1px solid #333;width:280px;margin-bottom:6px;">&nbsp;</div>
-      <p style="font-size:10pt;font-weight:700;margin:0;">LENDER/(BORROWER)</p>
-    </div>
-  </div>`;
-  }).join('');
 }
 
 
