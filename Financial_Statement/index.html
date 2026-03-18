@@ -3488,6 +3488,93 @@ function generateDoc() {
     minutesPages = pageDirMinutes + pageShAGM;
   }
 
+  // ── MANAGEMENT REPRESENTATION LETTER (all except school) ──
+  let reprLetter = '';
+  if (entityType !== 'school') {
+    // Adapt terminology per entity type
+    const reprEntityLabel = entityType === 'cc'    ? 'close corporation'
+                          : entityType === 'trust'  ? 'trust'
+                          : entityType === 'npo'    ? 'organisation'
+                          : entityType === 'bc'     ? 'body corporate'
+                          : entityType === 'church' ? 'church'
+                          : entityType === 'club'   ? 'club'
+                          : 'company';
+    const reprBodyTerm    = dirCount === 1 ? terms.singular : terms.plural;
+    const reprSignatories = dirCount === 1
+      ? `the ${reprBodyTerm.toLowerCase()}`
+      : `the ${reprBodyTerm.toLowerCase()}`;
+    const reprAssets = entityType === 'trust'
+      ? 'the trust'
+      : `the ${reprEntityLabel}`;
+    const reprShares = (entityType === 'company')
+      ? `<p>15. All material share or other options granted by the ${reprEntityLabel} and material bonus or other profit sharing arrangements, have been adequately disclosed or provided for.</p>`
+      : '';
+
+    reprLetter = `
+  <div class="doc-page">
+    <div class="page-header">
+      <div class="co-name">VDM CHARTERED ACCOUNTANTS</div>
+    </div>
+    <p style="font-size:9.5pt;margin-bottom:2px;">PO BOX 450</p>
+    <p style="font-size:9.5pt;margin-bottom:2px;">STANDERTON</p>
+    <p style="font-size:9.5pt;margin-bottom:20px;">2430</p>
+    <p>Dear Sir</p>
+    <br>
+    <p><strong>${coUpper}</strong></p>
+    <p><strong>(Registration Number ${reg})</strong></p>
+    <br>
+    <p>In connection with your examination of the financial statements for the year ended on <strong>${yearEnd ? yearEnd.toUpperCase() : '[YEAR END]'}</strong> we confirm to the best of our knowledge and belief that:</p>
+    <ol style="font-size:9.5pt;line-height:1.65;padding-left:22px;margin-top:10px;">
+      <li>The financial statements fairly present the financial position and results of operations in conformity with International Financial Reporting Standards for Small and Medium-sized Entities.</li>
+      <li>All minutes of the meetings of ${reprSignatories} and committees (or summaries of actions of recent meetings for which minutes have not yet been prepared) and all financial and accounting records and related data have been made available to you.</li>
+      <li>We are not aware of any material accounts, transactions or agreement which are not fairly described and properly recorded in the accounting records, which could have any material effect on the financial statements.</li>
+      <li>We are not aware of:
+        <ul style="margin-top:4px;">
+          <li>any irregularities involving management or employees who have significant roles in the system of internal accounting control or any irregularities involving other employees which could have a material effect on the financial statements; or</li>
+          <li>any violations or possible violations of laws or regulations whose effect should be considered for disclosure in the financial statements or as a basis for recording a contingent loss.</li>
+        </ul>
+      </li>
+      <li>Adequate provision not considered to be excessive, has been made for:
+        <ul style="margin-top:4px;">
+          <li>All known material liabilities, other than contingent liabilities in respect of which no actual liability is expected to arise, which existed at the balance sheet date;</li>
+          <li>all material losses expected to arise from events which had occurred by the statement of financial position date.</li>
+        </ul>
+      </li>
+      <li>At the statement of financial position date, except as provided for or as noted in the financial statements, there were no material contingent liabilities.</li>
+      <li>Except as indicated in the financial statements:
+        <ul style="margin-top:4px;">
+          <li>none of the liabilities was secured, otherwise than by the operation of law, on any assets of ${reprAssets}</li>
+          <li>the assets reflected in the statement of financial position were owned by ${reprAssets} at the statement of financial position date, free of any charges in favour of third parties.</li>
+        </ul>
+      </li>
+      <li>At the statement of financial position date: there were no commitments under contracts placed for capital expenditure or capital expenditure authorised by ${reprSignatories} which had not been contracted for which were not disclosed in the financial statements.</li>
+      <li>The method by which management proposes to finance commitments for any capital expenditure either contracted for or authorised is adequately disclosed in the financial statements.</li>
+      <li>The net book amounts at which the premises, plant and equipment are stated in the statement of financial position were arrived at after:
+        <ul style="margin-top:4px;">
+          <li>taking into account as additions all expenditure during the year which represented capital outlay on these assets but no expenditure of a revenue nature;</li>
+          <li>writing off all amounts relating to items which had been sold or scrapped by the statement of financial position date;</li>
+          <li>providing for depreciation on a scale sufficient to cover obsolescence as well as wear and tear and thus to reduce the net book amounts of the assets to their residual value by the time they become no longer economically useful to ${reprAssets}.</li>
+        </ul>
+      </li>
+      <li>Any decline in the value of long term investments not provided for is considered to be of a temporary nature.</li>
+      <li>Current assets shown in the balance sheet are all expected to produce at least the amounts at which they are stated on realisation in the ordinary course of the business.</li>
+      <li>Except as disclosed in the financial statements, the results of operations for the year were not materially affected by transactions of an extraordinary or abnormal nature, or items relative to a prior year.</li>
+      <li>Material commitments for future purchases are for quantities not in excess of anticipated requirements, and are at prices which should not result in loss. Material losses are not expected to be sustained in the fulfilment of, or the inability to fulfil, any sales commitments.</li>
+      ${reprShares}
+      <li>The ${reprEntityLabel} has complied with all aspects of contractual agreements that could have a material effect on the financial statements in the event of non-compliance, except as disclosed in the financial statements.</li>
+      <li>Known events subsequent to the statement of financial position date have been accounted for or appropriately disclosed in so far as they materially affect fair presentation in the financial statements.</li>
+      <li>Stocks is valued at the lower of cost or net realisable value and represent the total value of all stock on hand at year end.</li>
+      <li>The amount shown as trade debtors reflect the total debts owed to ${reprAssets} as per the books of account, after writing off bad debts. To the best of our knowledge all debtors at year end have been taken into account, as well as all other accounts receivable.</li>
+      <li>All trade creditors and other liabilities have been brought to account and the figure shown in the statement of financial position represents to the best of our knowledge the total amount due for trade and other creditors.</li>
+    </ol>
+    <p style="margin-top:16px;"><strong>Yours Faithfully</strong></p>
+    <div class="signature-block">
+      ${sigBlock(dirs)}
+    </div>
+    <p>${dateApproved}</p>
+  </div>`;
+  }
+
   // ── LOAN CERTIFICATE PAGES (Company, CC, Trust) ──
   // Built inline so caLetterhead() (a nested fn) is in scope
   let loanCertPages = '';
@@ -3542,25 +3629,25 @@ function generateDoc() {
   let assembledPages = '';
 
   if (entityType === 'trust') {
-    // Trust: Cover + CA Declaration + Compiler's Report + Minutes + Policies + Loan Certs
-    assembledPages = coverPage + page1 + page3 + pageTrustMinutes + policyPages + loanCertPages;
+    // Trust: Cover + CA Declaration + Compiler's Report + Minutes + Policies + Loan Certs + Repr Letter
+    assembledPages = coverPage + page1 + page3 + pageTrustMinutes + policyPages + loanCertPages + reprLetter;
   } else if (entityType === 'npo') {
-    // NPO: Cover + Review or Audit Report + Policies
+    // NPO: Cover + Review or Audit Report + Policies + Repr Letter
     if (reportType === 'review') {
-      assembledPages = coverPage + pageReview + policyPages;
+      assembledPages = coverPage + pageReview + policyPages + reprLetter;
     } else {
-      assembledPages = coverPage + pageAudit + policyPages + engagementLetterPage;
+      assembledPages = coverPage + pageAudit + policyPages + engagementLetterPage + reprLetter;
     }
   } else if (entityType === 'school') {
-    // School: Cover + School Audit Report + Policies (no engagement letter for schools)
+    // School: Cover + School Audit Report + Policies (no repr letter)
     assembledPages = coverPage + pageSchoolAudit + policyPages;
   } else if (entityType === 'church') {
-    // Church: Cover + Audit Report + (optional) Policies
+    // Church: Cover + Audit Report + (optional) Policies + Repr Letter
     const includeChurchPolicies = getRadio('churchPolicies') !== 'no';
-    assembledPages = coverPage + pageAudit + (includeChurchPolicies ? policyPages : '') + engagementLetterPage;
+    assembledPages = coverPage + pageAudit + (includeChurchPolicies ? policyPages : '') + engagementLetterPage + reprLetter;
   } else if (entityType === 'club') {
-    // Club: Cover + Audit Report + Policies
-    assembledPages = coverPage + pageAudit + policyPages + engagementLetterPage;
+    // Club: Cover + Audit Report + Policies + Repr Letter
+    assembledPages = coverPage + pageAudit + policyPages + engagementLetterPage + reprLetter;
   } else if (entityType === 'bc') {
     // Body Corporate: Cover + Trustees' Responsibilities (pg1) + Audit Report (pg2) + Trustees' Report (pg3) + Policies + (optional) AGM Minutes
     const pageBcAudit = pageAudit.replace(`<div class="page-number">${pg3}</div>`, `<div class="page-number">${pg2}</div>`);
@@ -3605,16 +3692,16 @@ function generateDoc() {
   </div>`;
     }
 
-    assembledPages = coverPage + pageTrusteesResponsibilities + pageBcAudit + pageTrusteesReport + policyPages + pageBcAGM;
+    assembledPages = coverPage + pageTrusteesResponsibilities + pageBcAudit + pageTrusteesReport + policyPages + pageBcAGM + reprLetter;
   } else {
-    // Company, CC: Cover + CA Declaration + Responsibilities + Report + Directors' Report + Policies + Loan Certs + Minutes
+    // Company, CC: Cover + CA Declaration + Responsibilities + Report + Directors' Report + Policies + Loan Certs + Minutes + Repr Letter
     if (reportType === 'compilation') {
-      assembledPages = coverPage + page1 + page2 + page3 + page4 + policyPages + loanCertPages + (entityType === 'cc' ? ccMinutesPages : minutesPages);
+      assembledPages = coverPage + page1 + page2 + page3 + page4 + policyPages + loanCertPages + (entityType === 'cc' ? ccMinutesPages : minutesPages) + reprLetter;
     } else if (reportType === 'review') {
-      assembledPages = coverPage + page2 + pageReview + page4 + policyPages + loanCertPages + (entityType === 'cc' ? ccMinutesPages : minutesPages);
+      assembledPages = coverPage + page2 + pageReview + page4 + policyPages + loanCertPages + (entityType === 'cc' ? ccMinutesPages : minutesPages) + reprLetter;
     } else {
       // Audit
-      assembledPages = coverPage + page2 + pageAudit + page4 + policyPages + engagementLetterPage + loanCertPages + (entityType === 'cc' ? ccMinutesPages : minutesPages);
+      assembledPages = coverPage + page2 + pageAudit + page4 + policyPages + engagementLetterPage + loanCertPages + (entityType === 'cc' ? ccMinutesPages : minutesPages) + reprLetter;
     }
   }
 
