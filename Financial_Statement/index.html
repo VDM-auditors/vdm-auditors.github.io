@@ -728,7 +728,7 @@
     <div class="section-title">Entity Type</div>
 
     <div class="entity-grid" style="grid-template-columns:1fr 1fr;">
-      <div class="entity-card selected" id="ec-company" onclick="selectEntity(this,'company')">
+      <div class="entity-card" id="ec-company" onclick="selectEntity(this,'company')">
         <span class="ec-icon">🏢</span>
         <span class="ec-label">Company</span>
         <span class="ec-sub">(Pty) Ltd — Directors</span>
@@ -1912,7 +1912,7 @@ const ENTITY_CONFIG = {
   }
 };
 
-let currentEntityType = 'company';
+let currentEntityType = '';
 
 function selectEntity(el, type) {
   // Deselect all cards
