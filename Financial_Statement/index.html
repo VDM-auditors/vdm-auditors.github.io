@@ -1278,6 +1278,34 @@
           <textarea id="bcMgmtRulesText" rows="3" placeholder="Describe the amendment or addition to the management/conduct rules…" oninput="liveUpdate()"></textarea>
         </div>
       </div>
+
+      <hr style="border:none;border-top:1px dashed var(--border);margin:18px 0;">
+      <div class="step-label" style="margin-bottom:4px;">Annual General Meeting Minutes</div>
+      <p class="hint" style="margin-bottom:12px;">If required, the AGM minutes will be appended after the policy pages.</p>
+
+      <div class="field-group">
+        <label>Include AGM Minutes?</label>
+        <div class="options-group">
+          <label class="option-pill">
+            <input type="radio" name="bcAGM" value="no" checked onchange="liveUpdate()"> No
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="bcAGM" value="yes" onchange="liveUpdate()"> Yes
+          </label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Meeting Venue</label>
+        <input type="text" id="bcAGMVenue" placeholder="e.g. 7 Charl Cilliers Street, Secunda" oninput="liveUpdate()">
+        <p class="hint">Used in "held at _____ on [date]".</p>
+      </div>
+
+      <div class="field-group">
+        <label>Meeting Date</label>
+        <input type="text" id="bcAGMDate" placeholder="e.g. 30 October 2025" oninput="liveUpdate()">
+      </div>
+
     </div>
 
 
@@ -2237,7 +2265,13 @@ function generateDoc() {
     ? { isAre: 'is', hasHave: 'has', theirIts: 'their', directorS: pluralTerm }
     : { isAre: 'are', hasHave: 'have', theirIts: 'their', directorS: pluralTerm };
 
-  const entityType = currentEntityType || 'company';
+  const entityType  = currentEntityType || 'company';
+  const reportType  = getRadio('reportType') || 'compilation';
+
+  // Derived firm name — Audit reports use VDM Audit Inc, all others use VDM Chartered Accountants
+  const isAuditReport = (reportType === 'audit');
+  const vdmFirmName   = isAuditReport ? 'VDM Audit Inc.' : 'VDM Chartered Accountants';
+  const vdmFirmFooter = isAuditReport ? 'VDM Audit Inc.' : 'VDM Chartered Accountants &nbsp;·&nbsp; Standerton';
 
   // Share capital sentence (not applicable for CC)
   let shareCapitalSentence = '';
@@ -2402,8 +2436,8 @@ function generateDoc() {
         <td>South African Rand</td>
       </tr>
       <tr>
-        <td>${entityType === 'school' ? 'Auditor' : 'Compiler'}</td>
-        <td>${entityType === 'school' ? 'VDM Audit Inc.' : 'VDM Chartered Accountants'}</td>
+        <td>${entityType === 'school' || isAuditReport ? 'Auditor' : 'Compiler'}</td>
+        <td>${entityType === 'school' ? 'VDM Audit Inc.' : vdmFirmName}</td>
       </tr>
       ${entityType === 'school'
         ? `<tr><td>Preparer</td><td>${schoolPreparerSentence}</td></tr>`
@@ -2415,7 +2449,7 @@ function generateDoc() {
     </table>
 
     <div class="cover-footer">
-      VDM Chartered Accountants &nbsp;·&nbsp; Standerton
+      ${vdmFirmFooter}
     </div>
   </div>`;
 
@@ -2952,8 +2986,7 @@ function generateDoc() {
     <div class="page-number">${pg3}</div>
   </div>`;
 
-  // ── SHARED ENGAGEMENT LETTER BUILDER ──
-  // Used by any entity that selects Audit and answers Yes to the engagement letter question.
+  // ── SHARED ENGAGEMENT LETTER BUILDER ──  // Used by any entity that selects Audit and answers Yes to the engagement letter question.
   function buildEngagementLetter() {
     const engSignerNameMap = {
       'L VAN DER MERWE':  'L van der Merwe',
@@ -3007,7 +3040,6 @@ function generateDoc() {
   }
 
   // ── CONDITIONAL PAGE ASSEMBLY ──
-  const reportType = getRadio('reportType');
   const needsEngagementLetter = (reportType === 'audit') && (getRadio('engagementLetter') === 'yes');
   const engagementLetterPage  = needsEngagementLetter ? buildEngagementLetter() : '';
 
@@ -3034,9 +3066,50 @@ function generateDoc() {
     // Club: Cover + Audit Report + Policies
     assembledPages = coverPage + pageAudit + policyPages + engagementLetterPage;
   } else if (entityType === 'bc') {
-    // Body Corporate: Cover + Trustees' Responsibilities (pg1) + Audit Report (pg2) + Trustees' Report (pg3) + Policies
+    // Body Corporate: Cover + Trustees' Responsibilities (pg1) + Audit Report (pg2) + Trustees' Report (pg3) + Policies + (optional) AGM Minutes
     const pageBcAudit = pageAudit.replace(`<div class="page-number">${pg3}</div>`, `<div class="page-number">${pg2}</div>`);
-    assembledPages = coverPage + pageTrusteesResponsibilities + pageBcAudit + pageTrusteesReport + policyPages;
+
+    // ── AGM MINUTES PAGE ──
+    let pageBcAGM = '';
+    if (getRadio('bcAGM') === 'yes') {
+      const agmVenue   = getVal('bcAGMVenue') || '[VENUE]';
+      const agmDate    = getVal('bcAGMDate')  || '[DATE]';
+      pageBcAGM = `
+  <div class="doc-page">
+    ${auditLetterhead()}
+    <div class="page-header">
+      <div class="co-name">${coUpper}</div>
+      <div class="co-reg">(Sectional Title Scheme Number — ${reg})</div>
+    </div>
+    <h2 style="text-align:center;margin-top:8px;">Minutes of the Annual General Meeting of Trustees of the Body Corporate</h2>
+    <p style="text-align:center;font-style:italic;">held at ${agmVenue} on ${agmDate}.</p>
+    <br>
+    <p class="underline-heading">Present</p>
+    <p>${dirList}</p>
+    <p class="underline-heading">Quorum and Notice</p>
+    <p>As the necessary quorum was present, the chairman declared the meeting properly constituted and the notice convening it was, with the consent of the trustees, taken as read.</p>
+    <p class="underline-heading">Minutes</p>
+    <p>The minutes of the previous annual general meeting were taken as read and signed by the chairman as a correct record of the proceedings.</p>
+    <p class="underline-heading">Adoption of Report and Financial Statements</p>
+    <p>It was resolved that the annual financial statements for the year ending ${yearEnd} and as now submitted for approval by the board of trustees, be hereby approved both as to contents and as to form.</p>
+    <p>It was resolved that the form and content of the report by the trustees, pursuant to the Sectional Titles Act 2011 and as now submitted for the approval of the board of trustees, be hereby approved and adopted for the said purpose.</p>
+    <p>It was resolved that any two of the trustees of the body corporate are hereby authorized to sign the aforesaid annual financial statements and trustees' report, and copies thereof, for and on behalf of the board.</p>
+    <p>It was then recorded that, to the best knowledge of the trustees, all assets and liabilities and contingent liabilities have been recorded in the financial statements. The trustees are of the opinion that none of the assets had (at date of the balance sheet and on realization in the ordinary course of the body corporate's business), a value less than the amounts at which they are stated in the balance sheet.</p>
+    <p>The chairman stated that he had nothing further to add to the report of the trustees for the year ending ${yearEnd} and moved that the trustees' report and financial statements for the year ending ${yearEnd} be and they are hereby approved and adopted, and that all matters and business undertaken and discharged by the trustees on behalf of the body corporate be and they are hereby confirmed. The chairman's motion was seconded, put to the meeting and carried unanimously.</p>
+    <p class="underline-heading">Auditor</p>
+    <p>The chairman stated that as no proposals were received regarding the appointment of auditors, the present auditors are hereby re-appointed for the ensuing year.</p>
+    <p class="underline-heading">Trustees</p>
+    <p>It was resolved that the present trustees of the body corporate be and they are hereby re-appointed for the ensuing year. The trustees' remuneration as set out in the financial statements is approved.</p>
+    <p>There being no further business, the meeting terminated.</p>
+    <p>We, the undersigned trustees, were present and confirm the minutes to be correctly set out the proceedings of the meeting.</p>
+    <div class="signature-block">
+      ${sigBlock(dirs)}
+    </div>
+    <p>${agmDate}</p>
+  </div>`;
+    }
+
+    assembledPages = coverPage + pageTrusteesResponsibilities + pageBcAudit + pageTrusteesReport + policyPages + pageBcAGM;
   } else {
     // Company, CC, and others: Cover + CA Declaration + Responsibilities + Report + Directors' Report + Policies
     if (reportType === 'compilation') {
