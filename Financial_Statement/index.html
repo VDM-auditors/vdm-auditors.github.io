@@ -922,6 +922,57 @@
       </div>
     </div>
 
+    <!-- ── ATTORNEYS AUDIT sub-options ── -->
+    <div id="report-sub-audit-attorneys" class="report-sub-panel" style="display:none;">
+      <div class="field-group">
+        <label>Governance Structure</label>
+        <div class="options-group">
+          <label class="option-pill"><input type="radio" name="attGovType" value="directors" checked onchange="liveUpdate()"> Directors</label>
+          <label class="option-pill"><input type="radio" name="attGovType" value="partners" onchange="liveUpdate()"> Partners</label>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="report-sub-heading">Opinion Type</div>
+        <div class="options-group">
+          <label class="option-pill"><input type="radio" name="attOpinionType" value="unmodified" checked onchange="onAttOpinionTypeChange()"> Unmodified</label>
+          <label class="option-pill"><input type="radio" name="attOpinionType" value="modified" onchange="onAttOpinionTypeChange()"> Modified</label>
+          <label class="option-pill"><input type="radio" name="attOpinionType" value="disclaimer" onchange="onAttOpinionTypeChange()"> Disclaimer of Opinion</label>
+        </div>
+      </div>
+      <div class="conditional field-group" id="att-modified-box">
+        <label>Basis for Modified Opinion</label>
+        <textarea id="attModifiedText" rows="4" placeholder="Describe the basis for the modified opinion…" oninput="liveUpdate()"></textarea>
+      </div>
+      <div class="conditional field-group" id="att-disclaimer-box">
+        <label>Basis for Disclaimer of Opinion</label>
+        <textarea id="attDisclaimerText" rows="4" placeholder="Describe the basis for the disclaimer of opinion…" oninput="liveUpdate()"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Investment Practice</label>
+        <div class="options-group">
+          <label class="option-pill"><input type="radio" name="attInvestment" value="no" checked onchange="liveUpdate()"> Has NOT carried on an investment practice</label>
+          <label class="option-pill"><input type="radio" name="attInvestment" value="yes" onchange="liveUpdate()"> Has carried on and complied</label>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Other Reporting Responsibilities</label>
+        <div class="options-group">
+          <label class="option-pill"><input type="radio" name="attOtherReport" value="none" checked onchange="toggleVisible('att-other-report-box', false); liveUpdate()"> None</label>
+          <label class="option-pill"><input type="radio" name="attOtherReport" value="custom" onchange="toggleVisible('att-other-report-box', true); liveUpdate()"> Custom text</label>
+        </div>
+        <div class="conditional field-group" id="att-other-report-box">
+          <textarea id="attOtherReportText" rows="3" placeholder="Describe other reporting responsibilities…" oninput="liveUpdate()"></textarea>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Auditor (signs the report)</label>
+        <div class="options-group">
+          <label class="option-pill"><input type="radio" name="attAuditor" value="rdb" checked onchange="liveUpdate()"> R de Beer (Reinette)</label>
+          <label class="option-pill"><input type="radio" name="attAuditor" value="lvm" onchange="liveUpdate()"> L van der Merwe (Oom Leon)</label>
+        </div>
+      </div>
+    </div>
+
     <!-- ── REVIEW sub-options ── -->
     <div id="report-sub-review" class="report-sub-panel" style="display:none;">
       <div class="report-sub-heading">Review Conclusion</div>
@@ -2046,12 +2097,14 @@ function selectEntity(el, type) {
 function onReportTypeChange() {
   const type = getRadio('reportType');
   const isSchool = currentEntityType === 'school';
-  const needsPreparer = (type === 'review' || type === 'audit') && !isSchool;
+  const isAttorneys = currentEntityType === 'attorneys';
+  const needsPreparer = (type === 'review' || type === 'audit') && !isSchool && !isAttorneys;
 
-  document.getElementById('report-sub-audit').style.display        = (type === 'audit' && !isSchool) ? 'block' : 'none';
-  document.getElementById('report-sub-audit-school').style.display = (type === 'audit' && isSchool)  ? 'block' : 'none';
-  document.getElementById('report-sub-review').style.display       = (type === 'review')             ? 'block' : 'none';
-  document.getElementById('report-sub-compilation').style.display  = (type === 'compilation')        ? 'block' : 'none';
+  document.getElementById('report-sub-audit').style.display             = (type === 'audit' && !isSchool && !isAttorneys) ? 'block' : 'none';
+  document.getElementById('report-sub-audit-school').style.display      = (type === 'audit' && isSchool)  ? 'block' : 'none';
+  document.getElementById('report-sub-audit-attorneys').style.display   = (type === 'audit' && isAttorneys) ? 'block' : 'none';
+  document.getElementById('report-sub-review').style.display            = (type === 'review')             ? 'block' : 'none';
+  document.getElementById('report-sub-compilation').style.display       = (type === 'compilation')        ? 'block' : 'none';
 
   // Show/hide preparer block and update signer label
   const preparerBlock = document.getElementById('preparer-block');
@@ -2083,6 +2136,13 @@ function toggleEngagementTypes() {
     document.getElementById('engTypeReview').checked = false;
     document.getElementById('engTypeAudit').checked = false;
   }
+}
+
+function onAttOpinionTypeChange() {
+  const t = getRadio('attOpinionType');
+  toggleVisible('att-modified-box',    t === 'modified');
+  toggleVisible('att-disclaimer-box',  t === 'disclaimer');
+  liveUpdate();
 }
 
 function onAuditTypeChange() {
@@ -3207,6 +3267,166 @@ function generateDoc() {
   </div>`;
   }
 
+  // ── PAGE: ATTORNEYS TRUST ACCOUNT ASSURANCE REPORT ──
+  let pageAttorneysAudit = '';
+  if (entityType === 'attorneys') {
+    const attGov = getRadio('attGovType') || 'directors';
+    const govLabel   = attGov === 'partners' ? 'Partner(s)' : 'Director(s)';
+    const govLabelLC = attGov === 'partners' ? 'partner(s)' : 'director(s)';
+    const govIsAre   = attGov === 'partners' ? 'are' : 'are';
+    const govDetermines = attGov === 'partners' ? 'determine' : 'determine';
+
+    const attOpinion     = getRadio('attOpinionType') || 'unmodified';
+    const attInvestment  = getRadio('attInvestment')  || 'no';
+    const attOtherReport = getRadio('attOtherReport') || 'none';
+    const attOtherText   = getVal('attOtherReportText') || '';
+    const attModText     = getVal('attModifiedText')    || '[BASIS FOR MODIFIED OPINION]';
+    const attDisText     = getVal('attDisclaimerText')  || '[BASIS FOR DISCLAIMER OF OPINION]';
+
+    const attAuditorVal = getRadio('attAuditor') || 'rdb';
+    const attAuditorMap = {
+      rdb: { name: 'Reinette De Beer', irba: '217890' },
+      lvm: { name: 'Leon van der Merwe', irba: '419052' }
+    };
+    const attAud = attAuditorMap[attAuditorVal];
+
+    // Period
+    const yeParts2 = yearEnd.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/);
+    let attPeriodStart = '1 March [YEAR]';
+    if (yeParts2) attPeriodStart = `1 March ${parseInt(yeParts2[3]) - 1}`;
+    const attPeriod = `the period from ${attPeriodStart} to the year ended ${yearEnd}`;
+
+    // Investment practice paragraph
+    const attInvestPara = attInvestment === 'yes'
+      ? `In accordance with our responsibilities in terms of Rule 54.24.3, we report that to the best of our knowledge, the legal practitioner has for ${attPeriod} carried on the business of an investment practice and has complied with the relevant Rules.`
+      : `In accordance with our responsibilities in terms of Rule 54.24.3, we report that to the best of our knowledge, the legal practitioner has not for ${attPeriod} carried on the business of an investment practice.`;
+
+    // Other reporting responsibilities
+    const attOtherReportPara = attOtherReport === 'custom' && attOtherText
+      ? `<p><strong><em>Other Reporting Responsibilities</em></strong></p><p><em>${attOtherText}</em></p>`
+      : '';
+
+    // Shared sections used across all opinion types
+    const attResponsibilitySection = `
+    <p><strong><em>${govLabel} responsibility for the trust accounts</em></strong></p>
+    <p>The ${govLabelLC} ${govIsAre} responsible for ensuring that legal practitioners' trust accounts are maintained in compliance with the Act and the Rules, and for such internal control as the ${govLabelLC} ${govDetermines} is necessary to maintain the integrity of the trust accounts in accordance with the relevant client mandates, including such controls as the ${govLabelLC} ${govDetermines} are also necessary to prevent and detect fraud and theft. The ${govLabelLC} ${govIsAre} also responsible for preparing the attached Legal Practitioner's Annual Statement on Trust Accounts and for the financial information and declarations contained therein.</p>`;
+
+    const attAuditorSection = `
+    <p><strong><em>Auditor's Independence and Quality Control</em></strong></p>
+    <p><em>VDM Audit applies the International Standard on Quality Control 1, Quality Control for Firms that Perform Audits and Reviews of Financial Statements and Other Assurance and Related Services Engagements and accordingly maintains a comprehensive system of quality control, including documented policies and procedures regarding compliance with ethical requirements, professional standards and applicable legal and regulatory requirements.</em></p>
+    <p><strong><em>Auditor's Responsibility</em></strong></p>
+    <p>Our responsibility is to express a reasonable assurance opinion on whether the legal practitioners' trust accounts were maintained in compliance with the Act and the Rules, based on our assurance procedures performed; and to report, as required, on the accompanying Legal Practitioner's Annual Statement on Trust Accounts and investment practice.</p>
+    <p><em>We conducted our reasonable assurance engagement in accordance with the International Standard on Assurance Engagements 3000 (Revised), Assurance Engagements Other than Audits or Reviews of Historical Financial Information (ISAE 3000 (Revised)), issued by the International Auditing and Assurance Standards Board. That standard requires that we plan and perform the engagement to obtain reasonable assurance about whether the legal practitioners' trust accounts were maintained, in all material respects, in compliance with the Act and the Rules.</em></p>
+    <p>A reasonable assurance engagement in accordance with ISAE 3000 (Revised) involves performing procedures to obtain evidence about whether the legal practitioners' trust accounts were maintained in compliance with the Act and the Rules. The nature, timing and extent of procedures selected depend on the auditor's professional judgement, including the assessment of the risks of non-compliance with the Act and the Rules, whether due to fraud, theft and error. In making those risk assessments, we considered internal control that is relevant to the engagement in order to design procedures that are appropriate in the circumstances, but not for the purpose of expressing an opinion on the effectiveness of internal control.</p>
+    <p>Our reasonable assurance engagement included the following summary of procedures performed:</p>
+    <ul>
+      <li><em>Considering, and applying when considered applicable in the engagement circumstances, the guidance in the Guide for Registered Auditors: Engagements on Legal Practitioners' Trust Accounts (Revised March 2020) issued by the IRBA.</em></li>
+      <li>Making inquiries of the legal practitioner and persons within the practice.</li>
+      <li>Testing transactions for all significant service activities, with the objective of evaluating whether:
+        <ul>
+          <li>Transactions were appropriately identified as trust account transactions;</li>
+          <li>Trust account transactions were made in accordance with mandates and supported by adequate documentation and narrative to identify from whom funds were received, and for whose credit;</li>
+          <li>Deposits and withdrawals from the trust bank accounts were to, or for, a trust creditor; and</li>
+          <li>Transfers to the legal practitioner's business bank accounts were only in respect of monies to be due to the legal practitioner.</li>
+        </ul>
+      </li>
+      <li>Testing and/or scrutinising bank reconciliations, as considered appropriate in the engagement circumstances, and evaluating the records made available to us against the external confirmations from financial institutions.</li>
+      <li>Obtaining written representations from management regarding matters that are relevant to this engagement.</li>
+    </ul>
+    <p>We believe that the evidence we have obtained is sufficient and appropriate to provide a basis for our opinion.</p>`;
+
+    const attLPCReportSection = `
+    <p><strong><em>Report on Other Legal and Regulatory Requirements</em></strong></p>
+    <p><strong><em>Report on the Legal Practitioner's Annual Statement on Trust Accounts</em></strong></p>
+    <p>In accordance with our responsibilities in terms of the Advisory issued by the Legal Practice Council dated 17 April 2020, we report that we have agreed the information extracted from the trust accounting records included in the accompanying Legal Practitioner's Annual Statement on Trust Accounts for ${attPeriod} to the underlying records that were the subject of our engagement. We have also read the Legal Practitioner's Annual Statement on Trust Accounts for the purpose of identifying whether the information contained therein is inconsistent with our knowledge obtained in the course of our engagement. The Legal Practitioner's Annual Statement on Trust Accounts is the responsibility of the legal practitioner.</p>
+    <p>Based on our reading of the legal practitioner's representations, the disclosures and other information contained in the Legal Practitioner's Annual Statement on Trust Accounts, we have not identified any information that is inconsistent with our knowledge obtained in the course of our engagement. Our opinion on the legal practitioner's trust accounts does not cover the Legal Practitioner's Annual Statement on Trust Accounts and, accordingly, we do not express an opinion thereon.</p>
+    <p><strong><em>Report on the Legal Practitioner's Investment Practice</em></strong></p>
+    <p><strong>${attInvestPara}</strong></p>
+    ${attOtherReportPara}`;
+
+    const attRestrictionSection = `
+    <p><strong><em>Restriction on distribution and use</em></strong></p>
+    <p><em>This report is for the purpose of meeting the auditor reporting requirements of the Act and the Rules and, regarding the accompanying Legal Practitioner's Annual Statement on Trust Accounts, the additional auditor reporting requirements of the Legal Practice Council and the Legal Practitioners Fidelity Fund. Consequently, it is not suitable for any other purpose. It is intended solely for the use of the ${govLabelLC} of the firm, the Legal Practice Council and the Legal Practitioners Fidelity Fund, and should not be distributed to other parties.</em></p>`;
+
+    const attSignatureSection = `
+    <br>
+    <p><strong><em>Auditor's Signature</em></strong></p>
+    <br><br>
+    <p>_____________________________</p>
+    <p>${attAud.name}</p>
+    <p>IRBA Registration Number ${attAud.irba}</p>
+    <p>VDM Audit</p>
+    <p>${dateSigned}</p>`;
+
+    // ── OPINION VARIANTS ──
+    if (attOpinion === 'unmodified') {
+      pageAttorneysAudit = `
+  <div class="doc-page" style="font-size:9.5pt;">
+    ${auditLetterhead()}
+    <div class="page-header">
+      <p style="text-align:center;font-weight:bold;margin:0;">Independent Auditor's Reasonable Assurance Report on Legal Practitioners'</p>
+      <p style="text-align:center;font-weight:bold;margin:0 0 8px;">Trust Accounts</p>
+    </div>
+    <p><strong><em>To the ${govLabel} of ${co}</em></strong></p>
+    <p><strong><em>Report on Compliance of the Legal Practitioners' Trust Accounts with the Act and the Rules</em></strong></p>
+    <p>We have undertaken a reasonable assurance engagement on whether the legal practitioners' trust accounts of ${co} were maintained, in all material respects, in compliance with Section 86, read with Section 63(1)(g), and Sections 87(1), 87(3) and 87(4) of the Legal Practice Act, No. 28 of 2014 (the Act), and Rules 54.6–54.13, 54.14.1–54.14.6, 54.14.7.2, 54.14.7.3, 54.14.8–54.14.16, 54.15, 54.16, 54.17, 54.18, 54.19, 54.31, 54.32, 54.33, 54.34, 54.35 and 55.1–55.11 of the South African Legal Practice Council Rules (the Rules), made under the authority of Sections 95(1), 95(3) and 109(2) of the Act, for ${attPeriod}.</p>
+    <p>We clarify that we are not required to perform any procedures on records or documents relating to accounting for deceased estates, insolvent estates and trusts other than those dealt with via the legal practitioner's trust banking account(s).</p>
+    ${attResponsibilitySection}
+    ${attAuditorSection}
+    <p><strong><em>Opinion</em></strong></p>
+    <p>In our opinion, the legal practitioners' trust accounts of ${co} for ${attPeriod} were maintained, in all material respects, in compliance with the Act and the Rules.</p>
+    ${attLPCReportSection}
+    ${attRestrictionSection}
+    ${attSignatureSection}
+  </div>`;
+    } else if (attOpinion === 'modified') {
+      pageAttorneysAudit = `
+  <div class="doc-page" style="font-size:9.5pt;">
+    ${auditLetterhead()}
+    <div class="page-header">
+      <p style="text-align:center;font-weight:bold;margin:0;">Independent Auditor's Reasonable Assurance Report on Legal Practitioners'</p>
+      <p style="text-align:center;font-weight:bold;margin:0 0 8px;">Trust Accounts</p>
+    </div>
+    <p><strong><em>To the ${govLabel} of ${co}</em></strong></p>
+    <p><strong><em>Report on Compliance of the Legal Practitioners' Trust Accounts with the Act and the Rules</em></strong></p>
+    <p>We have undertaken a reasonable assurance engagement on whether the legal practitioners' trust accounts of ${co} were maintained, in all material respects, in compliance with Section 86, read with Section 63(1)(g), and Sections 87(1), 87(3) and 87(4) of the Legal Practice Act, No. 28 of 2014 (the Act), and Rules 54.6–54.13, 54.14.1–54.14.6, 54.14.7.2, 54.14.7.3, 54.14.8–54.14.16, 54.15, 54.16, 54.17, 54.18, 54.19, 54.31, 54.32, 54.33, 54.34, 54.35 and 55.1–55.11 of the South African Legal Practice Council Rules (the Rules), made under the authority of Sections 95(1), 95(3) and 109(2) of the Act, for ${attPeriod}.</p>
+    <p>We clarify that we are not required to perform any procedures on records or documents relating to accounting for deceased estates, insolvent estates and trusts other than those dealt with via the legal practitioner's trust banking account(s).</p>
+    ${attResponsibilitySection}
+    ${attAuditorSection}
+    <p><strong><em>Basis for Modified Opinion</em></strong></p>
+    <p>${attModText}</p>
+    <p><strong><em>Modified Opinion</em></strong></p>
+    <p>In our opinion, except for the effects of the matter described in the Basis for Modified Opinion paragraph, the legal practitioners' trust accounts of ${co} for ${attPeriod} were maintained, in all material respects, in compliance with the Act and the Rules.</p>
+    ${attLPCReportSection}
+    ${attRestrictionSection}
+    ${attSignatureSection}
+  </div>`;
+    } else {
+      // Disclaimer
+      pageAttorneysAudit = `
+  <div class="doc-page" style="font-size:9.5pt;">
+    ${auditLetterhead()}
+    <div class="page-header">
+      <p style="text-align:center;font-weight:bold;margin:0;">Independent Auditor's Reasonable Assurance Report on Legal Practitioners'</p>
+      <p style="text-align:center;font-weight:bold;margin:0 0 8px;">Trust Accounts</p>
+    </div>
+    <p><strong><em>To the ${govLabel} of ${co}</em></strong></p>
+    <p><strong><em>Report on Compliance of the Legal Practitioners' Trust Accounts with the Act and the Rules</em></strong></p>
+    <p>We were engaged to undertake a reasonable assurance engagement on whether the legal practitioners' trust accounts of ${co} were maintained, in all material respects, in compliance with Section 86, read with Section 63(1)(g), and Sections 87(1), 87(3) and 87(4) of the Legal Practice Act, No. 28 of 2014 (the Act), and Rules 54.6–54.13, 54.14.1–54.14.6, 54.14.7.2, 54.14.7.3, 54.14.8–54.14.16, 54.15, 54.16, 54.17, 54.18, 54.19, 54.31, 54.32, 54.33, 54.34, 54.35 and 55.1–55.11 of the South African Legal Practice Council Rules (the Rules), made under the authority of Sections 95(1), 95(3) and 109(2) of the Act, for ${attPeriod}.</p>
+    <p>We clarify that we are not required to perform any procedures on records or documents relating to accounting for deceased estates, insolvent estates and trusts other than those dealt with via the legal practitioner's trust banking account(s).</p>
+    ${attResponsibilitySection}
+    ${attAuditorSection}
+    <p><strong><em>Basis for Disclaimer of Opinion</em></strong></p>
+    <p>${attDisText}</p>
+    <p><strong><em>Disclaimer of Opinion</em></strong></p>
+    <p>Because of the significance of the matter described in the Basis for Disclaimer of Opinion paragraph, we have not been able to obtain sufficient appropriate evidence to provide a basis for an opinion. Accordingly, we do not express an opinion on the compliance of the legal practitioners' trust accounts of ${co} with the Act and the Rules.</p>
+    ${attLPCReportSection}
+    ${attRestrictionSection}
+    ${attSignatureSection}
+  </div>`;
+    }
+  }
+
   // ── PAGE: TRUSTEES' RESPONSIBILITIES AND APPROVAL (Body Corporate) ──
   const pageTrusteesResponsibilities = `
   <div class="doc-page">
@@ -3920,8 +4140,8 @@ function generateDoc() {
   let assembledPages = '';
 
   if (entityType === 'attorneys') {
-    // Attorneys: Cover + Audit Report + Policies + Engagement Letter + Repr Letter
-    assembledPages = coverPage + pageAudit + policyPages + engagementLetterPages + reprLetter;
+    // Attorneys: Cover + Attorneys Trust Account Report + Engagement Letter + Repr Letter
+    assembledPages = coverPage + pageAttorneysAudit + engagementLetterPages + reprLetter;
   } else if (entityType === 'trust') {
     // Trust: Cover + CA Declaration + Compiler's Report + Minutes + Policies + Loan Certs + Engagement Letters + Repr Letter
     assembledPages = coverPage + page1 + page3 + pageTrustMinutes + policyPages + loanCertPages + engagementLetterPages + reprLetter;
