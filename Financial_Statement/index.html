@@ -53,7 +53,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Libre Baskerville', serif;
+      font-family: 'Poppins', serif;
       font-size: 22px;
       font-weight: 700;
       color: var(--ink);
@@ -61,7 +61,7 @@
     }
 
     header h1 {
-      font-family: 'Libre Baskerville', serif;
+      font-family: 'Poppins', serif;
       font-size: 20px;
       font-weight: 400;
       color: var(--white);
@@ -198,7 +198,7 @@
     }
 
     .section-title {
-      font-family: 'Libre Baskerville', serif;
+      font-family: 'Poppins', serif;
       font-size: 17px;
       color: var(--ink);
       margin-bottom: 20px;
@@ -434,7 +434,7 @@
     }
 
     .preview-placeholder h3 {
-      font-family: 'Libre Baskerville', serif;
+      font-family: 'Poppins', serif;
       font-size: 18px;
       margin-bottom: 8px;
     }
@@ -459,7 +459,7 @@
       margin: 0 auto 32px;
       padding: 52px 64px 48px;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-      font-family: 'Libre Baskerville', serif;
+      font-family: 'Poppins', serif;
       font-size: 9.5pt;
       line-height: 1.55;
       color: #111;
@@ -591,7 +591,7 @@
       margin: 0 auto 32px;
       padding: 52px 64px 48px;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-      font-family: 'Libre Baskerville', serif;
+      font-family: 'Poppins', serif;
       font-size: 9.5pt;
       line-height: 1.55;
       color: #111;
@@ -987,9 +987,11 @@
       align-items: center;
       gap: 6px;
     }
+
     .date-input-wrap input {
       flex: 1;
     }
+
     .btn-cal {
       flex-shrink: 0;
       width: 34px;
@@ -1004,11 +1006,13 @@
       transition: all 0.15s;
       color: var(--ink-light);
     }
+
     .btn-cal:hover {
       border-color: var(--gold);
       background: #fffbf0;
       color: var(--gold);
     }
+
     .cal-popup {
       position: absolute;
       top: calc(100% + 4px);
@@ -1017,18 +1021,23 @@
       background: var(--white);
       border: 1.5px solid var(--gold);
       border-radius: 10px;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
       padding: 14px;
       min-width: 260px;
       font-family: 'Poppins', sans-serif;
     }
-    .cal-popup.hidden { display: none; }
+
+    .cal-popup.hidden {
+      display: none;
+    }
+
     .cal-nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 10px;
     }
+
     .cal-nav button {
       background: none;
       border: none;
@@ -1039,17 +1048,23 @@
       border-radius: 4px;
       transition: background 0.12s;
     }
-    .cal-nav button:hover { background: var(--panel); }
+
+    .cal-nav button:hover {
+      background: var(--panel);
+    }
+
     .cal-nav .cal-month-label {
       font-size: 13px;
       font-weight: 600;
       color: var(--ink);
     }
+
     .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 2px;
     }
+
     .cal-grid .cal-dow {
       text-align: center;
       font-size: 9px;
@@ -1059,6 +1074,7 @@
       color: var(--ink-light);
       padding: 3px 0;
     }
+
     .cal-grid .cal-day {
       text-align: center;
       font-size: 12px;
@@ -1067,18 +1083,29 @@
       cursor: pointer;
       transition: background 0.12s;
     }
-    .cal-grid .cal-day:hover { background: var(--gold-light); }
+
+    .cal-grid .cal-day:hover {
+      background: var(--gold-light);
+    }
+
     .cal-grid .cal-day.today {
       font-weight: 700;
       color: var(--gold);
     }
+
     .cal-grid .cal-day.selected {
       background: var(--gold);
       color: var(--white);
       font-weight: 600;
     }
-    .cal-grid .cal-day.empty { cursor: default; }
-    .cal-grid .cal-day.empty:hover { background: none; }
+
+    .cal-grid .cal-day.empty {
+      cursor: default;
+    }
+
+    .cal-grid .cal-day.empty:hover {
+      background: none;
+    }
   </style>
 </head>
 
@@ -1093,7 +1120,7 @@
         style="width:100%; max-height:130px; object-fit:contain; object-position:center; display:block;">
       <div style="text-align:center; padding: 8px 0 10px; background:#fff; width:100%;">
         <h1
-          style="font-family:'Libre Baskerville',serif; font-size:18px; font-weight:400; color:#1a1a2e; letter-spacing:0.02em; margin:0;">
+          style="font-family:'Poppins',serif; font-size:18px; font-weight:400; color:#1a1a2e; letter-spacing:0.02em; margin:0;">
           Financial Statement Policy Generator</h1>
         <p style="font-size:11px; color:#8888aa; margin:3px 0 0; letter-spacing:0.06em; text-transform:uppercase;">VDM
           Chartered Accountants &nbsp;·&nbsp; Standerton</p>
@@ -1172,10 +1199,15 @@
       <hr class="form-divider">
 
       <!-- ══════════════ EXCEL IMPORT ══════════════ -->
-      <div style="background:linear-gradient(135deg,#f8f5ee 0%,#faf8f3 100%);border:1.5px dashed var(--gold);border-radius:10px;padding:18px 22px;margin-bottom:22px;text-align:center;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Import from SecInfo</div>
-        <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Upload a SecInfo <strong>.xlsx</strong> file to auto-fill company details, directors, and shareholders.</p>
-        <label for="xlsx-import" style="display:inline-block;padding:10px 28px;background:var(--gold);color:#fff;border-radius:7px;cursor:pointer;font-weight:600;font-size:13px;letter-spacing:0.03em;transition:background .2s;">
+      <div
+        style="background:linear-gradient(135deg,#f8f5ee 0%,#faf8f3 100%);border:1.5px dashed var(--gold);border-radius:10px;padding:18px 22px;margin-bottom:22px;text-align:center;">
+        <div
+          style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">
+          Import from SecInfo</div>
+        <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Upload a SecInfo <strong>.xlsx</strong>
+          file to auto-fill company details, directors, and shareholders.</p>
+        <label for="xlsx-import"
+          style="display:inline-block;padding:10px 28px;background:var(--gold);color:#fff;border-radius:7px;cursor:pointer;font-weight:600;font-size:13px;letter-spacing:0.03em;transition:background .2s;">
           Choose File…
         </label>
         <input type="file" id="xlsx-import" accept=".xlsx,.xls" style="display:none;" onchange="importSecInfo(this)">
@@ -1209,7 +1241,8 @@
       <div class="field-group">
         <label>Financial Year End</label>
         <div class="date-input-wrap">
-          <input type="text" id="yearEnd" placeholder="e.g. 28 February 2025" oninput="autoFillPrevYear(); liveUpdate()">
+          <input type="text" id="yearEnd" placeholder="e.g. 28 February 2025"
+            oninput="autoFillPrevYear(); liveUpdate()">
           <button type="button" class="btn-cal" onclick="toggleCal('cal-yearEnd')" title="Pick date">📅</button>
           <div id="cal-yearEnd" class="cal-popup hidden"></div>
         </div>
@@ -2086,7 +2119,8 @@
           Shareholders' AGM — Shareholders Present</div>
         <p class="hint" style="margin-bottom:12px;">Add each shareholder. If a shareholder is a company or entity, you
           can add a proxy representative — the signature line will then read "<em>Name</em> on behalf of
-          <em>Shareholder</em>".</p>
+          <em>Shareholder</em>".
+        </p>
 
         <div id="shareholder-list"></div>
         <button type="button" onclick="addShareholder()"
@@ -2113,7 +2147,8 @@
           <label>Meeting Date</label>
           <div class="date-input-wrap">
             <input type="text" id="cc-minutes-date" placeholder="e.g. 24 January 2025" oninput="liveUpdate()">
-            <button type="button" class="btn-cal" onclick="toggleCal('cal-cc-minutes-date')" title="Pick date">📅</button>
+            <button type="button" class="btn-cal" onclick="toggleCal('cal-cc-minutes-date')"
+              title="Pick date">📅</button>
             <div id="cal-cc-minutes-date" class="cal-popup hidden"></div>
           </div>
         </div>
@@ -3360,7 +3395,7 @@
       <div class="cover-subtitle">For the year ended ${yearEnd}</div>
     </div>
 
-    <h2 style="font-family:'Libre Baskerville',serif;font-size:10pt;text-align:left;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 16px;font-weight:700;">General Information</h2>
+    <h2 style="font-family:'Poppins',serif;font-size:10pt;text-align:left;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 16px;font-weight:700;">General Information</h2>
 
     <table class="cover-info-table">
       <tr>
@@ -4701,7 +4736,7 @@
       <p style="font-size:10.5pt;margin:0 0 4px;">LOAN AS AT ${yearEnd ? yearEnd.toUpperCase() : '[YEAR END]'}</p>
       <p style="font-size:10.5pt;margin:0 0 20px;">LOAN FROM/(TO):&nbsp;&nbsp;<strong>${lcName}</strong></p>
     </div>
-    <table style="width:100%;border-collapse:collapse;font-family:'Libre Baskerville',serif;font-size:10pt;margin-bottom:24px;">
+    <table style="width:100%;border-collapse:collapse;font-family:'Poppins',serif;font-size:10pt;margin-bottom:24px;">
       <thead>
         <tr>
           <td style="width:60%;padding:4px 0;"></td>
@@ -4959,7 +4994,7 @@
       status.textContent = 'Reading file…';
 
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         try {
           const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
           const ws = wb.Sheets[wb.SheetNames[0]];
@@ -4970,7 +5005,7 @@
             if (!c) return '';
             if (c.t === 'd' && c.v instanceof Date) {
               // Format date as "28 February 2022"
-              const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+              const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
               return `${c.v.getDate()} ${months[c.v.getMonth()]} ${c.v.getFullYear()}`;
             }
             return (c.v != null ? String(c.v) : '').trim();
@@ -5126,19 +5161,19 @@
 
     // Map: calPopupId → { inputId, format }
     const CAL_CONFIG = {
-      'cal-yearEnd':        { inputId: 'yearEnd',        format: 'long',    onpick: () => { autoFillPrevYear(); liveUpdate(); } },
-      'cal-prevYearEnd':    { inputId: 'prevYearEnd',    format: 'long',    onpick: () => liveUpdate() },
-      'cal-dateApproved':   { inputId: 'dateApproved',   format: 'long',    onpick: () => liveUpdate() },
-      'cal-dateSigned':     { inputId: 'dateSigned',     format: 'dotted',  onpick: () => liveUpdate() },
-      'cal-dateOfIssue':    { inputId: 'dateOfIssue',    format: 'long',    onpick: () => liveUpdate() },
-      'cal-bcAGMDate':      { inputId: 'bcAGMDate',      format: 'long',    onpick: () => liveUpdate() },
-      'cal-trustAGMDate':   { inputId: 'trustAGMDate',   format: 'long',    onpick: () => liveUpdate() },
-      'cal-minutes-date':   { inputId: 'minutes-date',   format: 'long',    onpick: () => liveUpdate() },
-      'cal-cc-minutes-date':{ inputId: 'cc-minutes-date',format: 'long',    onpick: () => liveUpdate() },
+      'cal-yearEnd': { inputId: 'yearEnd', format: 'long', onpick: () => { autoFillPrevYear(); liveUpdate(); } },
+      'cal-prevYearEnd': { inputId: 'prevYearEnd', format: 'long', onpick: () => liveUpdate() },
+      'cal-dateApproved': { inputId: 'dateApproved', format: 'long', onpick: () => liveUpdate() },
+      'cal-dateSigned': { inputId: 'dateSigned', format: 'dotted', onpick: () => liveUpdate() },
+      'cal-dateOfIssue': { inputId: 'dateOfIssue', format: 'long', onpick: () => liveUpdate() },
+      'cal-bcAGMDate': { inputId: 'bcAGMDate', format: 'long', onpick: () => liveUpdate() },
+      'cal-trustAGMDate': { inputId: 'trustAGMDate', format: 'long', onpick: () => liveUpdate() },
+      'cal-minutes-date': { inputId: 'minutes-date', format: 'long', onpick: () => liveUpdate() },
+      'cal-cc-minutes-date': { inputId: 'cc-minutes-date', format: 'long', onpick: () => liveUpdate() },
     };
 
-    const CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const CAL_DAYS   = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    const CAL_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const CAL_DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
     // Track open calendar state
     let _calOpen = null; // current open cal id
@@ -5185,10 +5220,10 @@
       // Day cells
       for (let day = 1; day <= daysInMonth; day++) {
         const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === day);
-        const isSel   = selectedDate && (selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === day);
+        const isSel = selectedDate && (selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === day);
         let cls = 'cal-day';
         if (isToday) cls += ' today';
-        if (isSel)   cls += ' selected';
+        if (isSel) cls += ' selected';
         cells += `<div class="${cls}" onclick="pickDate('${calId}',${year},${month},${day})">${day}</div>`;
       }
 
@@ -5211,7 +5246,7 @@
       }
       // Try "2025.01.19"
       const m2 = str.match(/^(\d{4})\.(\d{2})\.(\d{2})$/);
-      if (m2) return new Date(parseInt(m2[1]), parseInt(m2[2])-1, parseInt(m2[3]));
+      if (m2) return new Date(parseInt(m2[1]), parseInt(m2[2]) - 1, parseInt(m2[3]));
       // Fallback
       const d = new Date(str);
       return isNaN(d) ? null : d;
@@ -5240,8 +5275,8 @@
       if (!_calState[calId]) _calState[calId] = { year: new Date().getFullYear(), month: new Date().getMonth() };
       let { year, month } = _calState[calId];
       month += dir;
-      if (month < 0)  { month = 11; year--; }
-      if (month > 11) { month = 0;  year++; }
+      if (month < 0) { month = 11; year--; }
+      if (month > 11) { month = 0; year++; }
       _calState[calId] = { year, month };
       renderCal(calId);
     }
@@ -5263,7 +5298,7 @@
     }
 
     // Close calendar when clicking outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       if (!_calOpen) return;
       const popup = document.getElementById(_calOpen);
       if (!popup) return;
