@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VDM — Financial Statement Policy Generator</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+
+<body>
+
+  <div class="sticky-header-area" id="sticky-header-area">
+    <header
+      style="background:#fff; border-bottom: 3px solid #c9a84c; padding: 0; display:flex; flex-direction:column; align-items:center;">
+
+      <img src="images/logo.jpg" alt="VDM Chartered Accountants Logo"
+        style="width:100%; max-height:130px; object-fit:contain; object-position:center; display:block;">
+
+      <div style="text-align:center; padding: 8px 0 10px; background:#fff; width:100%;">
+        <h1
+          style="font-family:'Poppins',sans-serif; font-size:18px; font-weight:400; color:#1a1a2e; letter-spacing:0.02em; margin:0;">
+          Financial Statement Policy Generator
+        </h1>
+        <p style="font-size:11px; color:#8888aa; margin:3px 0 0; letter-spacing:0.06em; text-transform:uppercase;">
+          VDM Chartered Accountants &nbsp;·&nbsp; Standerton
+        </p>
+      </div>
+    </header>
+  </div>
+
+  <!-- ── MODE TOGGLE BAR ── -->
+  <div class="mode-toggle-bar" id="mode-toggle-bar">
+    <span class="mode-label" id="mode-label">Editing mode — fill in the form, then generate</span>
+    <button class="btn-toggle-preview" onclick="togglePreview()" id="btn-toggle-preview">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <rect x="2" y="3" width="20" height="14" rx="2" />
+        <polyline points="8 21 12 17 16 21" />
+      </svg>
+      <span id="toggle-label">Show Preview</span>
+    </button>
+  </div>
+
+  <div class="app form-only" id="app-container">
+
+    <!-- ══════════════ FORM PANEL ══════════════ -->
+    <div class="form-panel">
+
+      <div class="step-label">Step 1</div>
+      <div class="section-title">Entity Type</div>
+
+      <div class="entity-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="entity-card" id="ec-attorneys" onclick="selectEntity(this,'attorneys')">
+          <span class="ec-icon">⚖️</span>
+          <span class="ec-label">Attorneys</span>
+          <span class="ec-sub">Legal Practitioners — Directors</span>
+        </div>
+        <div class="entity-card" id="ec-company" onclick="selectEntity(this,'company')">
+          <span class="ec-icon">🏢</span>
+          <span class="ec-label">Company</span>
+          <span class="ec-sub">(Pty) Ltd — Directors</span>
+        </div>
+        <div class="entity-card" id="ec-cc" onclick="selectEntity(this,'cc')">
+          <span class="ec-icon">🤝</span>
+          <span class="ec-label">Close Corporation</span>
+          <span class="ec-sub">CC — Members</span>
+        </div>
+        <div class="entity-card" id="ec-trust" onclick="selectEntity(this,'trust')">
+          <span class="ec-icon">🛡️</span>
+          <span class="ec-label">Trust</span>
+          <span class="ec-sub">Trustees</span>
+        </div>
+        <div class="entity-card" id="ec-npo" onclick="selectEntity(this,'npo')">
+          <span class="ec-icon">💚</span>
+          <span class="ec-label">NPO</span>
+          <span class="ec-sub">Non-Profit Organisation</span>
+        </div>
+        <div class="entity-card" id="ec-school" onclick="selectEntity(this,'school')">
+          <span class="ec-icon">🏫</span>
+          <span class="ec-label">School</span>
+          <span class="ec-sub">Governing Body</span>
+        </div>
+        <div class="entity-card" id="ec-bc" onclick="selectEntity(this,'bc')">
+          <span class="ec-icon">🏘️</span>
+          <span class="ec-label">Body Corporate</span>
+          <span class="ec-sub">Sectional Title — Trustees</span>
+        </div>
+        <div class="entity-card" id="ec-church" onclick="selectEntity(this,'church')">
+          <span class="ec-icon">⛪</span>
+          <span class="ec-label">Church</span>
+          <span class="ec-sub">Church Council Members</span>
+        </div>
+        <div class="entity-card" id="ec-club" onclick="selectEntity(this,'club')">
+          <span class="ec-icon">🏅</span>
+          <span class="ec-label">Club</span>
+          <span class="ec-sub">Committee Members</span>
+        </div>
+      </div>
+
+      <hr class="form-divider">
+
+      <!-- ══════════════ EXCEL IMPORT ══════════════ -->
+      <div class="import-box">
+        <div
+          style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">
+          Import from SecInfo</div>
+        <p style="font-size:13px;color:var(--ink-light);margin-bottom:12px;">Upload a SecInfo <strong>.xlsx</strong>
+          file to auto-fill company details, directors, and shareholders.</p>
+        <label for="xlsx-import"
+          style="display:inline-block;padding:10px 28px;background:var(--gold);color:#fff;border-radius:7px;cursor:pointer;font-weight:600;font-size:13px;letter-spacing:0.03em;transition:background .2s;">
+          Choose File…
+        </label>
+        <input type="file" id="xlsx-import" accept=".xlsx,.xls" style="display:none;" onchange="importSecInfo(this)">
+        <div id="import-status" style="margin-top:10px;font-size:12px;color:var(--success);display:none;"></div>
+      </div>
+
+      <div class="step-label">Step 2</div>
+      <div class="section-title">General Information</div>
+
+      <div class="form-grid">
+        <!-- Row 1: Company Name — full width -->
+        <div class="field-group form-grid-full">
+          <label id="label-entityName">Company Name (as it appears on documents)</label>
+          <input type="text" id="companyName" placeholder="e.g. Aruba 33 (Proprietary) Limited" oninput="liveUpdate()">
+        </div>
+
+        <!-- Attorneys reg toggle — full width, hidden by default -->
+        <div class="field-group form-grid-full" id="att-reg-toggle-group" style="display:none;">
+          <label style="font-size:13px;font-weight:600;color:var(--ink);">Does the firm have a registration
+            number?</label>
+          <div class="options-group" style="margin-top:4px;flex-direction:row;flex-wrap:wrap;">
+            <label class="option-pill"><input type="radio" name="attHasReg" value="yes" checked
+                onchange="toggleAttReg(); liveUpdate()"> Yes</label>
+            <label class="option-pill"><input type="radio" name="attHasReg" value="no"
+                onchange="toggleAttReg(); liveUpdate()"> No</label>
+          </div>
+        </div>
+
+        <!-- Row 2: Registration Number + Financial Year End -->
+        <div class="field-group" id="reg-number-group">
+          <label id="label-regNumber">Registration Number</label>
+          <input type="text" id="regNumber" placeholder="e.g. 2002/002880/07" oninput="liveUpdate()">
+        </div>
+
+        <div class="field-group">
+          <label>Financial Year End</label>
+          <div class="date-input-wrap">
+            <input type="text" id="yearEnd" placeholder="e.g. 28 February 2025"
+              oninput="autoFillPrevYear(); liveUpdate()">
+            <button type="button" class="btn-cal" onclick="toggleCal('cal-yearEnd')" title="Pick date">&#x1f4c5;</button>
+            <div id="cal-yearEnd" class="cal-popup hidden"></div>
+          </div>
+        </div>
+
+        <!-- Row 3: Previous Year End + Nature of Business -->
+        <div class="field-group">
+          <label>Previous Year End <span style="font-weight:400;color:#9090b0;font-size:11px;">(auto-filled)</span></label>
+          <div class="date-input-wrap">
+            <input type="text" id="prevYearEnd" placeholder="Auto-filled from year end" oninput="liveUpdate()"
+              style="background:#f9f7f2;">
+            <button type="button" class="btn-cal" onclick="toggleCal('cal-prevYearEnd')"
+              title="Pick date">&#x1f4c5;</button>
+            <div id="cal-prevYearEnd" class="cal-popup hidden"></div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Nature of Business</label>
+          <input type="text" id="natureBusiness" placeholder="e.g. rental of property" oninput="liveUpdate()">
+        </div>
+
+        <!-- Row 4: Main Source of Income — full width -->
+        <div class="field-group form-grid-full">
+          <label>Main Source of Income</label>
+          <input type="text" id="mainIncome" placeholder="e.g. rent received" oninput="liveUpdate()">
+        </div>
+      </div>
+
+      <hr class="form-divider">
+      <div class="step-label">Step 3</div>
+      <div class="section-title">Report Type</div>
+
+      <div class="field-group">
+        <div class="options-group">
+          <label class="option-pill">
+            <input type="radio" name="reportType" value="compilation" checked onchange="onReportTypeChange()">
+            Independent Compilation
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="reportType" value="review" onchange="onReportTypeChange()"> Independent Review
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="reportType" value="audit" onchange="onReportTypeChange()"> Audit
+          </label>
+        </div>
+      </div>
+
+      <!-- ── AUDIT sub-options ── -->
+      <div id="report-sub-audit" class="report-sub-panel">
+        <div class="report-sub-heading">Audit Opinion</div>
+        <div class="options-group">
+          <label class="option-pill">
+            <input type="radio" name="auditType" value="unqualified" checked onchange="onAuditTypeChange()"> Unqualified
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="auditType" value="qualified" onchange="onAuditTypeChange()"> Qualified
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="auditType" value="emphasis" onchange="onAuditTypeChange()"> Emphasis of Matter
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="auditType" value="disclaimer" onchange="onAuditTypeChange()"> Disclaimer
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="auditType" value="other" onchange="onAuditTypeChange()"> Other Matter
+          </label>
+        </div>
+        <div class="conditional field-group" id="audit-qualified-box">
+          <label>Basis for Qualified Opinion</label>
+          <textarea id="auditQualifiedText" rows="3" placeholder="Describe the basis for the qualified opinion…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+        <div class="conditional field-group" id="audit-emphasis-box">
+          <label>Emphasis of Matter</label>
+          <textarea id="auditEmphasisText" rows="3" placeholder="Describe the emphasis of matter paragraph…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+        <div class="conditional field-group" id="audit-disclaimer-box">
+          <label>Basis for Disclaimer of Opinion</label>
+          <textarea id="auditDisclaimerText" rows="3" placeholder="Describe the basis for the disclaimer of opinion…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+        <div class="conditional field-group" id="audit-other-box">
+          <label>Other Matter</label>
+          <textarea id="auditOtherText" rows="3" placeholder="Describe the other matter paragraph…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+      </div>
+
+      <!-- ── SCHOOL AUDIT sub-options ── -->
+      <div id="report-sub-audit-school" class="report-sub-panel" style="display:none;">
+
+        <div class="report-sub-heading">Auditor</div>
+        <div class="options-group" style="margin-bottom:14px;">
+          <label class="option-pill">
+            <input type="radio" name="schoolAuditor" value="R DE BEER" checked onchange="liveUpdate()"> Reinette de Beer
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="schoolAuditor" value="L VAN DER MERWE" onchange="liveUpdate()"> L van der Merwe
+          </label>
+        </div>
+
+        <div class="report-sub-heading">Preparer</div>
+        <div class="field-group" style="margin-bottom:10px;">
+          <label>Preparer Full Name</label>
+          <input type="text" id="schoolPreparerName" placeholder="e.g. Veronica Buchling"
+            oninput="updateSchoolPreparerPreview(); liveUpdate()" style="margin-bottom:0;">
+        </div>
+        <div class="field-group" style="margin-bottom:6px;">
+          <label>Preparer Capacity</label>
+          <select id="schoolPreparerCapacity" onchange="onSchoolPreparerCapacityChange(); liveUpdate()">
+            <option value="financial officer">Financial Officer</option>
+            <option value="administrative officer">Administrative Officer</option>
+            <option value="independent accountant">Independent Accountant</option>
+            <option value="principal">Principal</option>
+            <option value="other">Other…</option>
+          </select>
+          <input type="text" id="schoolPreparerCapacityOther" placeholder="e.g. bookkeeper"
+            style="display:none;margin-top:8px;" oninput="updateSchoolPreparerPreview(); liveUpdate()">
+        </div>
+        <p class="hint" id="school-preparer-preview"
+          style="font-style:italic;color:#555;margin-bottom:14px;min-height:16px;"></p>
+
+        <div class="report-sub-heading">Audit Opinion</div>
+        <div class="options-group">
+          <label class="option-pill">
+            <input type="radio" name="schoolAuditType" value="unqualified" checked onchange="onSchoolAuditTypeChange()">
+            Unqualified
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="schoolAuditType" value="qualified" onchange="onSchoolAuditTypeChange()"> Qualified
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="schoolAuditType" value="disclaimer" onchange="onSchoolAuditTypeChange()">
+            Disclaimer of Opinion
+          </label>
+        </div>
+        <div class="conditional field-group" id="school-audit-qualified-box">
+          <label>Basis for Qualified Opinion</label>
+          <textarea id="schoolAuditQualifiedText" rows="4" placeholder="Describe the basis for the qualified opinion…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+        <div class="conditional field-group visible" id="school-audit-other-box">
+          <label>Other Matter <span style="font-weight:400;color:#9090b0;font-size:11px;">(optional — leave blank to
+              omit)</span></label>
+          <textarea id="schoolAuditOtherText" rows="3" placeholder="Describe any other matter to include…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+        <div class="conditional field-group" id="school-audit-disclaimer-box">
+          <label>Basis for Disclaimer of Opinion</label>
+          <textarea id="schoolAuditDisclaimerText" rows="6"
+            placeholder="List matters that led to the disclaimer, one per line:&#10;1. Fraudulent claims of R …&#10;2. A cash shortage of R … could not be verified."
+            oninput="liveUpdate()"></textarea>
+        </div>
+      </div>
+
+      <!-- ── ATTORNEYS AUDIT sub-options ── -->
+      <div id="report-sub-audit-attorneys" class="report-sub-panel" style="display:none;">
+        <div class="field-group">
+          <label>Governance Structure</label>
+          <div class="options-group">
+            <label class="option-pill"><input type="radio" name="attGovType" value="directors" checked
+                onchange="liveUpdate()"> Directors</label>
+            <label class="option-pill"><input type="radio" name="attGovType" value="partners" onchange="liveUpdate()">
+              Partners</label>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="report-sub-heading">Opinion Type</div>
+          <div class="options-group">
+            <label class="option-pill"><input type="radio" name="attOpinionType" value="unmodified" checked
+                onchange="onAttOpinionTypeChange()"> Unmodified</label>
+            <label class="option-pill"><input type="radio" name="attOpinionType" value="modified"
+                onchange="onAttOpinionTypeChange()"> Modified</label>
+            <label class="option-pill"><input type="radio" name="attOpinionType" value="disclaimer"
+                onchange="onAttOpinionTypeChange()"> Disclaimer of Opinion</label>
+          </div>
+        </div>
+        <div class="conditional field-group" id="att-modified-box">
+          <label>Basis for Modified Opinion</label>
+          <textarea id="attModifiedText" rows="4" placeholder="Describe the basis for the modified opinion…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+        <div class="conditional field-group" id="att-disclaimer-box">
+          <label>Basis for Disclaimer of Opinion</label>
+          <textarea id="attDisclaimerText" rows="4" placeholder="Describe the basis for the disclaimer of opinion…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+        <div class="field-group">
+          <label>Investment Practice</label>
+          <div class="options-group">
+            <label class="option-pill"><input type="radio" name="attInvestment" value="no" checked
+                onchange="liveUpdate()"> Has NOT carried on an investment practice</label>
+            <label class="option-pill"><input type="radio" name="attInvestment" value="yes" onchange="liveUpdate()"> Has
+              carried on and complied</label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Other Reporting Responsibilities</label>
+          <div class="options-group">
+            <label class="option-pill"><input type="radio" name="attOtherReport" value="none" checked
+                onchange="toggleVisible('att-other-report-box', false); liveUpdate()"> None</label>
+            <label class="option-pill"><input type="radio" name="attOtherReport" value="custom"
+                onchange="toggleVisible('att-other-report-box', true); liveUpdate()"> Custom text</label>
+          </div>
+          <div class="conditional field-group" id="att-other-report-box">
+            <textarea id="attOtherReportText" rows="3" placeholder="Describe other reporting responsibilities…"
+              oninput="liveUpdate()"></textarea>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Auditor (signs the report)</label>
+          <div class="options-group">
+            <label class="option-pill"><input type="radio" name="attAuditor" value="rdb" checked
+                onchange="liveUpdate()"> R de Beer (Reinette)</label>
+            <label class="option-pill"><input type="radio" name="attAuditor" value="lvm" onchange="liveUpdate()"> L van
+              der Merwe </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── REVIEW sub-options ── -->
+      <div id="report-sub-review" class="report-sub-panel" style="display:none;">
+        <div class="report-sub-heading">Review Conclusion</div>
+        <div class="options-group">
+          <label class="option-pill">
+            <input type="radio" name="reviewType" value="unqualified" checked onchange="onReviewTypeChange()">
+            Unqualified
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="reviewType" value="qualified" onchange="onReviewTypeChange()"> Qualified
+          </label>
+        </div>
+        <div class="conditional field-group" id="review-qualified-box">
+          <div class="report-sub-heading" style="margin-top:6px;">Basis for Qualified Conclusion</div>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="reviewQualifiedBasis" value="insolvent" checked
+                onchange="onReviewQualifiedBasisChange()"> Insolvent (template)
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="reviewQualifiedBasis" value="custom" onchange="onReviewQualifiedBasisChange()">
+              Custom (type your own)
+            </label>
+          </div>
+          <div class="conditional field-group" id="review-qualified-insolvent-box" style="margin-top:8px;">
+            <label>Accumulated Loss (R)</label>
+            <input type="text" id="reviewAccLoss" placeholder="e.g. 575385.26" oninput="liveUpdate()">
+            <label style="margin-top:10px;">Total Liabilities Exceed Assets By (R)</label>
+            <input type="text" id="reviewExcessLiab" placeholder="e.g. 781096.37" oninput="liveUpdate()">
+          </div>
+          <div class="conditional field-group" id="review-qualified-custom-box" style="margin-top:8px;">
+            <label>Custom Basis for Qualified Conclusion</label>
+            <textarea id="reviewQualifiedText" rows="3" placeholder="Describe the basis for the qualified conclusion…"
+              oninput="liveUpdate()"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── COMPILATION sub-options ── -->
+      <div id="report-sub-compilation" class="report-sub-panel" style="display:none;">
+        <div class="report-sub-heading">Compilation Notes</div>
+        <div class="options-group">
+          <label class="option-pill">
+            <input type="radio" name="compilationType" value="normal" checked onchange="onCompilationTypeChange()">
+            Normal
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="compilationType" value="insolvent" onchange="onCompilationTypeChange()"> Insolvent
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="compilationType" value="other" onchange="onCompilationTypeChange()"> Add Other
+            Matter
+          </label>
+        </div>
+        <div class="conditional field-group" id="compilation-insolvent-box">
+          <label>Accumulated Loss (R)</label>
+          <input type="text" id="insolventAccLoss" placeholder="e.g. 6993" oninput="liveUpdate()">
+          <label style="margin-top:10px;">Total Liabilities Exceed Assets By (R)</label>
+          <input type="text" id="insolventExcessLiab" placeholder="e.g. 6993" oninput="liveUpdate()">
+          <label style="margin-top:10px;">Additional Insolvency Note (optional)</label>
+          <textarea id="compilationInsolventText" rows="2" placeholder="Any additional details to include…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+        <div class="conditional field-group" id="compilation-other-box">
+          <label>Other Matter</label>
+          <textarea id="compilationOtherText" rows="3" placeholder="Describe the other matter to include…"
+            oninput="liveUpdate()"></textarea>
+        </div>
+      </div>
+
+      <hr class="form-divider">
+      <div class="step-label">Step 4</div>
+      <div class="section-title" id="directors-section-title">Directors</div>
+
+      <div id="directors-list"></div>
+      <button class="btn-add" onclick="addDirector()">+ Add Director / Member / Trustee</button>
+
+      <hr class="form-divider">
+      <div class="step-label">Step 5</div>
+      <div class="section-title">Addresses &amp; Dates</div>
+
+      <div class="field-group">
+        <label>Postal Address</label>
+        <input type="text" id="postalAddress" placeholder="e.g. PO Box 450, Standerton, 2430" oninput="liveUpdate()">
+      </div>
+
+      <div class="field-group">
+        <label>Registered / Physical Address</label>
+        <input type="text" id="regAddress" placeholder="e.g. 26A Kerk Street, Standerton, 2430" oninput="liveUpdate()">
+      </div>
+
+      <div class="field-group">
+        <label>Business Address (if different from registered)</label>
+        <input type="text" id="businessAddress" placeholder="e.g. 40 Geelhout Crescent, Flora Park, 2430"
+          oninput="liveUpdate()">
+      </div>
+
+      <div class="field-group">
+        <label>Bank</label>
+        <select id="bankSelect" onchange="updateBank()">
+          <option value="">— Select a bank —</option>
+          <option value="ABSA">ABSA</option>
+          <option value="First National Bank">First National Bank</option>
+          <option value="Standard Bank">Standard Bank</option>
+          <option value="Investec">Investec</option>
+          <option value="Capitec">Capitec</option>
+          <option value="Discovery Bank">Discovery Bank</option>
+          <option value="Nedbank">Nedbank</option>
+          <option value="Tyme Bank">Tyme Bank</option>
+          <option value="African Bank">African Bank</option>
+          <option value="Al Baraka Bank">Al Baraka Bank</option>
+          <option value="other">Other…</option>
+        </select>
+        <input type="text" id="bankOther" placeholder="Enter bank name" oninput="liveUpdate()"
+          style="display:none;margin-top:8px;">
+        <input type="hidden" id="bankName">
+      </div>
+
+      <div class="field-group">
+        <label>Date Financial Statements Approved</label>
+        <div class="date-input-wrap">
+          <input type="text" id="dateApproved" placeholder="e.g. 19 January 2025" oninput="liveUpdate()">
+          <button type="button" class="btn-cal" onclick="toggleCal('cal-dateApproved')"
+            title="Pick date">&#x1f4c5;</button>
+          <div id="cal-dateApproved" class="cal-popup hidden"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Date Signed by Compiler</label>
+        <div class="date-input-wrap">
+          <input type="text" id="dateSigned" placeholder="e.g. 2025.01.19" oninput="liveUpdate()">
+          <button type="button" class="btn-cal" onclick="toggleCal('cal-dateSigned')"
+            title="Pick date">&#x1f4c5;</button>
+          <div id="cal-dateSigned" class="cal-popup hidden"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Date of Issue (cover page)</label>
+        <div class="date-input-wrap">
+          <input type="text" id="dateOfIssue" placeholder="e.g. 2 February 2026" oninput="liveUpdate()">
+          <button type="button" class="btn-cal" onclick="toggleCal('cal-dateOfIssue')"
+            title="Pick date">&#x1f4c5;</button>
+          <div id="cal-dateOfIssue" class="cal-popup hidden"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label id="label-signer">VDM Signatory</label>
+        <select id="compilerSigner" onchange="liveUpdate()">
+          <option value="L VAN DER MERWE">L van der Merwe</option>
+          <option value="HL VAN DER MERWE">HL van der Merwe</option>
+          <option value="R DE BEER">R de Beer</option>
+          <option value="R WOLMARANS">R Wolmarans</option>
+        </select>
+      </div>
+
+      <!-- Preparer block (review / audit only, non-school) -->
+      <div id="preparer-block" style="display:none;">
+        <div class="field-group">
+          <label>Preparer Full Name</label>
+          <input type="text" id="preparerName" placeholder="e.g. Veronica Buchling"
+            oninput="updatePreparerPreview(); liveUpdate()" style="margin-bottom:0;">
+        </div>
+        <div class="field-group" style="margin-bottom:6px;">
+          <label>Preparer Capacity</label>
+          <select id="preparerCapacity" onchange="onPreparerCapacityChange(); liveUpdate()">
+            <option value="financial officer">Financial Officer</option>
+            <option value="administrative officer">Administrative Officer</option>
+            <option value="independent accountant">Independent Accountant</option>
+            <option value="chief financial officer">Chief Financial Officer</option>
+            <option value="bookkeeper">Bookkeeper</option>
+            <option value="treasurer">Treasurer</option>
+            <option value="other">Other...</option>
+          </select>
+          <input type="text" id="preparerCapacityOther" placeholder="e.g. secretary"
+            style="display:none;margin-top:8px;" oninput="updatePreparerPreview(); liveUpdate()">
+        </div>
+        <p class="hint" id="preparer-preview" style="font-style:italic;color:#555;margin-bottom:4px;min-height:16px;">
+        </p>
+        <!-- Engagement letter question — shown for all report types -->
+        <div id="engagement-block"
+          style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+          <label style="font-size:13px;font-weight:600;color:var(--ink);">Do you require an engagement letter?</label>
+          <div class="options-group" style="margin-top:6px;">
+            <label class="option-pill">
+              <input type="radio" name="engagementLetter" value="no" checked
+                onchange="toggleEngagementTypes(); liveUpdate()"> No
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="engagementLetter" value="yes" onchange="toggleEngagementTypes(); liveUpdate()">
+              Yes
+            </label>
+          </div>
+          <div id="engagement-types-panel"
+            style="display:none;margin-top:10px;padding:12px 16px;background:var(--panel);border-radius:8px;border:1px solid var(--border);">
+            <div id="engagement-types-standard">
+              <label
+                style="font-size:12px;font-weight:600;color:var(--ink-light);display:block;margin-bottom:8px;">Select
+                engagement letter type(s):</label>
+              <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
+                  <input type="checkbox" id="engTypeAccounting" onchange="liveUpdate()"> Accounting
+                </label>
+                <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
+                  <input type="checkbox" id="engTypeReview" onchange="liveUpdate()"> Review
+                </label>
+                <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
+                  <input type="checkbox" id="engTypeAudit" onchange="liveUpdate()"> Audit
+                </label>
+              </div>
+            </div>
+            <div id="engagement-types-attorneys" style="display:none;">
+              <p style="font-size:12px;color:var(--ink-light);margin:0;">✓ Reasonable Assurance Engagement — Legal
+                Practitioners' Trust Accounts (Audit letterhead)</p>
+              <div class="field-group" style="margin-top:10px;margin-bottom:0;">
+                <label style="font-size:12px;font-weight:600;">Engagement Letter Signed By</label>
+                <div class="options-group" style="margin-top:4px;">
+                  <label class="option-pill"><input type="radio" name="attEngSigner" value="R DE BEER" checked
+                      onchange="liveUpdate()"> R de Beer (Reinette)</label>
+                  <label class="option-pill"><input type="radio" name="attEngSigner" value="L VAN DER MERWE"
+                      onchange="liveUpdate()"> L van der Merwe </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="hint">If yes, the selected engagement letter(s) will be appended to the generated document.</p>
+        </div>
+      </div>
+
+      <hr class="form-divider" id="step6-divider">
+      <div id="step6-block">
+        <div class="step-label">Step 6</div>
+        <div class="section-title">Specific Matters (Directors' Report)</div>
+
+        <div class="field-group" id="share-capital-group">
+          <label>Share Capital Changes</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="shareCapital" value="nochange" checked onchange="liveUpdate()"> No changes in
+              authorised or issued share capital
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="shareCapital" value="issued" onchange="liveUpdate()"> Shares and share capital
+              were issued
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="shareCapital" value="noconsideration" onchange="liveUpdate()"> Shares authorised
+              and issued for no consideration
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group" id="dividends-group">
+          <label id="dividends-label">Dividends</label>
+          <div class="options-group">
+            <label class="option-pill" id="dividend-pill-none">
+              <input type="radio" name="dividends" value="none" checked onchange="updateDividend()"> No dividend
+              declared or paid
+            </label>
+            <label class="option-pill" id="dividend-pill-declared">
+              <input type="radio" name="dividends" value="declared" onchange="updateDividend()"> Dividend declared/paid
+            </label>
+          </div>
+        </div>
+        <div class="conditional field-group" id="dividend-amount-group">
+          <label>Dividend Amount (R)</label>
+          <input type="text" id="dividendAmount" placeholder="e.g. 60000" oninput="liveUpdate()">
+        </div>
+
+        <div class="field-group">
+          <label>Fixed Assets Policy Change</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="fixedAssets" value="nochange" checked onchange="liveUpdate()"> No major change
+              in fixed assets or policy
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="fixedAssets" value="change" onchange="liveUpdate()"> Change to accounting policy
+              on fixed assets
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Current Year — Profit or Loss?</label>
+          <div class="options-group" style="margin-bottom:8px;flex-direction:row;flex-wrap:wrap;">
+            <label class="option-pill">
+              <input type="radio" name="plType" value="profit" checked onchange="liveUpdate()"> Profit
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="plType" value="loss" onchange="liveUpdate()"> Loss
+            </label>
+          </div>
+          <label style="margin-top:4px;">Amount after Tax (R)</label>
+          <input type="text" id="profitLoss" placeholder="e.g. 306.98" oninput="liveUpdate()">
+        </div>
+        <div class="field-group">
+          <label>Previous Year — Profit or Loss?</label>
+          <div class="options-group" style="margin-bottom:8px;flex-direction:row;flex-wrap:wrap;">
+            <label class="option-pill">
+              <input type="radio" name="prevPlType" value="profit" checked onchange="liveUpdate()"> Profit
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="prevPlType" value="loss" onchange="liveUpdate()"> Loss
+            </label>
+          </div>
+          <label style="margin-top:4px;">Amount — Previous Year (R)</label>
+          <input type="text" id="prevProfitLoss" placeholder="e.g. 2365.81" oninput="liveUpdate()">
+        </div>
+        <div class="field-group">
+          <label>Future Outlook</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="outlook" value="continue" checked onchange="liveUpdate()"> Continue to be
+              profitable
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="outlook" value="future" onchange="liveUpdate()"> Be profitable in future
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group" id="parent-co-group">
+          <label>Parent Company</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="parentCo" value="none" checked onchange="updateParent()"> No parent company
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="parentCo" value="has" onchange="updateParent()"> Has parent company
+            </label>
+          </div>
+        </div>
+        <div class="conditional field-group" id="parent-group">
+          <label>Parent Company Name &amp; Registration</label>
+          <input type="text" id="parentName"
+            placeholder="e.g. Niclotte (Proprietary) Limited, (Registration number - 1997/007124/07)"
+            oninput="liveUpdate()">
+        </div>
+
+        <div class="field-group">
+          <label>Page References (financial statements start on page)</label>
+          <input type="text" id="pageStart" placeholder="e.g. 5" oninput="liveUpdate()" value="5">
+          <p class="hint">The policies will show "pages 4 to [X]" — adjust as needed.</p>
+        </div>
+        <div class="field-group">
+          <label>Page References (financial statements end on page)</label>
+          <input type="text" id="pageEnd" placeholder="e.g. 12" oninput="liveUpdate()" value="12">
+        </div>
+
+      </div><!-- /step6-block -->
+
+      <!-- ── BODY CORPORATE specific fields (Step 6 replacement) ── -->
+      <div id="step6-bc-divider" style="display:none;">
+        <hr class="form-divider">
+      </div>
+      <div id="step6-bc-block" style="display:none;">
+        <div class="step-label">Step 6</div>
+        <div class="section-title">Body Corporate — Trustees' Report</div>
+
+        <div class="field-group">
+          <label>Scheme Name &amp; Physical Address</label>
+          <input type="text" id="bcSchemeAddress"
+            placeholder="e.g. Majuba Body Corporate, 7 Charl Cilliers Street, Secunda, 2302" oninput="liveUpdate()">
+          <p class="hint">Used in the "established to administer the common property of…" paragraph.</p>
+        </div>
+
+        <div class="field-group">
+          <label>Events After the Reporting Period</label>
+          <div class="options-group" style="margin-bottom:8px;">
+            <label class="option-pill">
+              <input type="radio" name="bcEvents" value="none" checked onchange="onBcEventsChange()"> No material events
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="bcEvents" value="custom" onchange="onBcEventsChange()"> Describe events
+            </label>
+          </div>
+          <div class="conditional field-group" id="bc-events-box" style="margin-top:8px;">
+            <textarea id="bcEventsText" rows="3"
+              placeholder="Describe the event(s) that occurred after the reporting date…"
+              oninput="liveUpdate()"></textarea>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Contributions Result — Current Year</label>
+          <div class="options-group" style="margin-bottom:8px;flex-direction:row;flex-wrap:wrap;">
+            <label class="option-pill">
+              <input type="radio" name="bcContribType" value="surplus" checked onchange="liveUpdate()"> Levy Surplus
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="bcContribType" value="deficit" onchange="liveUpdate()"> Levy Deficit
+            </label>
+          </div>
+          <label style="margin-top:4px;">Amount (R)</label>
+          <input type="text" id="bcContribAmount" placeholder="e.g. 43 981" oninput="liveUpdate()">
+        </div>
+
+        <div class="field-group">
+          <label>Previous Year Label</label>
+          <input type="text" id="bcPrevYear" placeholder="e.g. 2024" oninput="liveUpdate()" style="max-width:120px;">
+        </div>
+
+        <div class="field-group">
+          <label>Contributions Result — Previous Year</label>
+          <div class="options-group" style="margin-bottom:8px;flex-direction:row;flex-wrap:wrap;">
+            <label class="option-pill">
+              <input type="radio" name="bcPrevContribType" value="surplus" checked onchange="liveUpdate()"> Levy Surplus
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="bcPrevContribType" value="deficit" onchange="liveUpdate()"> Levy Deficit
+            </label>
+          </div>
+          <label style="margin-top:4px;">Previous Year Amount (R)</label>
+          <input type="text" id="bcPrevContribAmount" placeholder="e.g. 45 852" oninput="liveUpdate()">
+        </div>
+
+        <div class="field-group">
+          <label>Management &amp; Conduct Rules</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="bcMgmtRules" value="nochange" checked onchange="liveUpdate()"> No amendments or
+              additions
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="bcMgmtRules" value="custom" onchange="onBcMgmtRulesChange()"> Amendments made —
+              describe
+            </label>
+          </div>
+          <div class="conditional field-group" id="bc-mgmt-rules-box" style="margin-top:8px;">
+            <textarea id="bcMgmtRulesText" rows="3"
+              placeholder="Describe the amendment or addition to the management/conduct rules…"
+              oninput="liveUpdate()"></textarea>
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px dashed var(--border);margin:18px 0;">
+        <div class="step-label" style="margin-bottom:4px;">Annual General Meeting Minutes</div>
+        <p class="hint" style="margin-bottom:12px;">If required, the AGM minutes will be appended after the policy
+          pages.</p>
+
+        <div class="field-group">
+          <label>Include AGM Minutes?</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="bcAGM" value="no" checked onchange="liveUpdate()"> No
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="bcAGM" value="yes" onchange="liveUpdate()"> Yes
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Meeting Venue</label>
+          <input type="text" id="bcAGMVenue" placeholder="e.g. 7 Charl Cilliers Street, Secunda" oninput="liveUpdate()">
+          <p class="hint">Used in "held at _____ on [date]".</p>
+        </div>
+
+        <div class="field-group">
+          <label>Meeting Date</label>
+          <div class="date-input-wrap">
+            <input type="text" id="bcAGMDate" placeholder="e.g. 30 October 2025" oninput="liveUpdate()">
+            <button type="button" class="btn-cal" onclick="toggleCal('cal-bcAGMDate')"
+              title="Pick date">&#x1f4c5;</button>
+            <div id="cal-bcAGMDate" class="cal-popup hidden"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── TRUST specific fields (Minutes) ── -->
+      <div id="step6-trust-divider" style="display:none;">
+        <hr class="form-divider">
+      </div>
+      <div id="step6-trust-block" style="display:none;">
+        <div class="step-label">Step 6</div>
+        <div class="section-title">Trust — Minutes of Annual General Meeting</div>
+
+        <div class="field-group">
+          <label>Meeting Venue</label>
+          <input type="text" id="trustAGMVenue" placeholder="e.g. 17 Church Street, Standerton" oninput="liveUpdate()">
+          <p class="hint">Used in "held at _____ on [date]".</p>
+        </div>
+
+        <div class="field-group">
+          <label>Meeting Date</label>
+          <div class="date-input-wrap">
+            <input type="text" id="trustAGMDate" placeholder="e.g. 1 March 2025" oninput="liveUpdate()">
+            <button type="button" class="btn-cal" onclick="toggleCal('cal-trustAGMDate')"
+              title="Pick date">&#x1f4c5;</button>
+            <div id="cal-trustAGMDate" class="cal-popup hidden"></div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Bank Account</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="trustBankAcct" value="has" checked onchange="liveUpdate()"> Trust has a bank
+              account
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="trustBankAcct" value="none" onchange="liveUpdate()"> No bank account
+              (unnecessary costs)
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Tax Registration</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="trustTax" value="registered" checked onchange="liveUpdate()"> Trust is
+              registered for tax
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="trustTax" value="none" onchange="liveUpdate()"> Never registered — no taxable
+              income after distributions
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Distributions to Beneficiaries</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="trustDistributions" value="yes" checked onchange="liveUpdate()"> All
+              distributions approved by trustees (loan accounts)
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="trustDistributions" value="no" onchange="liveUpdate()"> No distributions during
+              this financial year
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Donations Received</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="trustDonations" value="no" checked onchange="liveUpdate()"> No donations
+              received
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="trustDonations" value="yes" onchange="liveUpdate()"> Donations were received
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Trustees' Remuneration</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="trustRemuneration" value="approved" onchange="liveUpdate()"> Approved as shown
+              in financial statements
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="trustRemuneration" value="none" checked onchange="liveUpdate()"> No remuneration
+              this financial year
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Trust Deed &amp; Letter of Authority Changes</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="trustDeedChanges" value="none" checked onchange="onTrustDeedChange()"> No
+              changes
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="trustDeedChanges" value="custom" onchange="onTrustDeedChange()"> Changes were
+              made — describe
+            </label>
+          </div>
+          <div class="conditional field-group" id="trust-deed-box" style="margin-top:8px;">
+            <label>Trust Deed Changes</label>
+            <textarea id="trustDeedText" rows="2" placeholder="Describe Trust Deed changes…"
+              oninput="liveUpdate()"></textarea>
+            <label style="margin-top:8px;">Letter of Authority Changes</label>
+            <textarea id="trustLoaText" rows="2" placeholder="Describe Letter of Authority changes…"
+              oninput="liveUpdate()"></textarea>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- Church policies toggle -->
+      <div id="church-policies-divider" style="display:none;">
+        <hr class="form-divider">
+      </div>
+      <div id="church-policies-block" style="display:none;">
+        <div class="step-label">Step 6</div>
+        <div class="section-title">Accounting Policies</div>
+        <div class="field-group">
+          <label>Include accounting policies in the document?</label>
+          <div class="options-group">
+            <label class="option-pill">
+              <input type="radio" name="churchPolicies" value="yes" checked onchange="toggleChurchStep7(); liveUpdate()"> Yes — include
+              policies
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="churchPolicies" value="no" onchange="toggleChurchStep7(); liveUpdate()"> No — skip policies
+            </label>
+          </div>
+          <p class="hint">If included, select the applicable policies below in Step 7.</p>
+        </div>
+      </div>
+
+      <hr class="form-divider" id="step7-divider">
+      <div id="step7-block">
+        <div class="step-label">Step 7</div>
+        <div class="section-title">Accounting Policies to Include</div>
+        <p class="hint" style="margin-bottom:10px;">Tick only the policies applicable to this entity. Unticked policies
+          will not appear in the document.</p>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button type="button" onclick="selectAllPolicies(true)"
+            style="font-size:11px;padding:4px 10px;border:1px solid var(--gold);background:#fffbf0;color:var(--ink);border-radius:5px;cursor:pointer;">&#10003;
+            Select All</button>
+          <button type="button" onclick="selectAllPolicies(false)"
+            style="font-size:11px;padding:4px 10px;border:1px solid var(--border);background:var(--cream);color:var(--ink-light);border-radius:5px;cursor:pointer;">&#10005;
+            Clear All</button>
+        </div>
+
+        <div id="policy-checklist"></div>
+      </div><!-- end step7-block -->
+
+      <!-- ── MINUTES — Company (Step 8) ── -->
+      <div id="minutes-divider" style="display:none;">
+        <hr class="form-divider">
+      </div>
+      <div id="minutes-block" style="display:none;">
+        <div class="step-label">Step 8</div>
+        <div class="section-title">Minutes</div>
+        <p class="hint" style="margin-bottom:14px;">Generates two separate pages: a Directors' Meeting and a
+          Shareholders' AGM. Entity name, year end and directors are pulled from Steps 2 &amp; 4.</p>
+
+        <div class="field-group">
+          <label>Meeting Place</label>
+          <input type="text" id="minutes-venue" placeholder="e.g. Standerton" oninput="liveUpdate()">
+        </div>
+
+        <div class="field-group">
+          <label>Meeting Date</label>
+          <div class="date-input-wrap">
+            <input type="text" id="minutes-date" placeholder="e.g. 24 January 2025" oninput="liveUpdate()">
+            <button type="button" class="btn-cal" onclick="toggleCal('cal-minutes-date')"
+              title="Pick date">&#x1f4c5;</button>
+            <div id="cal-minutes-date" class="cal-popup hidden"></div>
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px dashed var(--border);margin:16px 0 14px;">
+        <div
+          style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;">
+          Shareholders' AGM — Shareholders Present</div>
+        <p class="hint" style="margin-bottom:12px;">Add each shareholder. If a shareholder is a company or entity, you
+          can add a proxy representative — the signature line will then read "<em>Name</em> on behalf of
+          <em>Shareholder</em>".
+        </p>
+
+        <div id="shareholder-list"></div>
+        <button type="button" onclick="addShareholder()"
+          style="margin-top:4px;font-size:13px;padding:9px 18px;border:1.5px dashed var(--gold);background:#fffbf0;color:var(--ink);border-radius:7px;cursor:pointer;width:100%;font-family:inherit;">+
+          Add Shareholder</button>
+      </div>
+
+      <!-- ── MINUTES — Close Corporation (Step 8) ── -->
+      <div id="cc-minutes-divider" style="display:none;">
+        <hr class="form-divider">
+      </div>
+      <div id="cc-minutes-block" style="display:none;">
+        <div class="step-label">Step 8</div>
+        <div class="section-title">Minutes</div>
+        <p class="hint" style="margin-bottom:14px;">Generates one page — the Annual General Meeting of Members. Members
+          are pulled automatically from Step 4.</p>
+
+        <div class="field-group">
+          <label>Meeting Place</label>
+          <input type="text" id="cc-minutes-venue" placeholder="e.g. Standerton" oninput="liveUpdate()">
+        </div>
+
+        <div class="field-group">
+          <label>Meeting Date</label>
+          <div class="date-input-wrap">
+            <input type="text" id="cc-minutes-date" placeholder="e.g. 24 January 2025" oninput="liveUpdate()">
+            <button type="button" class="btn-cal" onclick="toggleCal('cal-cc-minutes-date')"
+              title="Pick date">&#x1f4c5;</button>
+            <div id="cal-cc-minutes-date" class="cal-popup hidden"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LOAN CERTIFICATES (Company / CC / Trust only) ── -->
+      <div id="loan-cert-divider" style="display:none;">
+        <hr class="form-divider">
+      </div>
+      <div id="loan-cert-block" style="display:none;">
+        <div class="step-label">Step 9</div>
+        <div class="section-title">Loan Certificates</div>
+        <p class="hint" style="margin-bottom:14px;">Each certificate is printed separately and appended after the
+          financial statements. Entity name and year end are pulled from Step 2.</p>
+        <div id="loan-cert-list"></div>
+        <button type="button" onclick="addLoanCert()"
+          style="margin-top:4px;font-size:13px;padding:9px 18px;border:1.5px dashed var(--gold);background:#fffbf0;color:var(--ink);border-radius:7px;cursor:pointer;width:100%;font-family:inherit;">+
+          Add Loan Certificate</button>
+      </div>
+
+      <button class="btn-generate" onclick="generateAndPreview()">Generate Document</button>
+      <button class="btn-print" id="btn-print" onclick="printDocument()">🖨 Print / Save as PDF</button>
+
+    </div>
+
+    <!-- ══════════════ PREVIEW PANEL ══════════════ -->
+    <div class="preview-panel">
+
+      <div class="preview-placeholder" id="placeholder">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+        <h3>Fill in the form to generate</h3>
+        <p>Your completed policy document will appear here,<br>ready to print or save as PDF.</p>
+      </div>
+
+      <div id="document-output"></div>
+
+    </div>
+  </div>
+
+
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/EntityManager.js"></script>
+  <script src="js/CalendarPicker.js"></script>
+  <script src="js/DocumentGenerator.js"></script>
+  <script src="js/PreviewManager.js"></script>
+  <!-- Importer (data-driven — single file for all entity types) -->
+  <script src="js/BaseImporter.js"></script>
+  <script src="js/ExcelImporter.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

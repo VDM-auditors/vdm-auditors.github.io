@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vdm-app",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "require('http').createServer((q,r)=>{const fs=require('fs'),p=require('path'),u=q.url==='/'?'/index.html':q.url,f=p.join('.',u),e=p.extname(f),m={'.html':'text/html','.css':'text/css','.js':'application/javascript','.png':'image/png','.jpg':'image/jpeg'};fs.readFile(f,(err,d)=>{if(err){r.writeHead(404);r.end()}else{r.writeHead(200,{'Content-Type':m[e]||'application/octet-stream'});r.end(d)}})}).listen(8090)"],
+      "port": 8090
+    }
+  ],
+  "autoVerify": false
+}

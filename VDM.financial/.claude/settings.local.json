@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk 'NR>=7 && NR<=12' \"C:/Users/chrae/Downloads/v2/js/config.js\")",
+      "Bash(awk 'NR==5' \"C:/Users/chrae/Downloads/v2/js/config.js\")",
+      "Bash(awk 'NR==6' \"C:/Users/chrae/Downloads/v2/js/config.js\")",
+      "Bash(awk 'NR<=4' \"C:/Users/chrae/Downloads/v2/js/config.js\")",
+      "Bash(echo 'const CA_LETTERHEAD = \"\"images/letterhead-header..png\"\";')",
+      "Bash(echo 'const AUDIT_LETTERHEAD = \"\"images/letterhead-header..png\"\";')",
+      "Bash(echo 'const LETTERHEAD_FOOTER_IMG = \"\"images/letterhead-footer.png\"\";')",
+      "Bash(awk 'NR>=7' \"C:/Users/chrae/Downloads/v2/js/config.js\")",
+      "mcp__Claude_Preview__preview_start",
+      "Read(//c/Users/chrae/Downloads/**)",
+      "Bash(ls -la \"SecInfo \\(1\\).xlsx\")",
+      "Bash(python3 -c \":*)",
+      "Bash(find C:/Users/chrae/Downloads/v2 -name *.csv -o -name *template* -o -name *engagement*)",
+      "Bash(find C:/Users/chrae/Downloads/v2 -name *.csv)",
+      "Bash(pandoc \"2018 vir Kriel Golf CLUB - ENGAGEMENT -AUDIT, meervoud.doc \\(1\\).docx\" -o /tmp/engagement.md)",
+      "Bash(python \"C:/Users/chrae/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/a8336f24-bb16-4e2c-8e33-2728f83b5b60/7bda3102-e1c6-4812-8baa-87cac04d847a/skills/docx/scripts/office/unpack.py\" \"2018 vir Kriel Golf CLUB - ENGAGEMENT -AUDIT, meervoud.doc \\(1\\).docx\" /tmp/engagement_unpacked/)",
+      "Bash(python -c \":*)"
+    ]
+  }
+}
