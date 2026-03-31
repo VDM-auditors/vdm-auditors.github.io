@@ -271,14 +271,53 @@
   <div id="mainForm">
 
     <div class="step-nav">
-      <div class="step-pill active" id="pill1" onclick="navToStep(1)">1 — Entity Info</div>
-      <div class="step-pill" id="pill2" onclick="navToStep(2)">2 — Entity Type</div>
+      <div class="step-pill active" id="pill1" onclick="navToStep(1)">1 — Entity Type</div>
+      <div class="step-pill" id="pill2" onclick="navToStep(2)">2 — Entity Info</div>
       <div class="step-pill" id="pill3" onclick="navToStep(3)">3 — Details</div>
       <div class="step-pill" id="pill4" onclick="navToStep(4)">4 — Sign &amp; Submit</div>
     </div>
 
-    <!-- STEP 1 -->
+    <!-- STEP 1 — Entity Type -->
     <div id="step1">
+      <div class="card" style="animation-delay:0.05s">
+        <div class="card-header">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20l-6-4z"/></svg>
+          Select Organisation Type
+        </div>
+        <div class="card-body">
+          <div class="entity-cards" style="grid-template-columns: repeat(4,1fr); gap:12px">
+            <div class="entity-card" onclick="selectEntity('company')" id="ec_company"><div class="ec-check">✓</div><div class="ec-icon">🏢</div><div class="ec-name">Company</div><div class="ec-desc">Pty Ltd / Ltd</div></div>
+            <div class="entity-card" onclick="selectEntity('cc')" id="ec_cc"><div class="ec-check">✓</div><div class="ec-icon">🤝</div><div class="ec-name">CC</div><div class="ec-desc">Close Corporation</div></div>
+            <div class="entity-card" onclick="selectEntity('npo')" id="ec_npo"><div class="ec-check">✓</div><div class="ec-icon">🌱</div><div class="ec-name">NPO</div><div class="ec-desc">Non-Profit Organisation</div></div>
+            <div class="entity-card" onclick="selectEntity('individual')" id="ec_individual"><div class="ec-check">✓</div><div class="ec-icon">👤</div><div class="ec-name">Individual</div><div class="ec-desc">Personal / Sole</div></div>
+            <div class="entity-card" onclick="selectEntity('trust')" id="ec_trust"><div class="ec-check">✓</div><div class="ec-icon">⚖️</div><div class="ec-name">Trust</div><div class="ec-desc">Trust Registration</div></div>
+            <div class="entity-card" onclick="selectEntity('school')" id="ec_school"><div class="ec-check">✓</div><div class="ec-icon">🏫</div><div class="ec-name">School</div><div class="ec-desc">School / Institution</div></div>
+            <div class="entity-card" onclick="selectEntity('bodycorp')" id="ec_bodycorp"><div class="ec-check">✓</div><div class="ec-icon">🏘️</div><div class="ec-name">Body Corporate</div><div class="ec-desc">Sectional Title / HOA</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="cfg_company" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header accent">Company Configuration</div><div class="card-body"><div class="form-grid"><div class="field"><label>Number of Directors <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('directors', -1)">−</button><div class="count-display" id="count_directors">1</div><button class="count-btn" onclick="adjustCount('directors', +1)">+</button></div></div><div class="field"><label>Number of Shareholders <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('shareholders', -1)">−</button><div class="count-display" id="count_shareholders">1</div><button class="count-btn" onclick="adjustCount('shareholders', +1)">+</button></div></div></div></div></div></div>
+
+      <div id="cfg_cc" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header accent">CC Configuration</div><div class="card-body"><div class="field"><label>Number of Members <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('members', -1)">−</button><div class="count-display" id="count_members">1</div><button class="count-btn" onclick="adjustCount('members', +1)">+</button></div></div></div></div></div>
+
+      <div id="cfg_npo" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header green">NPO Configuration</div><div class="card-body"><div class="notice">⚠ NPO requires a minimum of 3 directors.</div><div class="field"><label>Number of Directors <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('npo_directors', -1)">−</button><div class="count-display" id="count_npo_directors">3</div><button class="count-btn" onclick="adjustCount('npo_directors', +1)">+</button></div></div></div></div></div>
+
+      <div id="cfg_individual" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header" style="background:#2C5F2E">Individual Questionnaire</div><div class="card-body"><div class="notice" style="border-color:#2C5F2E;color:#2C5F2E;background:#EEF6EE;">ℹ️ This questionnaire is for individual / sole proprietor clients. No further configuration needed — click Continue to fill in your details.</div></div></div></div>
+
+      <div id="cfg_trust" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header" style="background:#5C3A1E">Trust Configuration</div><div class="card-body"><div class="notice" style="border-color:#8B5E3C;color:#5C3A1E;background:#FBF3EC;">⚠️ <strong>Note:</strong> No new trusts may be registered without an independent trustee (a person who is not a beneficiary and has no family or blood relation to any other trustee, beneficiary or the founder of the trust).</div><div class="form-grid" style="margin-top:16px"><div class="field"><label>Number of Trustees <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('trustees', -1)">−</button><div class="count-display" id="count_trustees">1</div><button class="count-btn" onclick="adjustCount('trustees', +1)">+</button></div></div><div class="field"><label>Number of Beneficiaries <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('beneficiaries', -1)">−</button><div class="count-display" id="count_beneficiaries">1</div><button class="count-btn" onclick="adjustCount('beneficiaries', +1)">+</button></div></div></div></div></div></div>
+
+      <div id="cfg_school" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header" style="background:#1A3560">School / Institution Questionnaire</div><div class="card-body"><div class="notice">ℹ️ This questionnaire is for school or educational institution clients. No further configuration needed — click Continue to fill in your details.</div></div></div></div>
+
+      <div id="cfg_bodycorp" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header" style="background:var(--navy)">Body Corporate Configuration</div><div class="card-body"><div class="notice" style="border-color:var(--navy);color:var(--navy);background:#EEF5F1;">ℹ️ Complete details for the Body Corporate / Sectional Title Scheme or Home Owners Association.</div><div class="form-grid" style="margin-top:16px"><div class="field"><label>Number of Trustees <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('bc_trustees', -1)">−</button><div class="count-display" id="count_bc_trustees">1</div><button class="count-btn" onclick="adjustCount('bc_trustees', +1)">+</button></div></div></div></div></div></div>
+
+      <div id="step1_nav" class="hidden" style="display:flex; justify-content:flex-end; margin-top:4px">
+        <button class="btn-apply" onclick="goStep(2)">Continue → Entity Info</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 — Entity Info -->
+    <div id="step2" class="hidden">
       <div class="card" style="animation-delay:0.05s" id="ei_card">
         <div class="card-header">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M6 21V7l6-4 6 4v14M9 21v-6h6v6"/></svg>
@@ -319,42 +358,6 @@
           </div>
         </div>
       </div>
-      <div style="text-align:right"><button class="btn-apply" onclick="goStep(2)">Continue → Entity Type</button></div>
-    </div>
-
-    <!-- STEP 2 -->
-    <div id="step2" class="hidden">
-      <div class="card" style="animation-delay:0.05s">
-        <div class="card-header">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20l-6-4z"/></svg>
-          Select Organisation Type
-        </div>
-        <div class="card-body">
-          <div class="entity-cards" style="grid-template-columns: repeat(4,1fr); gap:12px">
-            <div class="entity-card" onclick="selectEntity('company')" id="ec_company"><div class="ec-check">✓</div><div class="ec-icon">🏢</div><div class="ec-name">Company</div><div class="ec-desc">Pty Ltd / Ltd</div></div>
-            <div class="entity-card" onclick="selectEntity('cc')" id="ec_cc"><div class="ec-check">✓</div><div class="ec-icon">🤝</div><div class="ec-name">CC</div><div class="ec-desc">Close Corporation</div></div>
-            <div class="entity-card" onclick="selectEntity('npo')" id="ec_npo"><div class="ec-check">✓</div><div class="ec-icon">🌱</div><div class="ec-name">NPO</div><div class="ec-desc">Non-Profit Organisation</div></div>
-            <div class="entity-card" onclick="selectEntity('individual')" id="ec_individual"><div class="ec-check">✓</div><div class="ec-icon">👤</div><div class="ec-name">Individual</div><div class="ec-desc">Personal / Sole</div></div>
-            <div class="entity-card" onclick="selectEntity('trust')" id="ec_trust"><div class="ec-check">✓</div><div class="ec-icon">⚖️</div><div class="ec-name">Trust</div><div class="ec-desc">Trust Registration</div></div>
-            <div class="entity-card" onclick="selectEntity('school')" id="ec_school"><div class="ec-check">✓</div><div class="ec-icon">🏫</div><div class="ec-name">School</div><div class="ec-desc">School / Institution</div></div>
-            <div class="entity-card" onclick="selectEntity('bodycorp')" id="ec_bodycorp"><div class="ec-check">✓</div><div class="ec-icon">🏘️</div><div class="ec-name">Body Corporate</div><div class="ec-desc">Sectional Title / HOA</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="cfg_company" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header accent">Company Configuration</div><div class="card-body"><div class="form-grid"><div class="field"><label>Number of Directors <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('directors', -1)">−</button><div class="count-display" id="count_directors">1</div><button class="count-btn" onclick="adjustCount('directors', +1)">+</button></div></div><div class="field"><label>Number of Shareholders <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('shareholders', -1)">−</button><div class="count-display" id="count_shareholders">1</div><button class="count-btn" onclick="adjustCount('shareholders', +1)">+</button></div></div></div></div></div></div>
-
-      <div id="cfg_cc" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header accent">CC Configuration</div><div class="card-body"><div class="field"><label>Number of Members <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('members', -1)">−</button><div class="count-display" id="count_members">1</div><button class="count-btn" onclick="adjustCount('members', +1)">+</button></div></div></div></div></div>
-
-      <div id="cfg_npo" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header green">NPO Configuration</div><div class="card-body"><div class="notice">⚠ NPO requires a minimum of 3 directors.</div><div class="field"><label>Number of Directors <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('npo_directors', -1)">−</button><div class="count-display" id="count_npo_directors">3</div><button class="count-btn" onclick="adjustCount('npo_directors', +1)">+</button></div></div></div></div></div>
-
-      <div id="cfg_individual" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header" style="background:#2C5F2E">Individual Questionnaire</div><div class="card-body"><div class="notice" style="border-color:#2C5F2E;color:#2C5F2E;background:#EEF6EE;">ℹ️ This questionnaire is for individual / sole proprietor clients. No further configuration needed — click Continue to fill in your details.</div></div></div></div>
-
-      <div id="cfg_trust" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header" style="background:#5C3A1E">Trust Configuration</div><div class="card-body"><div class="notice" style="border-color:#8B5E3C;color:#5C3A1E;background:#FBF3EC;">⚠️ <strong>Note:</strong> No new trusts may be registered without an independent trustee (a person who is not a beneficiary and has no family or blood relation to any other trustee, beneficiary or the founder of the trust).</div><div class="form-grid" style="margin-top:16px"><div class="field"><label>Number of Trustees <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('trustees', -1)">−</button><div class="count-display" id="count_trustees">1</div><button class="count-btn" onclick="adjustCount('trustees', +1)">+</button></div></div><div class="field"><label>Number of Beneficiaries <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('beneficiaries', -1)">−</button><div class="count-display" id="count_beneficiaries">1</div><button class="count-btn" onclick="adjustCount('beneficiaries', +1)">+</button></div></div></div></div></div></div>
-
-      <div id="cfg_school" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header" style="background:#1A3560">School / Institution Questionnaire</div><div class="card-body"><div class="notice">ℹ️ This questionnaire is for school or educational institution clients. No further configuration needed — click Continue to fill in your details.</div></div></div></div>
-
-      <div id="cfg_bodycorp" class="hidden"><div class="card" style="animation-delay:0.1s"><div class="card-header" style="background:var(--navy)">Body Corporate Configuration</div><div class="card-body"><div class="notice" style="border-color:var(--navy);color:var(--navy);background:#EEF5F1;">ℹ️ Complete details for the Body Corporate / Sectional Title Scheme or Home Owners Association.</div><div class="form-grid" style="margin-top:16px"><div class="field"><label>Number of Trustees <span class="req">*</span></label><div class="count-selector"><button class="count-btn" onclick="adjustCount('bc_trustees', -1)">−</button><div class="count-display" id="count_bc_trustees">1</div><button class="count-btn" onclick="adjustCount('bc_trustees', +1)">+</button></div></div></div></div></div></div>
 
       <div id="step2_extra" class="hidden">
         <div class="card" style="animation-delay:0.05s" id="contact_info_card">
@@ -363,7 +366,7 @@
             Contact Information
           </div>
           <div class="card-body">
-            <label class="same-as-toggle" id="sa_step2" onclick="toggleSameAsStep2()" style="margin-bottom:16px"><span class="sa-box"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></span>Same as Step 1 — Responsible Person</label>
+            <label class="same-as-toggle" id="sa_step2" onclick="toggleSameAsStep2()" style="margin-bottom:16px"><span class="sa-box"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></span>Same as above — Responsible Person</label>
             <div class="form-grid">
               <div class="field" id="ci_resp_wrap"><label>Responsible Person <span class="req">*</span></label><input type="text" id="ci_responsible" placeholder="Full name"></div>
               <div class="field"><label>Contact Number <span class="req">*</span></label><input type="tel" id="ci_tel" placeholder="0XX XXX XXXX"></div>
@@ -453,6 +456,12 @@ let currentStep = 1;
 
 function goStep(n) {
   if (n === 4) buildSigningStep();
+  if (n === 2 && state.entityType) {
+    updateEntityInfoLabels(state.entityType);
+    document.getElementById('step2_extra').classList.remove('hidden');
+    document.getElementById('step2_nav').style.display = 'flex';
+    document.getElementById('step2_nav').classList.remove('hidden');
+  }
   ['step1','step2','step3','step4'].forEach((s,i) => {
     document.getElementById(s).classList.toggle('hidden', i+1 !== n);
   });
@@ -506,8 +515,8 @@ function selectEntity(type) {
     document.getElementById('ec_'+t).classList.toggle('selected', t === type);
     document.getElementById('cfg_'+t).classList.toggle('hidden', t !== type);
   });
-  document.getElementById('step2_nav').style.display = 'flex';
-  document.getElementById('step2_nav').classList.remove('hidden');
+  document.getElementById('step1_nav').style.display = 'flex';
+  document.getElementById('step1_nav').classList.remove('hidden');
   updateEntityInfoLabels(type);
   showServicesForType(type);
 }
@@ -684,10 +693,12 @@ function buildSigningStep() {
 
   sigPeople.forEach(({ role, idx, label }, pos) => {
     const card = document.createElement('div'); card.className = 'card'; card.style.animationDelay = (pos * 0.06) + 's';
-    const entityTypes = ['npo','trust','school','bodycorp'];
-    const sigText = entityTypes.includes(state.entityType)
-      ? `I, as ${role} of the abovementioned entity, hereby confirm that the entity accepts full responsibility for any fees raised by VDM for services rendered.`
-      : `I, as ${role} of the abovementioned entity, hereby accept full responsibility in my personal capacity for any fees raised by VDM for services rendered.`;
+    const entityEntityTypes = ['npo','trust','school','bodycorp'];
+    const sigText = state.entityType === 'individual'
+      ? `I hereby accept full responsibility for any fees raised by VDM for services rendered.`
+      : entityEntityTypes.includes(state.entityType)
+        ? `I, as ${role} of the abovementioned entity, hereby confirm that the entity accepts full responsibility for any fees raised by VDM for services rendered.`
+        : `I, as ${role} of the abovementioned entity, hereby accept full responsibility in my personal capacity for any fees raised by VDM for services rendered.`;
     card.innerHTML = `<div class="card-header warning">⚠ Important — To Be Signed by ${role}: ${label}</div><div class="card-body"><div class="signing-block"><div class="signing-warning"><div class="warn-icon">⚠️</div><p>${sigText}</p></div><div class="form-grid"><div class="field span-2"><label>Signature</label><div class="signature-field"><canvas id="sig_canvas_${idx}" height="60"></canvas></div><button onclick="clearSig(${idx})" style="font-size:11px;color:var(--text-muted);background:none;border:none;cursor:pointer;margin-top:4px">✕ Clear</button></div><div class="field"><label>Full Name <span class="req">*</span></label><input type="text" id="sig_name_${idx}" placeholder="Full name"></div><div class="field"><label>Date <span class="req">*</span></label><input type="date" id="sig_date_${idx}" value="${new Date().toISOString().split('T')[0]}"></div></div></div></div>`;
     container.appendChild(card);
   });
