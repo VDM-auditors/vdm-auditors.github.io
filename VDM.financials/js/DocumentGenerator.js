@@ -222,7 +222,6 @@ class DocumentGenerator {
   const coverPage = `
   <div class="cover-page">
 <div class="cover-title-block">
-  <div class="co-name">${coUpper}</div>
   ${regLine}
   <div class="cover-year">ANNUAL FINANCIAL STATEMENTS</div>
   <div class="cover-subtitle">For the year ended ${yearEnd}</div>
@@ -441,9 +440,9 @@ ${parentSentence ? `<p>${parentSentence}</p>` : ''}
   function buildPolicyText(p) {
     if (p.id === 'pol_ppe' && p.subItems) {
       const includeResidual = getRadio('ppeResidualInclude') === 'yes';
-      const residualRaw = getVal('ppeResidualPercent');
-      const residualPct = includeResidual && residualRaw
-        ? (residualRaw.trim().endsWith('%') ? residualRaw.trim() : `${residualRaw.trim()}%`)
+      const globalResidualRaw = getVal('ppeResidualPercent');
+      const globalResidualPct = includeResidual && globalResidualRaw
+        ? (globalResidualRaw.trim().endsWith('%') ? globalResidualRaw.trim() : `${globalResidualRaw.trim()}%`)
         : '';
 
       const checkedSubs = p.subItems.filter(s => {
@@ -457,7 +456,14 @@ ${parentSentence ? `<p>${parentSentence}</p>` : ''}
           const custom = document.getElementById('custom-' + s.id);
           let rate = sel ? sel.value : '';
           if (rate === 'Other') rate = (custom && custom.value.trim()) ? custom.value.trim() : 'Other';
-          const resSuffix = residualPct ? ` (Residual value ${residualPct})` : '';
+          // Per-item residual value, falling back to global
+          let resSuffix = '';
+          if (includeResidual) {
+            const itemResInp = document.getElementById('residual-' + s.id);
+            const itemResRaw = itemResInp ? itemResInp.value.trim() : '';
+            const itemResPct = itemResRaw ? (itemResRaw.endsWith('%') ? itemResRaw : `${itemResRaw}%`) : globalResidualPct;
+            if (itemResPct) resSuffix = ` (Residual value ${itemResPct})`;
+          }
           return `${s.label} — ${rate}${resSuffix}`;
         }).join('<br>') + '<br><br>';
       } else {
@@ -474,8 +480,21 @@ ${parentSentence ? `<p>${parentSentence}</p>` : ''}
         return cb && cb.checked;
       });
       if (!checkedBio.length) return p.text || '';
+      // Replace entity-specific terms in body text
+      const bioTermMap = {
+        'cc': { possessive: "member's", plural: 'members' },
+        'trust': { possessive: "trustee's", plural: 'trustees' },
+        'bc': { possessive: "trustee's", plural: 'trustees' },
+        'npo': { possessive: "committee's", plural: 'committee members' },
+        'church': { possessive: "church council's", plural: 'church council members' },
+        'club': { possessive: "committee's", plural: 'committee members' },
+      };
+      const bioTerms = bioTermMap[entityType] || { possessive: "director's", plural: 'directors' };
+      const replaceBioTerms = (txt) => txt
+        .replace(/director's\/trustee's\/member's/gi, bioTerms.possessive)
+        .replace(/owners\/directors\/trustees\/members/gi, bioTerms.plural);
       return (p.text || '') + '<br><br>' + checkedBio.map(s =>
-        `<strong>${s.label}</strong><br>${s.bodyText}`
+        `<strong>${s.label}</strong><br>${replaceBioTerms(s.bodyText)}`
       ).join('<br><br>');
     }
     return p.text || '';

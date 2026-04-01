@@ -425,6 +425,7 @@ class EntityManager {
                 ${opts}
               </select>
               <input type="text" id="custom-${s.id}" placeholder="Enter %" style="display:none;width:80px;margin-left:6px;" oninput="liveUpdate()">
+              <input type="text" id="residual-${s.id}" class="ppe-residual-input" placeholder="Residual %" style="display:none;width:90px;margin-left:6px;" oninput="liveUpdate()">
             </div>
           </div>`;
           }).join('') +
@@ -483,6 +484,11 @@ class EntityManager {
       const inp = document.getElementById('ppeResidualPercent');
       if (inp) inp.value = '';
     }
+    // Show/hide per-item residual inputs
+    document.querySelectorAll('.ppe-residual-input').forEach(inp => {
+      inp.style.display = show ? 'inline-block' : 'none';
+      if (!show) inp.value = '';
+    });
     this.liveUpdate();
   }
 
