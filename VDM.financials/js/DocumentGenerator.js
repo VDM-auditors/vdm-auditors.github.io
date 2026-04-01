@@ -26,8 +26,14 @@ class DocumentGenerator {
   const hasTradingAs = (getRadio('hasTradingAs') === 'yes') && !!tradingAs;
   const yearEnd = getVal('yearEnd') || '[YEAR END]';
   const prevYearEnd = getVal('prevYearEnd') || '[PREVIOUS YEAR END]';
-  const nature = getVal('natureBusiness') || '[NATURE OF BUSINESS]';
-  const income = getVal('mainIncome') || '[MAIN INCOME SOURCE]';
+  const natureRaw = getVal('natureBusiness');
+  const incomeRaw = getVal('mainIncome');
+  const nature = natureRaw
+    ? natureRaw.charAt(0).toUpperCase() + natureRaw.slice(1)
+    : '[NATURE OF BUSINESS]';
+  const income = incomeRaw
+    ? incomeRaw.charAt(0).toUpperCase() + incomeRaw.slice(1)
+    : '[MAIN INCOME SOURCE]';
   const postal = toProperCase(getVal('postalAddress')) || '[POSTAL ADDRESS]';
   const regAddr = toProperCase(getVal('regAddress')) || '[REGISTERED ADDRESS]';
   const businessAddr = toProperCase(getVal('businessAddress')) || '';
@@ -264,10 +270,11 @@ class DocumentGenerator {
     <td>Reporting Currency</td>
     <td>South African Rand</td>
   </tr>
-  <tr>
+  ${(entityType === 'school' || reportType === 'compilation' || reportType === 'audit')
+    ? `<tr>
     <td>${entityType === 'school' || isAuditReport ? 'Auditor' : 'Compiler'}</td>
     <td>${entityType === 'school' ? 'VDM Audit Inc.' : vdmFirmName}</td>
-  </tr>
+  </tr>` : ''}
   ${entityType === 'school'
       ? `<tr><td>Preparer</td><td>${schoolPreparerSentence}</td></tr>`
       : preparerSentence ? `<tr><td>Preparer</td><td>${preparerSentence}</td></tr>` : ''}
