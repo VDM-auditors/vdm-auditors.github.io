@@ -429,6 +429,30 @@ class EntityManager {
           </div>`;
           }).join('') +
           `</div>`;
+
+        // PPE residual value option (applies to the rates list)
+        if (p.id === 'pol_ppe') {
+          subHtml += `
+          <div class="policy-subitems" style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
+            <div class="field-group" style="margin-bottom:0;">
+              <label style="font-size:12px;font-weight:600;color:var(--ink);">Include Residual Values?</label>
+              <div class="options-group" style="margin-top:4px;flex-direction:row;flex-wrap:wrap;">
+                <label class="option-pill">
+                  <input type="radio" name="ppeResidualInclude" value="no" checked onchange="onPpeResidualToggle(); liveUpdate()">
+                  No
+                </label>
+                <label class="option-pill">
+                  <input type="radio" name="ppeResidualInclude" value="yes" onchange="onPpeResidualToggle(); liveUpdate()">
+                  Yes
+                </label>
+              </div>
+              <div id="ppe-residual-box" class="conditional" style="margin-top:10px;">
+                <label>Residual Value Percentage</label>
+                <input type="text" id="ppeResidualPercent" placeholder="e.g. 20%" oninput="liveUpdate()" style="width:120px;">
+              </div>
+            </div>
+          </div>`;
+        }
       } else if (p.subItems && p.isBio) {
         // Biological assets: simple checkboxes with labels
         subHtml = `<div class="policy-subitems">` +
@@ -449,6 +473,17 @@ class EntityManager {
     `;
       container.appendChild(div);
     });
+  }
+
+  onPpeResidualToggle() {
+    const show = getRadio('ppeResidualInclude') === 'yes';
+    const box = document.getElementById('ppe-residual-box');
+    if (box) box.classList.toggle('visible', show);
+    if (!show) {
+      const inp = document.getElementById('ppeResidualPercent');
+      if (inp) inp.value = '';
+    }
+    this.liveUpdate();
   }
 
   onSubItemChange(sid) {
@@ -544,6 +579,100 @@ class EntityManager {
       document.getElementById('engTypeReview').checked = false;
       document.getElementById('engTypeAudit').checked = false;
     }
+    this.updateEngagementSignerUI();
+  }
+
+  onEngagementSignerChange() {
+    this.updateEngagementSignerUI();
+    this.liveUpdate();
+  }
+
+  updateEngagementSignerUI() {
+    const show = getRadio('engagementLetter') === 'yes';
+    const isAtt = this.currentEntityType === 'attorneys';
+    const panel = document.getElementById('engagement-signers-panel');
+    if (!panel) return;
+
+    if (!show || isAtt) {
+      panel.style.display = 'none';
+      return;
+    }
+
+    const acc = !!document.getElementById('engTypeAccounting')?.checked;
+    const rev = !!document.getElementById('engTypeReview')?.checked;
+    const aud = !!document.getElementById('engTypeAudit')?.checked;
+
+    const any = acc || rev || aud;
+    panel.style.display = any ? 'block' : 'none';
+    const accBox = document.getElementById('eng-signer-accounting-box');
+    const revBox = document.getElementById('eng-signer-review-box');
+    const audBox = document.getElementById('eng-signer-audit-box');
+    if (accBox) accBox.style.display = acc ? 'block' : 'none';
+    if (revBox) revBox.style.display = rev ? 'block' : 'none';
+    if (audBox) audBox.style.display = aud ? 'block' : 'none';
+
+    // Enforce unique signers across selected letters by warning + disabling duplicates.
+    const accSel = document.getElementById('engSignerAccounting');
+    const revSel = document.getElementById('engSignerReview');
+    const audSel = document.getElementById('engSignerAudit');
+    const warn = document.getElementById('engagement-signer-warning');
+
+    // If duplicates exist, auto-correct by picking the first available non-conflicting option,
+    // prioritising Audit selection (since its allowed list is restricted).
+    const pickFirstAvailable = (el, disallow) => {
+      if (!el) return;
+      const opt = Array.from(el.options).find(o => !disallow.has(o.value));
+      if (opt) el.value = opt.value;
+    };
+
+    const used = new Set();
+    if (aud && audSel) used.add(audSel.value);
+    if (acc && accSel) {
+      if (used.has(accSel.value)) pickFirstAvailable(accSel, used);
+      used.add(accSel.value);
+    }
+    if (rev && revSel) {
+      if (used.has(revSel.value)) pickFirstAvailable(revSel, used);
+      used.add(revSel.value);
+    }
+
+    const chosen = [];
+    if (acc && accSel) chosen.push(accSel.value);
+    if (rev && revSel) chosen.push(revSel.value);
+    if (aud && audSel) chosen.push(audSel.value);
+    const hasDup = (new Set(chosen)).size !== chosen.length;
+    if (warn) warn.style.display = hasDup ? 'block' : 'none';
+
+    // Disable options already chosen by other selected letters
+    const updateDisabled = (enabled, el, others) => {
+      if (!el) return;
+      Array.from(el.options).forEach(opt => {
+        if (!enabled) { opt.disabled = false; return; }
+        const usedElsewhere = others.includes(opt.value);
+        opt.disabled = usedElsewhere && opt.value !== el.value;
+      });
+    };
+    const accOthers = [];
+    const revOthers = [];
+    const audOthers = [];
+    if (rev && revSel) { accOthers.push(revSel.value); audOthers.push(revSel.value); }
+    if (aud && audSel) { accOthers.push(audSel.value); revOthers.push(audSel.value); }
+    if (acc && accSel) { revOthers.push(accSel.value); audOthers.push(accSel.value); }
+
+    updateDisabled(acc, accSel, accOthers);
+    updateDisabled(rev, revSel, revOthers);
+    updateDisabled(aud, audSel, audOthers);
+  }
+
+  onTradingAsToggle() {
+    const show = getRadio('hasTradingAs') === 'yes';
+    const box = document.getElementById('trading-as-box');
+    if (box) box.classList.toggle('visible', show);
+    if (!show) {
+      const inp = document.getElementById('tradingAsName');
+      if (inp) inp.value = '';
+    }
+    this.liveUpdate();
   }
 
   onAttOpinionTypeChange() {

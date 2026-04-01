@@ -74,6 +74,7 @@ function autoFillPrevYear()            { entityManager.autoFillPrevYear(); }
 function updateBank()                  { entityManager.updateBank(); }
 function updateDividend()              { entityManager.updateDividend(); }
 function updateParent()                { entityManager.updateParent(); }
+function onTradingAsToggle()           { entityManager.onTradingAsToggle(); }
 
 // EntityManager — directors, shareholders, loan certs
 function addDirector()                 { entityManager.addDirector(); }
@@ -101,6 +102,7 @@ function onSchoolPreparerCapacityChange()  { entityManager.onSchoolPreparerCapac
 
 // EntityManager — engagement letter
 function toggleEngagementTypes()       { entityManager.toggleEngagementTypes(); }
+function onEngagementSignerChange()    { entityManager.onEngagementSignerChange(); }
 
 // EntityManager — body corporate & trust
 function onBcEventsChange()            { entityManager.onBcEventsChange(); }
@@ -119,6 +121,7 @@ function selectAllPolicies(checked)    { entityManager.selectAllPolicies(checked
 function togglePolicy(id)              { entityManager.togglePolicy(id); }
 function onSubItemChange(sid)          { entityManager.onSubItemChange(sid); }
 function onRateSelect(sid)             { entityManager.onRateSelect(sid); }
+function onPpeResidualToggle()         { entityManager.onPpeResidualToggle(); }
 
 // CalendarPicker
 function toggleCal(calId)              { calendarPicker.toggleCal(calId); }

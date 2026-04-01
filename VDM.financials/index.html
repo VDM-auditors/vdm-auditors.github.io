@@ -129,6 +129,25 @@
           <input type="text" id="companyName" placeholder="e.g. Aruba 33 (Proprietary) Limited" oninput="liveUpdate()">
         </div>
 
+        <!-- Trading As toggle + name (optional) -->
+        <div class="field-group form-grid-full">
+          <label style="font-size:13px;font-weight:600;color:var(--ink);">Does the entity trade under a different name?</label>
+          <div class="options-group" style="margin-top:4px;flex-direction:row;flex-wrap:wrap;">
+            <label class="option-pill">
+              <input type="radio" name="hasTradingAs" value="no" checked onchange="onTradingAsToggle(); liveUpdate()">
+              No
+            </label>
+            <label class="option-pill">
+              <input type="radio" name="hasTradingAs" value="yes" onchange="onTradingAsToggle(); liveUpdate()">
+              Yes
+            </label>
+          </div>
+          <div id="trading-as-box" class="conditional" style="margin-top:10px;">
+            <label>Trading As Name</label>
+            <input type="text" id="tradingAsName" placeholder="e.g. VDM Auditors Standerton" oninput="liveUpdate()">
+          </div>
+        </div>
+
         <!-- Attorneys reg toggle — full width, hidden by default -->
         <div class="field-group form-grid-full" id="att-reg-toggle-group" style="display:none;">
           <label style="font-size:13px;font-weight:600;color:var(--ink);">Does the firm have a registration
@@ -586,6 +605,40 @@
                   <input type="checkbox" id="engTypeAudit" onchange="liveUpdate()"> Audit
                 </label>
               </div>
+            </div>
+
+            <!-- Engagement letter signatories (conditional per selected letter type) -->
+            <div id="engagement-signers-panel"
+              style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);display:none;">
+              <div class="field-group" id="eng-signer-accounting-box" style="display:none;margin-bottom:10px;">
+                <label style="font-size:12px;font-weight:600;">Accounting Engagement Letter Signed By</label>
+                <select id="engSignerAccounting" onchange="onEngagementSignerChange(); liveUpdate()">
+                  <option value="L VAN DER MERWE">L van der Merwe</option>
+                  <option value="HL VAN DER MERWE">HL van der Merwe</option>
+                  <option value="R DE BEER">R de Beer</option>
+                  <option value="R WOLMARANS">R Wolmarans</option>
+                </select>
+              </div>
+              <div class="field-group" id="eng-signer-review-box" style="display:none;margin-bottom:10px;">
+                <label style="font-size:12px;font-weight:600;">Review Engagement Letter Signed By</label>
+                <select id="engSignerReview" onchange="onEngagementSignerChange(); liveUpdate()">
+                  <option value="L VAN DER MERWE">L van der Merwe</option>
+                  <option value="HL VAN DER MERWE">HL van der Merwe</option>
+                  <option value="R DE BEER">R de Beer</option>
+                  <option value="R WOLMARANS">R Wolmarans</option>
+                </select>
+              </div>
+              <div class="field-group" id="eng-signer-audit-box" style="display:none;margin-bottom:0;">
+                <label style="font-size:12px;font-weight:600;">Audit Engagement Letter Signed By</label>
+                <select id="engSignerAudit" onchange="onEngagementSignerChange(); liveUpdate()">
+                  <option value="L VAN DER MERWE">L van der Merwe</option>
+                  <option value="R DE BEER">R de Beer</option>
+                </select>
+                <p class="hint" style="margin-top:6px;">Audit engagement letters may only be signed by Leon van der Merwe or Reinette de Beer.</p>
+              </div>
+              <p class="hint" id="engagement-signer-warning" style="display:none;color:var(--danger);margin-top:10px;">
+                The same partner may not sign different engagement letters. Please select different signatories.
+              </p>
             </div>
             <div id="engagement-types-attorneys" style="display:none;">
               <p style="font-size:12px;color:var(--ink-light);margin:0;">✓ Reasonable Assurance Engagement — Legal

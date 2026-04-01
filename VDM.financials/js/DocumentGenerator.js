@@ -22,6 +22,8 @@ class DocumentGenerator {
     const currentEntityType = em.currentEntityType;
 
   const co = getVal('companyName') || '[COMPANY NAME]';
+  const tradingAs = getVal('tradingAsName') || '';
+  const hasTradingAs = (getRadio('hasTradingAs') === 'yes') && !!tradingAs;
   const yearEnd = getVal('yearEnd') || '[YEAR END]';
   const prevYearEnd = getVal('prevYearEnd') || '[PREVIOUS YEAR END]';
   const nature = getVal('natureBusiness') || '[NATURE OF BUSINESS]';
@@ -83,7 +85,10 @@ class DocumentGenerator {
                : entityType === 'club' ? !!getVal('regNumber')
                : true;
   const reg = hasReg ? (getVal('regNumber') || '') : '';
-  const regLine = reg ? `<div class="co-reg">(Registration Number ${reg})</div>` : '';
+  const headerTradingAs = hasTradingAs
+    ? `<div class="co-trading-as">Trading as: ${tradingAs}</div>`
+    : '';
+  const regLine = `<div class="co-name">${coUpper}</div>${headerTradingAs}${reg ? `<div class="co-reg">(Registration Number ${reg})</div>` : ''}`;
   const regLineItalic = reg ? `<p><em>(Registration Number ${reg})</em></p>` : '';
 
   // Derived firm name — Audit reports use VDM Audit Inc, all others use VDM Chartered Accountants
@@ -279,7 +284,7 @@ class DocumentGenerator {
   const page1 = `
   <div class="doc-page">
 ${caLetterhead()}
-<h2>The Chartered Accountant's (South Africa) Declaration</h2>
+<h2 class="center-heading">The Chartered Accountant's (South Africa) Declaration</h2>
 <p>The following annual financial statements of ${co}, as presented on pages ${pageStart} to ${pageEnd}, have been independently compiled by a Chartered Accountant (South Africa) [CA(SA)]. Refer to compilation report on page ${pg3}.</p>
 <p>Use of the CA(SA) designation is governed by the <em>Chartered Accountants Designation (Private) Act</em>, 1993 (Act 67 of 1993), which regulates and permits the use of the CA(SA) designation exclusively by members of The South African Institute of Chartered Accountants (SAICA). Use of the designation without SAICA membership is consequently a criminal offence, and misuse is subject to legal action.</p>
 <p>SAICA is the premier accountancy body in South Africa and one of the leading chartered accountancy institutes in the world and all members must comply with the Code of Professional Conduct which conforms to the code released by the International Ethics Standards Board for Accountants (IESBA). The SAICA code and definitions contained therein are consistent in all material aspects with the International Federation of Accountants' (IFAC) code as well as the Independent Regulatory Board for Auditors (IRBA) code.</p>
@@ -435,6 +440,12 @@ ${parentSentence ? `<p>${parentSentence}</p>` : ''}
   // Build text for a policy entry
   function buildPolicyText(p) {
     if (p.id === 'pol_ppe' && p.subItems) {
+      const includeResidual = getRadio('ppeResidualInclude') === 'yes';
+      const residualRaw = getVal('ppeResidualPercent');
+      const residualPct = includeResidual && residualRaw
+        ? (residualRaw.trim().endsWith('%') ? residualRaw.trim() : `${residualRaw.trim()}%`)
+        : '';
+
       const checkedSubs = p.subItems.filter(s => {
         const cb = document.getElementById(s.id);
         return cb && cb.checked && !s.isLandAndBuildings;
@@ -446,7 +457,8 @@ ${parentSentence ? `<p>${parentSentence}</p>` : ''}
           const custom = document.getElementById('custom-' + s.id);
           let rate = sel ? sel.value : '';
           if (rate === 'Other') rate = (custom && custom.value.trim()) ? custom.value.trim() : 'Other';
-          return `${s.label} — ${rate}`;
+          const resSuffix = residualPct ? ` (Residual value ${residualPct})` : '';
+          return `${s.label} — ${rate}${resSuffix}`;
         }).join('<br>') + '<br><br>';
       } else {
         rateLines = '<br>';
@@ -594,7 +606,7 @@ ${letterheadFooter()}
   const pageAudit = `
   <div class="doc-page">
 ${auditLetterhead()}
-<h2>Independent Auditor's Report</h2>
+<h2 class="center-heading">Independent Auditor's Report</h2>
 <p><em>To the ${terms.report_to} of ${co}</em></p>
 ${regLineItalic}
 <h3>Opinion</h3>
@@ -653,7 +665,7 @@ ${auditFooter()}
   <div class="doc-page">
 ${auditLetterhead()}
 <div class="page-header"></div>
-<h2>Independent Auditor's Report</h2>
+<h2 class="center-heading">Independent Auditor's Report</h2>
 <p><em>To the Governing Body of ${co}</em></p>
 <h3>Opinion</h3>
 <p>We have audited the financial statements of ${co}, which comprise the statement of financial position as at ${yearEnd}, and the statement of financial performance, including a summary of significant accounting policies and other explanatory notes, as set out on pages ${pageStart} to ${pageEnd}.</p>
@@ -674,7 +686,7 @@ ${auditFooter()}
   <div class="doc-page">
 ${auditLetterhead()}
 <div class="page-header"></div>
-<h2>Independent Auditor's Report</h2>
+<h2 class="center-heading">Independent Auditor's Report</h2>
 <p><em>To the Governing Body of ${co}</em></p>
 <h3>Qualified Opinion</h3>
 <p>We have audited the financial statements of ${co}, which comprise the statement of financial position as at ${yearEnd}, and the statement of financial performance, including a summary of significant accounting policies and other explanatory notes, as set out on pages ${pageStart} to ${pageEnd}.</p>
@@ -695,7 +707,7 @@ ${auditFooter()}
   <div class="doc-page">
 ${auditLetterhead()}
 <div class="page-header"></div>
-<h2>Independent Auditor's Report</h2>
+<h2 class="center-heading">Independent Auditor's Report</h2>
 <p><em>To the Governing Body of ${co}</em></p>
 <h3>Disclaimer of Opinion</h3>
 <p>We have audited the financial statements of ${co}, which comprise the statement of financial position as at ${yearEnd}, and the statement of financial performance, including a summary of significant accounting policies and other explanatory notes, as set out on pages ${pageStart} to ${pageEnd}.</p>
@@ -997,6 +1009,7 @@ ${bcMgmtRulesParagraph}
 
   // ── ACCOUNTING ENGAGEMENT LETTER (CA Letterhead) ──
   function buildAccountingEngagementLetter() {
+    const signer = document.getElementById('engSignerAccounting')?.value || compilerSigner;
     return `
   <div class="doc-page">
 ${caLetterhead()}
@@ -1025,7 +1038,7 @@ ${postalHtml}
 <p>Kindly acknowledge receipt of this letter. Should the content not correspond with your view of our terms of engagement, we will gladly discuss this matter further with you.</p>
 <p>Yours Faithfully</p>
 <br>
-<p><strong>${compilerSigner}</strong></p>
+<p><strong>${signer}</strong></p>
 <br>
 <p>We, the undersigned, agree to the terms of this letter.</p>
 ${engSigBlock}
@@ -1036,6 +1049,8 @@ ${letterheadFooter()}
 
   // ── REVIEW ENGAGEMENT LETTER (CA Letterhead) ──
   function buildReviewEngagementLetter() {
+    const signer = document.getElementById('engSignerReview')?.value || compilerSigner;
+    const practitioner = engSignerNameMap[signer] || signer;
     return `
   <div class="doc-page">
 ${caLetterhead()}
@@ -1074,7 +1089,7 @@ ${postalHtml}
 <p>Our fees are based on the time required by the resources assigned to the engagement. The fees billed are based on the degree of responsibility involved, as well as the level of experience, knowledge and skill required. Our fees, together with disbursements, will be billed as work progresses, and settlement is due on presentation of our invoices.</p>
 <p><em><strong>Agreement of terms</strong></em></p>
 <p>We look forward to full cooperation with your staff during our review. We are available to discuss this letter with you at any time. Once it has been agreed to, this letter will remain effective for future years unless it is terminated, amended or superseded. The individual practitioner responsible and accountable for the review engagement is:</p>
-<p><strong>${engPractitioner}</strong></p>
+<p><strong>${practitioner}</strong></p>
 <p>Please sign and return the attached copy of this letter, including our standard terms and conditions, to indicate that it is in accordance with your understanding of, and agreement with, the arrangements for our review of the financial statements, including our respective responsibilities.</p>
 <p>Yours faithfully</p>
 <br>
@@ -1088,6 +1103,8 @@ ${engSigBlock}
 
   // ── CLUB / CHURCH AUDIT ENGAGEMENT LETTER (Audit Letterhead) ──
   function buildClubChurchAuditEngagementLetter() {
+    const signer = document.getElementById('engSignerAudit')?.value || compilerSigner;
+    const practitioner = engSignerNameMap[signer] || signer;
     const bodyLabel = entityType === 'church' ? 'church council' : 'committee';
     const entityLabel = entityType === 'church' ? 'church' : 'club';
     return `
@@ -1118,7 +1135,7 @@ ${postalHtml}
 <p>Our fees are based on the time required by the resources assigned to the engagement. The fees billed are based on the degree of responsibility involved, as well as the level of experience, knowledge and skill required. Our fees, together with disbursements, will be billed as work progresses, and settlement is due on presentation of our invoices.</p>
 <p><em><strong>Agreement of terms</strong></em></p>
 <p>We look forward to full cooperation with your staff during our audit. We are available to discuss this letter with you at any time. Once it has been agreed to, this letter will remain effective for future years unless it is terminated, amended or superseded. The individual practitioner responsible and accountable for the audit engagement is:</p>
-<p><strong>${engPractitioner}</strong></p>
+<p><strong>${practitioner}</strong></p>
 <p>Please sign and return the attached copy of this letter, including our standard terms and conditions, to indicate that it is in accordance with your understanding of, and agreement with, the arrangements for our audit of the financial statements, including our respective responsibilities.</p>
 <p>Yours faithfully</p>
 <br>
@@ -1136,6 +1153,8 @@ ${auditFooter()}
 
   // ── AUDIT ENGAGEMENT LETTER (Audit Letterhead) ──
   function buildAuditEngagementLetter() {
+    const signer = document.getElementById('engSignerAudit')?.value || compilerSigner;
+    const practitioner = engSignerNameMap[signer] || signer;
     return `
   <div class="doc-page">
 ${auditLetterhead()}
@@ -1173,7 +1192,7 @@ ${postalHtml}
 <p>Our fees are based on the time required by the resources assigned to the engagement. The fees billed are based on the degree of responsibility involved, as well as the level of experience, knowledge and skill required. Our fees, together with disbursements, will be billed as work progresses, and settlement is due on presentation of our invoices.</p>
 <p><em><strong>Agreement of terms</strong></em></p>
 <p>We look forward to full cooperation with your staff during our audit. We are available to discuss this letter with you at any time. Once it has been agreed to, this letter will remain effective for future years unless it is terminated, amended or superseded. The individual practitioner responsible and accountable for the audit engagement is:</p>
-<p><strong>${engPractitioner}</strong></p>
+<p><strong>${practitioner}</strong></p>
 <p>Please sign and return the attached copy of this letter, including our standard terms and conditions, to indicate that it is in accordance with your understanding of, and agreement with, the arrangements for our audit of the financial statements, including our respective responsibilities.</p>
 <p>Yours faithfully</p>
 <br>
