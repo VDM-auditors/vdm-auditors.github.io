@@ -658,12 +658,38 @@ ${auditFooter()}
 <div class="page-number">${pg3}</div>
   </div>`;
 
+  // ── PAGE: CHURCH INDEPENDENT AUDITOR'S REPORT ──
+  const pageAuditChurch = `
+  <div class="doc-page">
+${auditLetterhead()}
+<h2 class="center-heading">Independent Auditor's Report</h2>
+<p><em>To the Church Council of ${co}</em></p>
+${regLineItalic}
+<h3>Opinion</h3>
+<p>We have audited the financial statements of ${co} set out on pages ${pageStart} to ${pageEnd}, which comprise the statement of financial position as at ${yearEnd}, and the statement of profit or loss and other comprehensive income, statement of changes in equity and statement of cash flows for the year then ended, and notes to the financial statements, including a summary of significant accounting policies.</p>
+<p>In our opinion, the financial statements present fairly, in all material respects, the financial position of ${co} as at ${yearEnd}, and its financial performance and cash flows for the year then ended in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em>.</p>
+${auditQualifiedSection}
+${auditEmphasisSection}
+${auditDisclaimerSection}
+${auditOtherSection}
+<h3>Basis for Opinion</h3>
+<p>We conducted our audit in accordance with <em>'International Standards on Auditing (ISAs)'</em>. Our responsibilities under those standards are further described in the <em>'Auditor's Responsibilities for the Audit of the Financial Statements'</em> section of our report. We are independent of the church in accordance with the <em>'Independent Regulatory Board for Auditors Code of Professional Conduct for Registered Auditors (IRBA Code)'</em> and other independence requirements applicable to performing audits of financial statements in South Africa. We have fulfilled our other ethical responsibilities in accordance with the <em>'IRBA Code'</em> and in accordance with other ethical requirements applicable to performing audits in South Africa. The <em>'IRBA Code'</em> is consistent with the <em>'International Ethics Standards Board for Accountants Code of Ethics for Professional Accountants (Parts A and B)'</em>. We believe that the audit evidence we have obtained is sufficient and appropriate to provide a basis for our opinion.</p>
+<h3>Responsibilities of the Church Council for the Financial Statements</h3>
+<p>The council is responsible for the preparation and fair presentation of the financial statements in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em> and the requirements of the Companies Act of South Africa, and for such internal control as the council determines is necessary to enable the preparation of financial statements that are free from material misstatement, whether due to fraud or error.</p>
+<p>In preparing the financial statements, the council is responsible for assessing the church's ability to continue as a going concern, disclosing, as applicable, matters related to going concern and using the going concern basis of accounting unless the council either intends to liquidate the church or to cease operations, or has no realistic alternative but to do so.</p>
+<h3>Auditor's Responsibilities for the Audit of the Financial Statements</h3>
+<p>Our objectives are to obtain reasonable assurance about whether the financial statements as a whole are free from material misstatement, whether due to fraud or error, and to issue an auditor's report that includes our opinion. Reasonable assurance is a high level of assurance, but is not a guarantee that an audit conducted in accordance with <em>'International Standards on Auditing (ISAs)'</em> will always detect a material misstatement when it exists. Misstatements can arise from fraud or error and are considered material if, individually or in the aggregate, they could reasonably be expected to influence the economic decisions of users taken on the basis of these financial statements.</p>
+${compilerBlock(compilerSigner, dateSigned)}
+${auditFooter()}
+<div class="page-number">${pg3}</div>
+  </div>`;
+
   // ── PAGE: CLUB INDEPENDENT AUDITOR'S REPORT ──
   const pageAuditClub = `
   <div class="doc-page">
 ${auditLetterhead()}
 <h2 class="center-heading">Independent Auditor's Report</h2>
-<p><em>To the ${terms.report_to} of ${co}</em></p>
+<p><em>To the Committee of ${co}</em></p>
 ${regLineItalic}
 <h3>Opinion</h3>
 <p>We have audited the financial statements of ${co} set out on pages ${pageStart} to ${pageEnd}, which comprise the statement of financial position as at ${yearEnd}, and the statement of profit or loss and other comprehensive income, statement of changes in equity and statement of cash flows for the year then ended, and notes to the financial statements, including a summary of significant accounting policies.</p>
@@ -1729,7 +1755,7 @@ ${lcSigned}
   } else if (entityType === 'church') {
     // Church: Cover + Audit Report + (optional) Policies + Repr Letter
     const includeChurchPolicies = getRadio('churchPolicies') !== 'no';
-    assembledPages = coverPage + pageAudit + (includeChurchPolicies ? policyPages : '') + engagementLetterPages + reprLetter;
+    assembledPages = coverPage + pageAuditChurch + (includeChurchPolicies ? policyPages : '') + engagementLetterPages + reprLetter;
   } else if (entityType === 'club') {
     // Club: Cover + Club Audit Report + Policies + Repr Letter
     assembledPages = coverPage + pageAuditClub + policyPages + engagementLetterPages + reprLetter;
