@@ -44,6 +44,7 @@ function generateDoc() {
   }
   if (placeholder) placeholder.style.display = 'none';
   document.getElementById('btn-print')?.classList.add('visible');
+  document.getElementById('btn-word')?.classList.add('visible');
 }
 
 // ── Initialise on load ──
@@ -136,6 +137,7 @@ function toggleCal(calId)              { calendarPicker.toggleCal(calId); }
 // PreviewManager
 function togglePreview()               { previewManager.togglePreview(); }
 function printDocument()               { previewManager.printDocument(); }
+function exportWord()                  { previewManager.exportWord(); }
 
 // ExcelImporter
 function importSecInfo(input)          { excelImporter.importSecInfo(input); }

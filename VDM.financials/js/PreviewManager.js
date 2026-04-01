@@ -178,6 +178,86 @@ class PreviewManager {
     printWindow.document.close();
   }
 
+  // ── Export as Word Document ──────────────────────────────────────────────
+  // Wraps generated HTML in a Word-compatible document and triggers download.
+
+  exportWord() {
+    const output = this.documentOutput;
+    if (!output || !output.classList.contains('visible')) {
+      alert('Please generate a document first.');
+      return;
+    }
+
+    const docContent = output.innerHTML;
+
+    // Get the company name for the filename
+    const coName = document.getElementById('coName')?.value?.trim() || 'Document';
+    const safeFileName = coName.replace(/[^a-zA-Z0-9 _-]/g, '').replace(/\s+/g, '_');
+
+    // Build Word-compatible HTML with embedded styles
+    const wordHTML = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="UTF-8">
+  <meta name="ProgId" content="Word.Document">
+  <meta name="Generator" content="VDM Financials">
+  <!--[if gte mso 9]>
+  <xml>
+    <w:WordDocument>
+      <w:View>Print</w:View>
+      <w:Zoom>100</w:Zoom>
+      <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+  </xml>
+  <![endif]-->
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 20mm 20mm 20mm;
+    }
+    body {
+      font-family: 'Times New Roman', serif;
+      font-size: 11pt;
+      line-height: 1.5;
+      color: #1a1a1a;
+      margin: 0;
+      padding: 0;
+    }
+    h1 { font-size: 16pt; font-weight: bold; margin: 12pt 0 6pt; }
+    h2 { font-size: 14pt; font-weight: bold; margin: 10pt 0 4pt; }
+    h3 { font-size: 12pt; font-weight: bold; margin: 8pt 0 4pt; text-decoration: underline; }
+    p { margin: 4pt 0; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { padding: 4pt 6pt; vertical-align: top; }
+    .doc-page, .cover-page {
+      page-break-after: always;
+    }
+    .page-number { display: none; }
+    .letterhead-img, .letterhead-footer-img { display: none; }
+    img { max-width: 100%; }
+  </style>
+</head>
+<body>
+  ${docContent}
+</body>
+</html>`;
+
+    // Create Blob and trigger download
+    const blob = new Blob(['\ufeff' + wordHTML], {
+      type: 'application/msword'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${safeFileName}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   // ── Live update (stub — generate on button) ─────────────────────────────
 
   liveUpdate() {
