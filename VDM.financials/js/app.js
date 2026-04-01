@@ -51,6 +51,11 @@ entityManager.onReportTypeChange();
 entityManager.addDirector();
 entityManager.addDirector();
 entityManager.buildPolicyChecklist();
+entityManager.onCompilerSignerChange();
+
+document.addEventListener('DOMContentLoaded', () => {
+  entityManager.onCompilerSignerChange();
+});
 
 // Wire bank "Other" live input
 document.addEventListener('input', function (e) {
@@ -103,6 +108,7 @@ function onSchoolPreparerCapacityChange()  { entityManager.onSchoolPreparerCapac
 
 // EntityManager — engagement letter
 function toggleEngagementTypes()       { entityManager.toggleEngagementTypes(); }
+function onEngagementTypesChange()     { entityManager.onEngagementTypesChange(); }
 function onEngagementSignerChange(selectId) { entityManager.onEngagementSignerChange(selectId); }
 
 // EntityManager — body corporate & trust

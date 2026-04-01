@@ -574,88 +574,6 @@
         </div>
         <p class="hint" id="preparer-preview" style="font-style:italic;color:#555;margin-bottom:4px;min-height:16px;">
         </p>
-        <!-- Engagement letter question — shown for all report types -->
-        <div id="engagement-block"
-          style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
-          <label style="font-size:13px;font-weight:600;color:var(--ink);">Do you require an engagement letter?</label>
-          <div class="options-group" style="margin-top:6px;">
-            <label class="option-pill">
-              <input type="radio" name="engagementLetter" value="no" checked
-                onchange="toggleEngagementTypes(); liveUpdate()"> No
-            </label>
-            <label class="option-pill">
-              <input type="radio" name="engagementLetter" value="yes" onchange="toggleEngagementTypes(); liveUpdate()">
-              Yes
-            </label>
-          </div>
-          <div id="engagement-types-panel"
-            style="display:none;margin-top:10px;padding:12px 16px;background:var(--panel);border-radius:8px;border:1px solid var(--border);">
-            <div id="engagement-types-standard">
-              <label
-                style="font-size:12px;font-weight:600;color:var(--ink-light);display:block;margin-bottom:8px;">Select
-                engagement letter type(s):</label>
-              <div style="display:flex;flex-wrap:wrap;gap:10px;">
-                <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
-                  <input type="checkbox" id="engTypeAccounting" onchange="liveUpdate()"> Accounting
-                </label>
-                <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
-                  <input type="checkbox" id="engTypeReview" onchange="liveUpdate()"> Review
-                </label>
-                <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
-                  <input type="checkbox" id="engTypeAudit" onchange="liveUpdate()"> Audit
-                </label>
-              </div>
-            </div>
-
-            <!-- Engagement letter signatories (conditional per selected letter type) -->
-            <div id="engagement-signers-panel"
-              style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);display:none;">
-              <div class="field-group" id="eng-signer-accounting-box" style="display:none;margin-bottom:10px;">
-                <label style="font-size:12px;font-weight:600;">Accounting Engagement Letter Signed By</label>
-                <select id="engSignerAccounting" onchange="onEngagementSignerChange('engSignerAccounting'); liveUpdate()">
-                  <option value="L VAN DER MERWE">L van der Merwe</option>
-                  <option value="HL VAN DER MERWE">HL van der Merwe</option>
-                  <option value="R DE BEER">R de Beer</option>
-                  <option value="R WOLMARANS">R Wolmarans</option>
-                </select>
-              </div>
-              <div class="field-group" id="eng-signer-review-box" style="display:none;margin-bottom:10px;">
-                <label style="font-size:12px;font-weight:600;">Review Engagement Letter Signed By</label>
-                <select id="engSignerReview" onchange="onEngagementSignerChange('engSignerReview'); liveUpdate()">
-                  <option value="L VAN DER MERWE">L van der Merwe</option>
-                  <option value="HL VAN DER MERWE">HL van der Merwe</option>
-                  <option value="R DE BEER">R de Beer</option>
-                  <option value="R WOLMARANS">R Wolmarans</option>
-                </select>
-              </div>
-              <div class="field-group" id="eng-signer-audit-box" style="display:none;margin-bottom:0;">
-                <label style="font-size:12px;font-weight:600;">Audit Engagement Letter Signed By</label>
-                <select id="engSignerAudit" onchange="onEngagementSignerChange('engSignerAudit'); liveUpdate()">
-                  <option value="L VAN DER MERWE">L van der Merwe</option>
-                  <option value="R DE BEER">R de Beer</option>
-                </select>
-                <p class="hint" style="margin-top:6px;">Audit engagement letters may only be signed by Leon van der Merwe or Reinette de Beer.</p>
-              </div>
-              <p class="hint" id="engagement-signer-warning" style="display:none;color:var(--danger);margin-top:10px;">
-                The same partner may not sign different engagement letters. Please select different signatories.
-              </p>
-            </div>
-            <div id="engagement-types-attorneys" style="display:none;">
-              <p style="font-size:12px;color:var(--ink-light);margin:0;">✓ Reasonable Assurance Engagement — Legal
-                Practitioners' Trust Accounts (Audit letterhead)</p>
-              <div class="field-group" style="margin-top:10px;margin-bottom:0;">
-                <label style="font-size:12px;font-weight:600;">Engagement Letter Signed By</label>
-                <div class="options-group" style="margin-top:4px;">
-                  <label class="option-pill"><input type="radio" name="attEngSigner" value="R DE BEER" checked
-                      onchange="liveUpdate()"> R de Beer (Reinette)</label>
-                  <label class="option-pill"><input type="radio" name="attEngSigner" value="L VAN DER MERWE"
-                      onchange="liveUpdate()"> L van der Merwe </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p class="hint">If yes, the selected engagement letter(s) will be appended to the generated document.</p>
-        </div>
       </div>
 
       <hr class="form-divider" id="step6-divider">
@@ -1139,7 +1057,98 @@
           Add Loan Certificate</button>
       </div>
 
-      <button class="btn-generate" onclick="generateAndPreview()">Generate Document</button>
+      <hr class="form-divider">
+      <div class="step-label">Step 10</div>
+      <div class="section-title">Engagement Letters</div>
+      <div id="engagement-block"
+        style="display:block;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+        <label style="font-size:13px;font-weight:600;color:var(--ink);">Do you require an engagement letter?</label>
+        <div class="options-group" style="margin-top:6px;">
+          <label class="option-pill">
+            <input type="radio" name="engagementLetter" value="no" checked
+              onchange="toggleEngagementTypes(); liveUpdate()"> No
+          </label>
+          <label class="option-pill">
+            <input type="radio" name="engagementLetter" value="yes" onchange="toggleEngagementTypes(); liveUpdate()">
+            Yes
+          </label>
+        </div>
+        <div id="engagement-types-panel"
+          style="display:none;margin-top:10px;padding:12px 16px;background:var(--panel);border-radius:8px;border:1px solid var(--border);">
+          <div id="engagement-types-standard">
+            <label
+              style="font-size:12px;font-weight:600;color:var(--ink-light);display:block;margin-bottom:8px;">Select
+              engagement letter type(s):</label>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+              <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
+                <input type="checkbox" id="engTypeAccounting" onchange="onEngagementTypesChange(); liveUpdate()"> Accounting
+              </label>
+              <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
+                <input type="checkbox" id="engTypeReview" onchange="onEngagementTypesChange(); liveUpdate()"> Review
+              </label>
+              <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
+                <input type="checkbox" id="engTypeAudit" onchange="onEngagementTypesChange(); liveUpdate()"> Audit
+              </label>
+            </div>
+          </div>
+
+          <!-- Engagement letter signatories (conditional per selected letter type) -->
+          <div id="engagement-signers-panel"
+            style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);display:none;">
+            <div class="field-group" id="eng-signer-accounting-box" style="display:none;margin-bottom:10px;">
+              <label style="font-size:12px;font-weight:600;">Accounting Engagement Letter Signed By</label>
+              <select id="engSignerAccounting" onchange="onEngagementSignerChange('engSignerAccounting'); liveUpdate()">
+                <option value="" selected>Select signer…</option>
+                <option value="L VAN DER MERWE">L van der Merwe</option>
+                <option value="HL VAN DER MERWE">HL van der Merwe</option>
+                <option value="R DE BEER">R de Beer</option>
+                <option value="R WOLMARANS">R Wolmarans</option>
+              </select>
+            </div>
+            <div class="field-group" id="eng-signer-review-box" style="display:none;margin-bottom:10px;">
+              <label style="font-size:12px;font-weight:600;">Review Engagement Letter Signed By</label>
+              <select id="engSignerReview" onchange="onEngagementSignerChange('engSignerReview'); liveUpdate()">
+                <option value="" selected>Select signer…</option>
+                <option value="L VAN DER MERWE">L van der Merwe</option>
+                <option value="HL VAN DER MERWE">HL van der Merwe</option>
+                <option value="R DE BEER">R de Beer</option>
+                <option value="R WOLMARANS">R Wolmarans</option>
+              </select>
+            </div>
+            <div class="field-group" id="eng-signer-audit-box" style="display:none;margin-bottom:0;">
+              <label style="font-size:12px;font-weight:600;">Audit Engagement Letter Signed By</label>
+              <select id="engSignerAudit" onchange="onEngagementSignerChange('engSignerAudit'); liveUpdate()">
+                <option value="" selected>Select signer…</option>
+                <option value="L VAN DER MERWE">L van der Merwe</option>
+                <option value="R DE BEER">R de Beer</option>
+              </select>
+              <p class="hint" style="margin-top:6px;">Audit engagement letters may only be signed by Leon van der Merwe or Reinette de Beer.</p>
+            </div>
+            <p class="hint" id="engagement-signer-warning" style="display:none;color:var(--danger);margin-top:10px;">
+              The same partner may not sign different engagement letters. Please select different signatories.
+            </p>
+            <p class="hint" id="engagement-signer-required-warning" style="display:none;color:var(--danger);margin-top:8px;">
+              Please choose a signer for each selected engagement letter (Accounting/Review/Audit) before generating.
+            </p>
+          </div>
+          <div id="engagement-types-attorneys" style="display:none;">
+            <p style="font-size:12px;color:var(--ink-light);margin:0;">✓ Reasonable Assurance Engagement — Legal
+              Practitioners' Trust Accounts (Audit letterhead)</p>
+            <div class="field-group" style="margin-top:10px;margin-bottom:0;">
+              <label style="font-size:12px;font-weight:600;">Engagement Letter Signed By</label>
+              <div class="options-group" style="margin-top:4px;">
+                <label class="option-pill"><input type="radio" name="attEngSigner" value="R DE BEER" checked
+                    onchange="liveUpdate()"> R de Beer (Reinette)</label>
+                <label class="option-pill"><input type="radio" name="attEngSigner" value="L VAN DER MERWE"
+                    onchange="liveUpdate()"> L van der Merwe </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="hint">If yes, the selected engagement letter(s) will be appended to the generated document.</p>
+      </div>
+
+      <button class="btn-generate" id="btn-generate" onclick="generateAndPreview()">Generate Document</button>
       <button class="btn-print" id="btn-print" onclick="printDocument()">🖨 Print / Save as PDF</button>
 
     </div>

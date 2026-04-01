@@ -47,6 +47,8 @@ class EntityManager {
   removeDirector(id) {
     this.directors = this.directors.filter(d => d.id !== id);
     document.getElementById(`dir-entry-${id}`)?.remove();
+    this.onCompilerSignerChange();
+    this.onCompilerSignerChange();
     this.liveUpdate();
   }
 
@@ -565,9 +567,9 @@ class EntityManager {
         : 'VDM Signatory (Reviewer / Auditor)';
     }
 
-    // Show engagement letter question for all report types (except school)
+    // Show engagement letter question for all report types and all entities
     const engBlock = document.getElementById('engagement-block');
-    if (engBlock) engBlock.style.display = (!isSchool) ? 'block' : 'none';
+    if (engBlock) engBlock.style.display = 'block';
     this.toggleEngagementTypes();
 
     this.updatePreparerPreview();
@@ -586,6 +588,11 @@ class EntityManager {
       document.getElementById('engTypeAudit').checked = false;
     }
     this.updateEngagementSignerUI();
+  }
+
+  onEngagementTypesChange() {
+    this.updateEngagementSignerUI();
+    this.liveUpdate();
   }
 
   onEngagementSignerChange(selectId) {
@@ -624,6 +631,10 @@ class EntityManager {
 
     if (!show || isAtt) {
       panel.style.display = 'none';
+      const reqWarn = document.getElementById('engagement-signer-required-warning');
+      if (reqWarn) reqWarn.style.display = 'none';
+      const genBtn = document.getElementById('btn-generate');
+      if (genBtn) genBtn.disabled = false;
       return;
     }
 
@@ -684,6 +695,18 @@ class EntityManager {
     if (aud && audSel) chosen.push(audSel.value);
     const hasDup = (new Set(chosen)).size !== chosen.length;
     if (warn) warn.style.display = hasDup ? 'block' : 'none';
+
+    // Require explicit signer selection for each selected engagement letter type
+    const missingAcc = acc && (!accSel || !accSel.value);
+    const missingRev = rev && (!revSel || !revSel.value);
+    const missingAud = aud && (!audSel || !audSel.value);
+    const hasMissing = missingAcc || missingRev || missingAud;
+    const reqWarn = document.getElementById('engagement-signer-required-warning');
+    if (reqWarn) reqWarn.style.display = (any && hasMissing) ? 'block' : 'none';
+
+    // Disable generate button if required signers missing or duplicate signers still present
+    const genBtn = document.getElementById('btn-generate');
+    if (genBtn) genBtn.disabled = (any && (hasMissing || hasDup));
 
     // Disable options already chosen by other selected letters
     const updateDisabled = (enabled, el, others) => {
