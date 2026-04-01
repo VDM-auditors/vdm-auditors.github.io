@@ -543,7 +543,7 @@
 
       <div class="field-group">
         <label id="label-signer">VDM Signatory</label>
-        <select id="compilerSigner" onchange="liveUpdate()">
+        <select id="compilerSigner" onchange="onCompilerSignerChange(); liveUpdate()">
           <option value="L VAN DER MERWE">L van der Merwe</option>
           <option value="HL VAN DER MERWE">HL van der Merwe</option>
           <option value="R DE BEER">R de Beer</option>
@@ -612,7 +612,7 @@
               style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);display:none;">
               <div class="field-group" id="eng-signer-accounting-box" style="display:none;margin-bottom:10px;">
                 <label style="font-size:12px;font-weight:600;">Accounting Engagement Letter Signed By</label>
-                <select id="engSignerAccounting" onchange="onEngagementSignerChange(); liveUpdate()">
+                <select id="engSignerAccounting" onchange="onEngagementSignerChange('engSignerAccounting'); liveUpdate()">
                   <option value="L VAN DER MERWE">L van der Merwe</option>
                   <option value="HL VAN DER MERWE">HL van der Merwe</option>
                   <option value="R DE BEER">R de Beer</option>
@@ -621,7 +621,7 @@
               </div>
               <div class="field-group" id="eng-signer-review-box" style="display:none;margin-bottom:10px;">
                 <label style="font-size:12px;font-weight:600;">Review Engagement Letter Signed By</label>
-                <select id="engSignerReview" onchange="onEngagementSignerChange(); liveUpdate()">
+                <select id="engSignerReview" onchange="onEngagementSignerChange('engSignerReview'); liveUpdate()">
                   <option value="L VAN DER MERWE">L van der Merwe</option>
                   <option value="HL VAN DER MERWE">HL van der Merwe</option>
                   <option value="R DE BEER">R de Beer</option>
@@ -630,7 +630,7 @@
               </div>
               <div class="field-group" id="eng-signer-audit-box" style="display:none;margin-bottom:0;">
                 <label style="font-size:12px;font-weight:600;">Audit Engagement Letter Signed By</label>
-                <select id="engSignerAudit" onchange="onEngagementSignerChange(); liveUpdate()">
+                <select id="engSignerAudit" onchange="onEngagementSignerChange('engSignerAudit'); liveUpdate()">
                   <option value="L VAN DER MERWE">L van der Merwe</option>
                   <option value="R DE BEER">R de Beer</option>
                 </select>

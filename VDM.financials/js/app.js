@@ -75,6 +75,7 @@ function updateBank()                  { entityManager.updateBank(); }
 function updateDividend()              { entityManager.updateDividend(); }
 function updateParent()                { entityManager.updateParent(); }
 function onTradingAsToggle()           { entityManager.onTradingAsToggle(); }
+function onCompilerSignerChange()      { entityManager.onCompilerSignerChange(); }
 
 // EntityManager — directors, shareholders, loan certs
 function addDirector()                 { entityManager.addDirector(); }
@@ -102,7 +103,7 @@ function onSchoolPreparerCapacityChange()  { entityManager.onSchoolPreparerCapac
 
 // EntityManager — engagement letter
 function toggleEngagementTypes()       { entityManager.toggleEngagementTypes(); }
-function onEngagementSignerChange()    { entityManager.onEngagementSignerChange(); }
+function onEngagementSignerChange(selectId) { entityManager.onEngagementSignerChange(selectId); }
 
 // EntityManager — body corporate & trust
 function onBcEventsChange()            { entityManager.onBcEventsChange(); }

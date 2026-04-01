@@ -1018,12 +1018,14 @@ ${bcMgmtRulesParagraph}
   // Director labels for signature block
   const engSigLabels = dirs.map(d => d.full);
   const engSigBlock = engSigLabels.length > 0
-    ? `<div style="display:grid;grid-template-columns:${engSigLabels.length > 1 ? '1fr 1fr' : '1fr'};gap:32px;margin-top:24px;">
-    ${engSigLabels.map(n => `<div><div style="border-top:1px solid #333;padding-top:6px;font-weight:bold;">${n}</div></div>`).join('')}
+    ? `<div style="display:grid;grid-template-columns:${
+        engSigLabels.length >= 3 ? '1fr 1fr 1fr' : engSigLabels.length > 1 ? '1fr 1fr' : '1fr'
+      };gap:16px;margin-top:24px;">
+    ${engSigLabels.map(n => `<div><div style="border-top:1px solid #333;padding-top:6px;font-weight:bold;font-size:9pt;">${n}</div></div>`).join('')}
    </div>`
-    : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px;">
-    <div><div style="border-top:1px solid #333;padding-top:6px;font-weight:bold;">&nbsp;</div></div>
-    <div><div style="border-top:1px solid #333;padding-top:6px;font-weight:bold;">&nbsp;</div></div>
+    : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">
+    <div><div style="border-top:1px solid #333;padding-top:6px;font-weight:bold;font-size:9pt;">&nbsp;</div></div>
+    <div><div style="border-top:1px solid #333;padding-top:6px;font-weight:bold;font-size:9pt;">&nbsp;</div></div>
    </div>`;
 
   // ── ACCOUNTING ENGAGEMENT LETTER (CA Letterhead) ──

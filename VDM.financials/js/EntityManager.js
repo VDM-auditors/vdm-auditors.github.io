@@ -588,7 +588,30 @@ class EntityManager {
     this.updateEngagementSignerUI();
   }
 
-  onEngagementSignerChange() {
+  onEngagementSignerChange(selectId) {
+    // Mark this specific signer dropdown as manually changed by the user
+    if (selectId) {
+      const el = document.getElementById(selectId);
+      if (el) el.dataset.userChanged = 'true';
+    }
+    this.updateEngagementSignerUI();
+    this.liveUpdate();
+  }
+
+  onCompilerSignerChange() {
+    // Sync engagement signer defaults to the main VDM Signatory,
+    // but only for signer dropdowns the user hasn't manually changed.
+    const compiler = document.getElementById('compilerSigner')?.value || '';
+    if (!compiler) return;
+
+    ['engSignerAccounting', 'engSignerReview', 'engSignerAudit'].forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      if (sel.dataset.userChanged === 'true') return;
+      const hasOption = Array.from(sel.options || []).some(o => o.value === compiler);
+      if (hasOption) sel.value = compiler;
+    });
+
     this.updateEngagementSignerUI();
     this.liveUpdate();
   }
@@ -622,6 +645,19 @@ class EntityManager {
     const revSel = document.getElementById('engSignerReview');
     const audSel = document.getElementById('engSignerAudit');
     const warn = document.getElementById('engagement-signer-warning');
+
+    // Default signer dropdowns to match compilerSigner unless the user has overridden them.
+    const compiler = document.getElementById('compilerSigner')?.value || '';
+    const setIfDefault = (el) => {
+      if (!el) return;
+      if (el.dataset.userChanged === 'true') return;
+      if (!compiler) return;
+      const hasOption = Array.from(el.options || []).some(o => o.value === compiler);
+      if (hasOption) el.value = compiler;
+    };
+    setIfDefault(accSel);
+    setIfDefault(revSel);
+    setIfDefault(audSel);
 
     // If duplicates exist, auto-correct by picking the first available non-conflicting option,
     // prioritising Audit selection (since its allowed list is restricted).
