@@ -614,7 +614,7 @@ ${letterheadFooter()}
   const auditOpinionHeading = isAuditQualified ? 'Qualified Opinion' : isAuditDisclaimer ? 'Disclaimer of Opinion' : 'Opinion';
   const auditBasisHeading = isAuditQualified ? 'Basis for Qualified Opinion' : isAuditDisclaimer ? 'Basis for Disclaimer of Opinion' : 'Basis for Opinion';
 
-  // Qualified: user-entered basis paragraph placed before the standard ISA paragraph
+  // Qualified: user-entered basis paragraph placed after the standard ISA paragraph
   const auditQualifiedBasisExtra = isAuditQualified
     ? `<p>${auditSubState.qualifiedText || '[Describe the basis for the qualified opinion]'}</p>` : '';
 
@@ -638,13 +638,15 @@ ${regLineItalic}
 <p>We have audited the financial statements of ${co} set out on pages ${pageStart} to ${pageEnd}, which comprise the statement of financial position as at ${yearEnd}, and the statement of profit or loss and other comprehensive income, statement of changes in equity and statement of cash flows for the year then ended, and notes to the financial statements, including a summary of significant accounting policies.</p>
 ${isAuditDisclaimer
   ? `<p>We do not express an opinion on the financial statements of ${co}. Because of the significance of the matter described in the Basis for Disclaimer of Opinion section of our report, we have not been able to obtain sufficient appropriate audit evidence to provide a basis for an audit opinion on these financial statements.</p>`
+  : isAuditQualified
+  ? `<p>In our opinion, except for the possible effect of the matter described in the Basis for Qualified Opinion section of our report, the financial statements present fairly, in all material respects, the financial position of ${co} as at ${yearEnd}, and its financial performance and cash flows for the year then ended in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em> and the requirements of the Companies Act of South Africa.</p>`
   : `<p>In our opinion, the financial statements present fairly, in all material respects, the financial position of ${co} as at ${yearEnd}, and its financial performance and cash flows for the year then ended in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em> and the requirements of the Companies Act of South Africa.</p>`}
 ${auditOtherSection}
 <h3>${auditBasisHeading}</h3>
-${auditQualifiedBasisExtra}
 ${isAuditDisclaimer
   ? `<p>${auditSubState.disclaimerText || '[Describe the basis for the disclaimer of opinion]'}</p>`
   : `<p>We conducted our audit in accordance with <em>'International Standards on Auditing (ISAs)'</em>. Our responsibilities under those standards are further described in the <em>'Auditor's Responsibilities for the Audit of the Financial Statements'</em> section of our report. We are independent of the company in accordance with the <em>'Independent Regulatory Board for Auditors Code of Professional Conduct for Registered Auditors (IRBA Code)'</em> and other independence requirements applicable to performing audits of financial statements in South Africa. We have fulfilled our other ethical responsibilities in accordance with the <em>'IRBA Code'</em> and in accordance with other ethical requirements applicable to performing audits in South Africa. The <em>'IRBA Code'</em> is consistent with the <em>'International Ethics Standards Board for Accountants Code of Ethics for Professional Accountants (Parts A and B)'</em>. We believe that the audit evidence we have obtained is sufficient and appropriate to provide a basis for our opinion.</p>`}
+${auditQualifiedBasisExtra}
 ${auditEmphasisSection}
 ${isAuditDisclaimer
   ? `<h3>Other Information</h3>
@@ -675,13 +677,15 @@ ${regLineItalic}
 <p>We have audited the financial statements of ${co} set out on pages ${pageStart} to ${pageEnd}, which comprise the statement of financial position as at ${yearEnd}, and the statement of profit or loss and other comprehensive income, statement of changes in equity and statement of cash flows for the year then ended, and notes to the financial statements, including a summary of significant accounting policies.</p>
 ${isAuditDisclaimer
   ? `<p>We do not express an opinion on the financial statements of ${co}. Because of the significance of the matter described in the Basis for Disclaimer of Opinion section of our report, we have not been able to obtain sufficient appropriate audit evidence to provide a basis for an audit opinion on these financial statements.</p>`
+  : isAuditQualified
+  ? `<p>In our opinion, except for the possible effect of the matter described in the Basis for Qualified Opinion section of our report, the financial statements present fairly, in all material respects, the financial position of ${co} as at ${yearEnd}, and its financial performance and cash flows for the year then ended in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em>.</p>`
   : `<p>In our opinion, the financial statements present fairly, in all material respects, the financial position of ${co} as at ${yearEnd}, and its financial performance and cash flows for the year then ended in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em>.</p>`}
 ${auditOtherSection}
 <h3>${auditBasisHeading}</h3>
-${auditQualifiedBasisExtra}
 ${isAuditDisclaimer
   ? `<p>${auditSubState.disclaimerText || '[Describe the basis for the disclaimer of opinion]'}</p>`
   : `<p>We conducted our audit in accordance with <em>'International Standards on Auditing (ISAs)'</em>. Our responsibilities under those standards are further described in the <em>'Auditor's Responsibilities for the Audit of the Financial Statements'</em> section of our report. We are independent of the church in accordance with the <em>'Independent Regulatory Board for Auditors Code of Professional Conduct for Registered Auditors (IRBA Code)'</em> and other independence requirements applicable to performing audits of financial statements in South Africa. We have fulfilled our other ethical responsibilities in accordance with the <em>'IRBA Code'</em> and in accordance with other ethical requirements applicable to performing audits in South Africa. The <em>'IRBA Code'</em> is consistent with the <em>'International Ethics Standards Board for Accountants Code of Ethics for Professional Accountants (Parts A and B)'</em>. We believe that the audit evidence we have obtained is sufficient and appropriate to provide a basis for our opinion.</p>`}
+${auditQualifiedBasisExtra}
 ${auditEmphasisSection}
 <h3>Responsibilities of the Church Council for the Financial Statements</h3>
 <p>The council is responsible for the preparation and fair presentation of the financial statements in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em>, and for such internal control as the council determines is necessary to enable the preparation of financial statements that are free from material misstatement, whether due to fraud or error.</p>
@@ -704,13 +708,15 @@ ${regLineItalic}
 <p>We have audited the financial statements of ${co} set out on pages ${pageStart} to ${pageEnd}, which comprise the statement of financial position as at ${yearEnd}, and the statement of profit or loss and other comprehensive income, statement of changes in equity and statement of cash flows for the year then ended, and notes to the financial statements, including a summary of significant accounting policies.</p>
 ${isAuditDisclaimer
   ? `<p>We do not express an opinion on the financial statements of ${co}. Because of the significance of the matter described in the Basis for Disclaimer of Opinion section of our report, we have not been able to obtain sufficient appropriate audit evidence to provide a basis for an audit opinion on these financial statements.</p>`
+  : isAuditQualified
+  ? `<p>In our opinion, except for the possible effect of the matter described in the Basis for Qualified Opinion section of our report, the financial statements present fairly, in all material respects, the financial position of ${co} as at ${yearEnd}, and its financial performance and cash flows for the year then ended in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em>.</p>`
   : `<p>In our opinion, the financial statements present fairly, in all material respects, the financial position of ${co} as at ${yearEnd}, and its financial performance and cash flows for the year then ended in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em>.</p>`}
 ${auditOtherSection}
 <h3>${auditBasisHeading}</h3>
-${auditQualifiedBasisExtra}
 ${isAuditDisclaimer
   ? `<p>${auditSubState.disclaimerText || '[Describe the basis for the disclaimer of opinion]'}</p>`
   : `<p>We conducted our audit in accordance with <em>'International Standards on Auditing (ISAs)'</em>. Our responsibilities under those standards are further described in the <em>'Auditor's Responsibilities for the Audit of the Financial Statements'</em> section of our report. We are independent of the club in accordance with the <em>'Independent Regulatory Board for Auditors Code of Professional Conduct for Registered Auditors (IRBA Code)'</em> and other independence requirements applicable to performing audits of financial statements in South Africa. We have fulfilled our other ethical responsibilities in accordance with the <em>'IRBA Code'</em> and in accordance with other ethical requirements applicable to performing audits in South Africa. The <em>'IRBA Code'</em> is consistent with the <em>'International Ethics Standards Board for Accountants Code of Ethics for Professional Accountants (Parts A and B)'</em>. We believe that the audit evidence we have obtained is sufficient and appropriate to provide a basis for our opinion.</p>`}
+${auditQualifiedBasisExtra}
 ${auditEmphasisSection}
 <h3>Responsibilities of the Committee for the Financial Statements</h3>
 <p>The club's committee is responsible for the preparation and fair presentation of the financial statements in accordance with the <em>'International Financial Reporting Standard for Small and Medium-sized Entities'</em>, and for such internal control as the club's committee determines is necessary to enable the preparation of financial statements that are free from material misstatement, whether due to fraud or error.</p>
