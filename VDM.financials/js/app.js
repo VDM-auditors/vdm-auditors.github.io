@@ -41,6 +41,10 @@ function generateDoc() {
   if (output) {
     output.innerHTML = html;
     output.classList.add('visible');
+    // Make each page editable so the user can tweak text before printing/exporting
+    output.querySelectorAll('.doc-page, .cover-page').forEach(page => {
+      page.setAttribute('contenteditable', 'true');
+    });
   }
   if (placeholder) placeholder.style.display = 'none';
   document.getElementById('btn-print')?.classList.add('visible');

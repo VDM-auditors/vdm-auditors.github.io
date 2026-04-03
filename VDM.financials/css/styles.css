@@ -1064,6 +1064,12 @@ header p {
   min-height: 1100px;
 }
 
+.doc-page[contenteditable="true"]:focus,
+.cover-page[contenteditable="true"]:focus {
+  outline: 2px dashed #4a90d9;
+  outline-offset: -2px;
+}
+
 .letterhead-img {
   width: calc(100% + 128px);
   margin-left: -64px;
