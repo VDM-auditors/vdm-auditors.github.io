@@ -44,7 +44,6 @@ function generateDoc() {
   }
   if (placeholder) placeholder.style.display = 'none';
   document.getElementById('btn-print')?.classList.add('visible');
-  document.getElementById('btn-word')?.classList.add('visible');
   // Reset edit mode — preview is read-only until user clicks Edit Preview
   const btnEdit = document.getElementById('btn-edit-preview');
   if (btnEdit) {
@@ -52,11 +51,13 @@ function generateDoc() {
     btnEdit.classList.remove('active');
     btnEdit.textContent = '✏️ Edit Preview';
   }
+  document.getElementById('edit-toolbar')?.classList.remove('visible');
 }
 
 function toggleEditPreview() {
   const output = document.getElementById('document-output');
   const btn = document.getElementById('btn-edit-preview');
+  const toolbar = document.getElementById('edit-toolbar');
   if (!output || !btn) return;
   const pages = output.querySelectorAll('.doc-page, .cover-page');
   const isEditing = btn.classList.contains('active');
@@ -65,12 +66,22 @@ function toggleEditPreview() {
     pages.forEach(p => p.removeAttribute('contenteditable'));
     btn.classList.remove('active');
     btn.textContent = '✏️ Edit Preview';
+    toolbar?.classList.remove('visible');
   } else {
     // Turn ON editing
     pages.forEach(p => p.setAttribute('contenteditable', 'true'));
     btn.classList.add('active');
     btn.textContent = '✏️ Stop Editing';
+    toolbar?.classList.add('visible');
   }
+}
+
+// ── Formatting toolbar commands ──
+function execFmt(command) {
+  document.execCommand(command, false, null);
+}
+function execFmtVal(command, value) {
+  if (value) document.execCommand(command, false, value);
 }
 
 // ── Initialise on load ──
@@ -163,7 +174,6 @@ function toggleCal(calId)              { calendarPicker.toggleCal(calId); }
 // PreviewManager
 function togglePreview()               { previewManager.togglePreview(); }
 function printDocument()               { previewManager.printDocument(); }
-function exportWord()                  { previewManager.exportWord(); }
 
 // ExcelImporter
 function importSecInfo(input)          { excelImporter.importSecInfo(input); }

@@ -1150,13 +1150,55 @@
 
       <button class="btn-generate" id="btn-generate" onclick="generateAndPreview()">Generate Document</button>
       <button class="btn-print" id="btn-print" onclick="printDocument()">🖨 Print / Save as PDF</button>
-      <button class="btn-word" id="btn-word" onclick="exportWord()">📄 Create Word Document</button>
       <button class="btn-edit-preview" id="btn-edit-preview" onclick="toggleEditPreview()">✏️ Edit Preview</button>
 
     </div>
 
     <!-- ══════════════ PREVIEW PANEL ══════════════ -->
     <div class="preview-panel">
+
+      <!-- Editing toolbar — shown when Edit Preview is active -->
+      <div class="edit-toolbar" id="edit-toolbar">
+        <div class="toolbar-group">
+          <button class="tb-btn" onclick="execFmt('bold')" title="Bold"><b>B</b></button>
+          <button class="tb-btn" onclick="execFmt('italic')" title="Italic"><i>I</i></button>
+          <button class="tb-btn" onclick="execFmt('underline')" title="Underline"><u>U</u></button>
+          <button class="tb-btn" onclick="execFmt('strikeThrough')" title="Strikethrough"><s>S</s></button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <button class="tb-btn" onclick="execFmt('justifyLeft')" title="Align Left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+          </button>
+          <button class="tb-btn" onclick="execFmt('justifyCenter')" title="Align Center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+          </button>
+          <button class="tb-btn" onclick="execFmt('justifyFull')" title="Justify">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <select class="tb-select" onchange="execFmtVal('fontSize', this.value); this.selectedIndex=0;" title="Font Size">
+            <option value="" disabled selected>Size</option>
+            <option value="1">8pt</option>
+            <option value="2">10pt</option>
+            <option value="3">12pt</option>
+            <option value="4">14pt</option>
+            <option value="5">18pt</option>
+            <option value="6">24pt</option>
+          </select>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <button class="tb-btn" onclick="execFmt('undo')" title="Undo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          </button>
+          <button class="tb-btn" onclick="execFmt('redo')" title="Redo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+          </button>
+        </div>
+      </div>
 
       <div class="preview-placeholder" id="placeholder">
         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
