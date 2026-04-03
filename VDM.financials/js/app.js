@@ -41,14 +41,36 @@ function generateDoc() {
   if (output) {
     output.innerHTML = html;
     output.classList.add('visible');
-    // Make each page editable so the user can tweak text before printing/exporting
-    output.querySelectorAll('.doc-page, .cover-page').forEach(page => {
-      page.setAttribute('contenteditable', 'true');
-    });
   }
   if (placeholder) placeholder.style.display = 'none';
   document.getElementById('btn-print')?.classList.add('visible');
   document.getElementById('btn-word')?.classList.add('visible');
+  // Reset edit mode — preview is read-only until user clicks Edit Preview
+  const btnEdit = document.getElementById('btn-edit-preview');
+  if (btnEdit) {
+    btnEdit.classList.add('visible');
+    btnEdit.classList.remove('active');
+    btnEdit.textContent = '✏️ Edit Preview';
+  }
+}
+
+function toggleEditPreview() {
+  const output = document.getElementById('document-output');
+  const btn = document.getElementById('btn-edit-preview');
+  if (!output || !btn) return;
+  const pages = output.querySelectorAll('.doc-page, .cover-page');
+  const isEditing = btn.classList.contains('active');
+  if (isEditing) {
+    // Turn OFF editing
+    pages.forEach(p => p.removeAttribute('contenteditable'));
+    btn.classList.remove('active');
+    btn.textContent = '✏️ Edit Preview';
+  } else {
+    // Turn ON editing
+    pages.forEach(p => p.setAttribute('contenteditable', 'true'));
+    btn.classList.add('active');
+    btn.textContent = '✏️ Stop Editing';
+  }
 }
 
 // ── Initialise on load ──
