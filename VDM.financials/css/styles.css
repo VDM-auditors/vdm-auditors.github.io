@@ -871,11 +871,12 @@ header p {
   z-index: 100;
   background: #1a1a2e;
   border-bottom: 2px solid var(--accent, #C8A951);
-  padding: 8px 14px;
-  gap: 6px;
+  padding: 4px 8px;
+  gap: 2px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+  overflow-x: auto;
 }
 
 .edit-toolbar.visible {
@@ -884,31 +885,34 @@ header p {
 
 .toolbar-group {
   display: flex;
-  gap: 3px;
+  gap: 1px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .toolbar-sep {
   width: 1px;
-  height: 24px;
-  background: rgba(255,255,255,0.15);
-  margin: 0 6px;
+  height: 20px;
+  background: rgba(255,255,255,0.12);
+  margin: 0 3px;
+  flex-shrink: 0;
 }
 
 .tb-btn {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 4px;
-  color: #ddd;
+  border-radius: 3px;
+  color: #ccc;
   font-family: 'Poppins', Georgia, serif;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
 }
 
 .tb-btn:hover {
@@ -921,21 +925,23 @@ header p {
 }
 
 .tb-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .tb-select {
-  height: 32px;
-  padding: 0 8px;
+  height: 26px;
+  padding: 0 4px;
   background: rgba(255,255,255,0.08);
-  color: #ddd;
+  color: #ccc;
   border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 4px;
+  border-radius: 3px;
   font-family: 'Poppins', sans-serif;
-  font-size: 12px;
+  font-size: 10px;
   cursor: pointer;
   outline: none;
+  flex-shrink: 0;
+  max-width: 90px;
 }
 
 .tb-select:hover {
@@ -958,6 +964,10 @@ header p {
 #document-output.fmt-painter-cursor * {
   cursor: crosshair !important;
 }
+
+/* Hide toolbar scrollbar but keep scrollable */
+.edit-toolbar::-webkit-scrollbar { height: 0; }
+.edit-toolbar { scrollbar-width: none; }
 
 @media print {
   .edit-toolbar { display: none !important; }

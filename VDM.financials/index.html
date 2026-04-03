@@ -1159,86 +1159,70 @@
 
       <!-- Editing toolbar — shown when Edit Preview is active -->
       <div class="edit-toolbar" id="edit-toolbar">
-        <!-- Text formatting -->
+        <!-- Text: B I U S | Format Painter -->
         <div class="toolbar-group">
           <button class="tb-btn" onclick="execFmt('bold')" title="Bold"><b>B</b></button>
           <button class="tb-btn" onclick="execFmt('italic')" title="Italic"><i>I</i></button>
           <button class="tb-btn" onclick="execFmt('underline')" title="Underline"><u>U</u></button>
           <button class="tb-btn" onclick="execFmt('strikeThrough')" title="Strikethrough"><s>S</s></button>
-        </div>
-        <div class="toolbar-sep"></div>
-        <!-- Format Painter -->
-        <div class="toolbar-group">
           <button class="tb-btn" id="btn-fmt-painter" onclick="toggleFormatPainter()" title="Format Painter">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M12 9v4"/><path d="M8 17h8l-4 4-4-4z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M12 9v4"/><path d="M8 17h8l-4 4-4-4z"/></svg>
           </button>
         </div>
         <div class="toolbar-sep"></div>
-        <!-- Alignment -->
+        <!-- Align | Size -->
         <div class="toolbar-group">
           <button class="tb-btn" onclick="execFmt('justifyLeft')" title="Align Left">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
           </button>
           <button class="tb-btn" onclick="execFmt('justifyCenter')" title="Align Center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
           </button>
           <button class="tb-btn" onclick="execFmt('justifyFull')" title="Justify">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-        </div>
-        <div class="toolbar-sep"></div>
-        <!-- Font size -->
-        <div class="toolbar-group">
           <select class="tb-select" onchange="execFmtVal('fontSize', this.value); this.selectedIndex=0;" title="Font Size">
-            <option value="" disabled selected>Size</option>
-            <option value="1">8pt</option>
-            <option value="2">10pt</option>
-            <option value="3">12pt</option>
-            <option value="4">14pt</option>
-            <option value="5">18pt</option>
-            <option value="6">24pt</option>
+            <option value="" disabled selected>Aa</option>
+            <option value="1">8</option>
+            <option value="2">10</option>
+            <option value="3">12</option>
+            <option value="4">14</option>
+            <option value="5">18</option>
+            <option value="6">24</option>
           </select>
         </div>
         <div class="toolbar-sep"></div>
-        <!-- Letterhead & Footer insert -->
+        <!-- Header / Footer / Page# / Signature -->
         <div class="toolbar-group">
           <select class="tb-select" id="sel-header" title="Insert Letterhead">
-            <option value="" disabled selected>Header</option>
-            <option value="images/letterhead-header.png">CA Letterhead</option>
-            <option value="images/Audit-letterhead-header.png">Audit Letterhead</option>
-            <option value="__upload">Upload Image...</option>
+            <option value="" disabled selected>Hdr</option>
+            <option value="images/letterhead-header.png">CA</option>
+            <option value="images/Audit-letterhead-header.png">Audit</option>
+            <option value="__upload">Upload...</option>
           </select>
           <select class="tb-select" id="sel-footer" title="Insert Footer">
-            <option value="" disabled selected>Footer</option>
-            <option value="images/letterhead-footer.png">CA Footer</option>
-            <option value="images/Audit-letterhead-footer.png">Audit Footer</option>
-            <option value="__upload">Upload Image...</option>
+            <option value="" disabled selected>Ftr</option>
+            <option value="images/letterhead-footer.png">CA</option>
+            <option value="images/Audit-letterhead-footer.png">Audit</option>
+            <option value="__upload">Upload...</option>
           </select>
           <input type="file" id="upload-header" accept="image/*" style="display:none">
           <input type="file" id="upload-footer" accept="image/*" style="display:none">
-        </div>
-        <div class="toolbar-sep"></div>
-        <!-- Page numbers toggle -->
-        <div class="toolbar-group">
-          <button class="tb-btn" id="btn-page-numbers" onclick="togglePageNumbers()" title="Show / Hide Page Numbers">
-            <span style="font-size:12px;font-weight:700;line-height:1;">1#</span>
+          <button class="tb-btn" id="btn-page-numbers" onclick="togglePageNumbers()" title="Page Numbers">
+            <span style="font-size:10px;font-weight:700;line-height:1;">#</span>
           </button>
-        </div>
-        <div class="toolbar-sep"></div>
-        <!-- Signature space -->
-        <div class="toolbar-group">
-          <button class="tb-btn" onclick="insertSignatureSpace()" title="Insert Signature Space">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 22h.5a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3"/><polyline points="14 2 14 7 19 7"/><path d="M3 18.5l3.5-3.5c.83-.83 2.17-.83 3 0s.83 2.17 0 3L6 21.5H3v-3z"/></svg>
+          <button class="tb-btn" onclick="insertSignatureSpace()" title="Signature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18.5l3.5-3.5c.83-.83 2.17-.83 3 0s.83 2.17 0 3L6 21.5H3v-3z"/><line x1="2" y1="22" x2="22" y2="22"/></svg>
           </button>
         </div>
         <div class="toolbar-sep"></div>
         <!-- Undo / Redo -->
         <div class="toolbar-group">
           <button class="tb-btn" onclick="toolbarUndo()" title="Undo">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
           </button>
           <button class="tb-btn" onclick="toolbarRedo()" title="Redo">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
           </button>
         </div>
       </div>
