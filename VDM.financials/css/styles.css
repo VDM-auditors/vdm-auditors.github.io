@@ -947,6 +947,18 @@ header p {
   color: #ddd;
 }
 
+/* Format Painter active state */
+.tb-btn.tb-active {
+  background: rgba(200,169,81,0.35);
+  border-color: #C8A951;
+  color: #C8A951;
+}
+
+#document-output.fmt-painter-cursor,
+#document-output.fmt-painter-cursor * {
+  cursor: crosshair !important;
+}
+
 @media print {
   .edit-toolbar { display: none !important; }
 }
@@ -1283,6 +1295,12 @@ header p {
 
 .page-number {
   display: none;
+  text-align: center;
+  font-size: 8.5pt;
+  color: #666;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 0.5px solid #ccc;
 }
 
 /* ── COVER PAGE ── */
