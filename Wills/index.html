@@ -1,1373 +1,1587 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Last Will & Testament – Guided Wizard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --navy:       #0D1F3C;
-    --navy-light: #1A3560;
-    --accent:     #C8A951;
-    --accent-dark:#A8893A;
-    --accent-bg:  #FBF7ED;
-    --bg:         #F2F5FA;
-    --card:       #FFFFFF;
-    --text:       #0D1F3C;
-    --text-muted: #5A6E8A;
-    --border:     #D4DCE8;
-    --border-mid: #D4DCE8;
-    --white:      #FFFFFF;
-    --off-white:  #F2F5FA;
-    --navy-pale:  #e8edf5;
-    --navy-ghost: #f2f5fa;
-    --gold:       #C8A951;
-    --gold-light: #C8A951;
-    --gold-dim:   #FBF7ED;
-    --text-mid:   #5A6E8A;
-    --text-light: #8a9ab8;
-    --danger:     #B52A2A;
-    --success:    #1B6B2E;
-    --radius:     8px;
-    --radius-sm:  4px;
-    --shadow:     0 1px 4px rgba(13,31,60,0.08);
-    --shadow-lg:  0 4px 20px rgba(13,31,60,0.12);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  /* ── HEADER ── */
-  .form-header {
-    background: var(--card);
-    border-bottom: 2px solid var(--accent);
-    padding: 0;
-    position: relative;
-  }
-
-  .header-banner {
-    background: #FFFFFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 24px 24px;
-    max-width: 780px;
-    margin: 0 auto;
-  }
-
-  .banner-rule {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent));
-    position: relative;
-  }
-
-  .banner-rule.right {
-    background: linear-gradient(90deg, var(--accent), transparent);
-  }
-
-  .banner-rule::before {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: inherit;
-    opacity: 0.35;
-  }
-
-  .header-logo {
-    width: 140px;
-    height: auto;
-    object-fit: contain;
-    display: block;
-    margin: 0 28px;
-    flex-shrink: 0;
-  }
-
-  .header-inner {
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 0 24px 28px;
-    text-align: center;
-  }
-
-  .header-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(18px, 3vw, 26px);
-    color: var(--navy);
-    letter-spacing: 0.2px;
-    line-height: 1.2;
-    margin-bottom: 6px;
-  }
-
-  .header-subtitle {
-    color: var(--text-muted);
-    font-size: 13px;
-    font-weight: 400;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-
-  /* ── PROGRESS BAR ── */
-  .progress-bar-wrap {
-    background: rgba(13,31,60,0.08);
-    height: 3px;
-    width: 100%;
-  }
-
-  .progress-bar-fill {
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent-dark), var(--accent));
-    transition: width 0.4s ease;
-    width: 0%;
-  }
-
-  /* Legacy progress band (step dots) — kept for JS compatibility */
-  .progress-band {
-    background: var(--navy);
-    padding: 14px 48px 24px;
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-  }
-
-  .step-pip { display: flex; align-items: center; flex: 1; }
-  .step-pip:last-child { flex: none; }
-
-  .pip-dot {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.18);
-    background: transparent;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.3);
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
-  }
-
-  .pip-dot.done {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--navy);
-    font-size: 12px;
-  }
-
-  .pip-dot.active {
-    background: #ffffff;
-    border-color: #ffffff;
-    color: var(--navy);
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
-  }
-
-  .pip-label {
-    font-size: 9px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.25);
-    position: absolute;
-    bottom: -17px;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    font-weight: 500;
-  }
-
-  .pip-dot.active .pip-label { color: rgba(255,255,255,0.8); }
-  .pip-dot.done .pip-label   { color: var(--accent); }
-
-  .pip-line {
-    flex: 1;
-    height: 2px;
-    background: rgba(255,255,255,0.1);
-    margin: 0 3px;
-    transition: background 0.3s ease;
-  }
-
-  .pip-line.done { background: var(--accent); }
-
-  /* ── MAIN ── */
-  .main {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    padding: 32px 16px 80px;
-  }
-
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
-    width: 100%;
-    max-width: 780px;
-    padding: 0;
-    position: relative;
-    animation: fadeUp 0.35s ease both;
-    overflow: hidden;
-  }
-
-  .card::before {
-    display: none;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ── STEP HEADER ── */
-  .step-label {
-    background: var(--navy);
-    color: #FFFFFF;
-    padding: 12px 22px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    margin: 0 -22px 20px;
-  }
-
-  .step-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(20px, 3vw, 26px);
-    font-weight: 400;
-    color: var(--navy);
-    line-height: 1.2;
-    margin-bottom: 8px;
-  }
-
-  .step-desc {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.65;
-    margin-bottom: 28px;
-    padding-bottom: 18px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* Card body padding for steps */
-  .step {
-    padding: 0 22px 22px;
-  }
-
-  .step .step-label {
-    margin-top: 0;
-  }
-
-  /* ── FORM ── */
-  .field-group { margin-bottom: 18px; }
-
-  label {
-    display: block;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.7px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 5px;
-  }
-
-  input[type="text"],
-  input[type="number"],
-  select {
-    width: 100%;
-    padding: 9px 12px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    background: var(--white);
-    transition: border-color 0.15s, box-shadow 0.15s;
-    outline: none;
-    appearance: none;
-  }
-
-  input[type="text"]:focus,
-  input[type="number"]:focus,
-  select:focus {
-    border-color: var(--navy);
-    box-shadow: 0 0 0 3px rgba(13,31,60,0.12);
-    background: #FAFCFF;
-  }
-
-  input.error {
-    border-color: var(--danger);
-    box-shadow: 0 0 0 3px rgba(181,42,42,0.09);
-  }
-
-  .field-error { font-size: 11px; color: var(--danger); margin-top: 5px; }
-
-  .field-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
-  /* ── STATUS CARDS ── */
-  .status-cards { display: flex; flex-direction: column; gap: 10px; }
-
-  .status-card {
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 18px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: flex-start;
-    gap: 13px;
-    background: var(--card);
-    position: relative;
-  }
-
-  .status-card:hover { border-color: var(--accent); background: var(--accent-bg); }
-
-  .status-card.selected {
-    border-color: var(--navy);
-    background: var(--navy);
-    color: #fff;
-  }
-
-  .status-radio {
-    width: 17px; height: 17px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    flex-shrink: 0;
-    margin-top: 2px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-  }
-
-  .status-card.selected .status-radio { border-color: #fff; background: #fff; }
-  .status-card.selected .status-radio::after {
-    content: ''; width: 6px; height: 6px;
-    border-radius: 50%; background: var(--navy);
-  }
-
-  .status-card-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
-  .status-card.selected .status-card-title { color: #fff; }
-  .status-card-desc  { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-  .status-card.selected .status-card-desc { color: rgba(255,255,255,0.7); }
-
-  /* ── GENDER CARDS ── */
-  .gender-cards { display: flex; gap: 10px; }
-
-  .gender-card {
-    flex: 1;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 13px 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--card);
-    transition: all 0.2s ease;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--navy);
-  }
-
-  .gender-card:hover { border-color: var(--accent); background: var(--accent-bg); }
-
-  .gender-card.selected {
-    border-color: var(--navy);
-    background: var(--navy);
-    color: #fff;
-  }
-
-  .gender-radio {
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-  }
-
-  .gender-card.selected .gender-radio { border-color: #fff; background: #fff; }
-  .gender-card.selected .gender-radio::after {
-    content: ''; width: 5px; height: 5px;
-    border-radius: 50%; background: var(--navy);
-  }
-
-  /* ── SUBSECTIONS ── */
-  .subsection {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 20px 4px;
-    margin-bottom: 16px;
-  }
-
-  .subsection-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.9px;
-    text-transform: uppercase;
-    color: var(--navy);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .subsection-title::before {
-    content: '';
-    display: inline-block;
-    width: 16px; height: 2px;
-    background: var(--accent);
-    border-radius: 1px;
-    flex-shrink: 0;
-  }
-
-  /* ── PREFILLED ── */
-  .prefilled-subsection {
-    background: var(--accent-bg);
-    border-color: var(--accent);
-  }
-
-  .prefilled-badge {
-    display: inline-block;
-    background: var(--accent);
-    color: var(--navy);
-    font-size: 9px;
-    padding: 2px 7px;
-    border-radius: 3px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 700;
-    vertical-align: middle;
-  }
-
-  .prefilled-field {
-    width: 100%;
-    padding: 9px 12px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--text-muted);
-    background: white;
-    min-height: 40px;
-    font-style: italic;
-  }
-
-  /* ── TOGGLE ── */
-  .toggle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 13px 0;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-  }
-
-  .toggle-row:last-of-type { border-bottom: none; }
-
-  .toggle-label-wrap { display: flex; flex-direction: column; }
-  .toggle-main  { font-size: 14px; font-weight: 600; color: var(--navy); }
-  .toggle-hint  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-  .toggle-switch { position: relative; width: 38px; height: 21px; flex-shrink: 0; }
-  .toggle-switch input { opacity: 0; width: 0; height: 0; }
-
-  .toggle-slider {
-    position: absolute; inset: 0;
-    background: var(--border);
-    border-radius: 11px;
-    transition: 0.2s;
-    cursor: pointer;
-  }
-
-  .toggle-slider::before {
-    content: '';
-    position: absolute;
-    width: 15px; height: 15px;
-    left: 3px; bottom: 3px;
-    background: white;
-    border-radius: 50%;
-    transition: 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-
-  input:checked + .toggle-slider { background: var(--navy); }
-  input:checked + .toggle-slider::before { transform: translateX(17px); }
-
-  /* ── HEIR ENTRIES ── */
-  .heir-entry {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 10px;
-    animation: fadeUp 0.22s ease both;
-  }
-
-  .heir-entry-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-
-  .heir-entry-num {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-    font-weight: 700;
-  }
-
-  .btn-remove {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 4px 10px;
-    font-size: 11px;
-    color: var(--danger);
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-
-  .btn-remove:hover { background: #fdf2f1; border-color: var(--danger); }
-
-  .btn-add {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: none;
-    border: 1px dashed var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 16px;
-    width: 100%;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 4px;
-  }
-
-  .btn-add:hover { border-color: var(--navy); color: var(--navy); }
-  .btn-add::before { content: '+'; font-size: 16px; font-weight: 300; }
-
-  /* ── TOOLTIP ── */
-  .tooltip-wrap {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    margin-left: 5px;
-    cursor: help;
-  }
-
-  .tooltip-icon {
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 9px;
-    color: var(--text-muted);
-    font-style: italic;
-    font-family: 'DM Serif Display', serif;
-    font-weight: 400;
-  }
-
-  .tooltip-box {
-    display: none;
-    position: absolute;
-    left: 20px; top: -4px;
-    width: 220px;
-    background: var(--navy);
-    color: white;
-    font-size: 11px;
-    line-height: 1.55;
-    padding: 9px 11px;
-    border-radius: var(--radius-sm);
-    z-index: 10;
-    pointer-events: none;
-    box-shadow: var(--shadow);
-  }
-
-  .tooltip-wrap:hover .tooltip-box { display: block; }
-
-  /* ── NAV BUTTONS ── */
-  .nav-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 32px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-  }
-
-  .btn-back {
-    background: none;
-    border: 1.5px solid var(--border);
-    border-radius: 100px;
-    padding: 10px 24px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-
-  .btn-back:hover { border-color: var(--navy); color: var(--navy); }
-
-  .btn-next {
-    background: var(--navy);
-    border: 1.5px solid var(--navy);
-    border-radius: 100px;
-    padding: 10px 28px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: white;
-    cursor: pointer;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    font-weight: 600;
-    transition: all 0.18s;
-    box-shadow: 0 2px 8px rgba(13,31,60,0.18);
-  }
-
-  .btn-next:hover { background: var(--navy-light); }
-
-  .btn-generate {
-    background: var(--accent);
-    border: 1.5px solid var(--accent);
-    border-radius: 100px;
-    padding: 10px 28px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: var(--navy);
-    cursor: pointer;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    font-weight: 700;
-    transition: all 0.18s;
-    box-shadow: 0 2px 8px rgba(200,169,81,0.3);
-  }
-
-  .btn-generate:hover { background: var(--accent-dark); }
-
-  /* ── REVIEW ── */
-  .review-section { margin-bottom: 22px; }
-
-  .review-section-title {
-    font-size: 11px;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: #fff;
-    background: var(--navy);
-    font-weight: 700;
-    margin: 0 -22px 12px;
-    padding: 10px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .review-edit {
-    font-size: 11px;
-    color: var(--accent);
-    cursor: pointer;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    text-transform: none;
-  }
-
-  .review-edit:hover { text-decoration: underline; }
-
-  .review-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .review-row:last-child { border-bottom: none; }
-  .review-key { color: var(--text-muted); }
-  .review-val { color: var(--navy); font-weight: 600; text-align: right; max-width: 60%; }
-
-  /* ── RESULT ── */
-  .result-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: #eaf4ee;
-    border: 1px solid #b3d9c0;
-    border-radius: var(--radius-sm);
-    padding: 7px 14px;
-    font-size: 12px;
-    color: var(--success);
-    font-weight: 600;
-    margin-bottom: 22px;
-  }
-
-  .result-doc {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--navy);
-    border-radius: var(--radius);
-    padding: 28px 30px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    line-height: 1.9;
-    color: var(--text);
-    white-space: pre-wrap;
-    margin-bottom: 18px;
-  }
-
-  .btn-print {
-    width: 100%;
-    background: var(--navy);
-    border: 1.5px solid var(--navy);
-    border-radius: 100px;
-    padding: 11px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.18s;
-    letter-spacing: 0.04em;
-    font-weight: 600;
-  }
-
-  .btn-print:hover { background: var(--navy-light); }
-
-  /* ── STEP VISIBILITY ── */
-  .step { display: none; }
-  .step.active { display: block; }
-
-  /* ── COLLAPSIBLE ── */
-  .collapsible-content {
-    overflow: hidden;
-    transition: max-height 0.3s ease, opacity 0.25s ease;
-    max-height: 0;
-    opacity: 0;
-  }
-
-  .collapsible-content.open { max-height: 2000px; opacity: 1; }
-
-  /* ── MISC ── */
-  .minor-badge {
-    display: inline-block;
-    background: var(--accent-bg);
-    color: var(--accent-dark);
-    font-size: 9px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-weight: 700;
-    margin-left: 5px;
-  }
-
-  #minor-suggestion {
-    font-size: 11.5px;
-    color: var(--accent-dark);
-    padding: 6px 0 10px;
-    font-weight: 600;
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    background: var(--navy);
-    border-top: 2px solid var(--accent);
-    padding: 14px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
-
-  .footer-note {
-    font-size: 10.5px;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.03em;
-  }
-
-  .footer-logo img {
-    height: 22px;
-    width: auto;
-    opacity: 0.3;
-    object-fit: contain;
-  }
-
-  @media (max-width: 640px) {
-    .form-header .header-banner { padding: 20px 16px 16px; }
-    .form-header .header-inner { padding: 0 16px 20px; }
-    .progress-band { padding: 14px 20px 24px; }
-    .card          { border-radius: 0; }
-    .step          { padding: 0 16px 16px; }
-    .step-label    { margin: 0 -16px 16px; }
-    .review-section-title { margin: 0 -16px 12px; padding: 10px 16px; }
-    .field-row     { grid-template-columns: 1fr; }
-    footer         { padding: 14px 20px; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Last Will & Testament – Guided Wizard</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0D1F3C;
+      --navy-light: #1A3560;
+      --accent: #C8A951;
+      --accent-dark: #A8893A;
+      --accent-bg: #FBF7ED;
+      --bg: #F2F5FA;
+      --card: #FFFFFF;
+      --text: #0D1F3C;
+      --text-muted: #5A6E8A;
+      --border: #D4DCE8;
+      --border-mid: #D4DCE8;
+      --white: #FFFFFF;
+      --off-white: #F2F5FA;
+      --navy-pale: #e8edf5;
+      --navy-ghost: #f2f5fa;
+      --gold: #C8A951;
+      --gold-light: #C8A951;
+      --gold-dim: #FBF7ED;
+      --text-mid: #5A6E8A;
+      --text-light: #8a9ab8;
+      --danger: #B52A2A;
+      --success: #1B6B2E;
+      --radius: 8px;
+      --radius-sm: 4px;
+      --shadow: 0 1px 4px rgba(13, 31, 60, 0.08);
+      --shadow-lg: 0 4px 20px rgba(13, 31, 60, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── HEADER ── */
+    .form-header {
+      background: var(--card);
+      border-bottom: 2px solid var(--accent);
+      padding: 0;
+      position: relative;
+    }
+
+    .header-banner {
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px 24px;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .banner-rule {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent));
+      position: relative;
+    }
+
+    .banner-rule.right {
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+
+    .banner-rule::before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: inherit;
+      opacity: 0.35;
+    }
+
+    .header-logo {
+      width: 140px;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      margin: 0 28px;
+      flex-shrink: 0;
+    }
+
+    .header-inner {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px 28px;
+      text-align: center;
+    }
+
+    .header-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(18px, 3vw, 26px);
+      color: var(--navy);
+      letter-spacing: 0.2px;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .header-subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 400;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-bar-wrap {
+      background: rgba(13, 31, 60, 0.08);
+      height: 3px;
+      width: 100%;
+    }
+
+    .progress-bar-fill {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    /* Legacy progress band (step dots) — kept for JS compatibility */
+    .progress-band {
+      background: var(--navy);
+      padding: 14px 48px 24px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .step-pip {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .step-pip:last-child {
+      flex: none;
+    }
+
+    .pip-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pip-dot.done {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--navy);
+      font-size: 12px;
+    }
+
+    .pip-dot.active {
+      background: #ffffff;
+      border-color: #ffffff;
+      color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+    }
+
+    .pip-label {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.25);
+      position: absolute;
+      bottom: -17px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .pip-dot.active .pip-label {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .pip-dot.done .pip-label {
+      color: var(--accent);
+    }
+
+    .pip-line {
+      flex: 1;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 3px;
+      transition: background 0.3s ease;
+    }
+
+    .pip-line.done {
+      background: var(--accent);
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px 80px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 780px;
+      padding: 0;
+      position: relative;
+      animation: fadeUp 0.35s ease both;
+      overflow: hidden;
+    }
+
+    .card::before {
+      display: none;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── STEP HEADER ── */
+    .step-label {
+      background: var(--navy);
+      color: #FFFFFF;
+      padding: 12px 22px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin: 0 -22px 20px;
+    }
+
+    .step-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(20px, 3vw, 26px);
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Card body padding for steps */
+    .step {
+      padding: 0 22px 22px;
+    }
+
+    .step .step-label {
+      margin-top: 0;
+    }
+
+    /* ── FORM ── */
+    .field-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--white);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+      appearance: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(13, 31, 60, 0.12);
+      background: #FAFCFF;
+    }
+
+    input.error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(181, 42, 42, 0.09);
+    }
+
+    .field-error {
+      font-size: 11px;
+      color: var(--danger);
+      margin-top: 5px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* ── STATUS CARDS ── */
+    .status-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .status-card {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+      background: var(--card);
+      position: relative;
+    }
+
+    .status-card:hover {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .status-card.selected {
+      border-color: var(--navy);
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .status-radio {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .status-card.selected .status-radio {
+      border-color: #fff;
+      background: #fff;
+    }
+
+    .status-card.selected .status-radio::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--navy);
+    }
+
+    .status-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 2px;
+    }
+
+    .status-card.selected .status-card-title {
+      color: #fff;
+    }
+
+    .status-card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .status-card.selected .status-card-desc {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ── GENDER CARDS ── */
+    .gender-cards {
+      display: flex;
+      gap: 10px;
+    }
+
+    .gender-card {
+      flex: 1;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card);
+      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--navy);
+    }
+
+    .gender-card:hover {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .gender-card.selected {
+      border-color: var(--navy);
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .gender-radio {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .gender-card.selected .gender-radio {
+      border-color: #fff;
+      background: #fff;
+    }
+
+    .gender-card.selected .gender-radio::after {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--navy);
+    }
+
+    /* ── SUBSECTIONS ── */
+    .subsection {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px 4px;
+      margin-bottom: 16px;
+    }
+
+    .subsection-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .subsection-title::before {
+      content: '';
+      display: inline-block;
+      width: 16px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ── PREFILLED ── */
+    .prefilled-subsection {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+    }
+
+    .prefilled-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--navy);
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    .prefilled-field {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-muted);
+      background: white;
+      min-height: 40px;
+      font-style: italic;
+    }
+
+    /* ── TOGGLE ── */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .toggle-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .toggle-label-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toggle-main {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .toggle-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 38px;
+      height: 21px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 11px;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    input:checked+.toggle-slider {
+      background: var(--navy);
+    }
+
+    input:checked+.toggle-slider::before {
+      transform: translateX(17px);
+    }
+
+    /* ── HEIR ENTRIES ── */
+    .heir-entry {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 10px;
+      animation: fadeUp 0.22s ease both;
+    }
+
+    .heir-entry-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .heir-entry-num {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .btn-remove {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--danger);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .btn-remove:hover {
+      background: #fdf2f1;
+      border-color: var(--danger);
+    }
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+
+    .btn-add:hover {
+      border-color: var(--navy);
+      color: var(--navy);
+    }
+
+    .btn-add::before {
+      content: '+';
+      font-size: 16px;
+      font-weight: 300;
+    }
+
+    /* ── TOOLTIP ── */
+    .tooltip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      margin-left: 5px;
+      cursor: help;
+    }
+
+    .tooltip-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: var(--text-muted);
+      font-style: italic;
+      font-family: 'DM Serif Display', serif;
+      font-weight: 400;
+    }
+
+    .tooltip-box {
+      display: none;
+      position: absolute;
+      left: 20px;
+      top: -4px;
+      width: 220px;
+      background: var(--navy);
+      color: white;
+      font-size: 11px;
+      line-height: 1.55;
+      padding: 9px 11px;
+      border-radius: var(--radius-sm);
+      z-index: 10;
+      pointer-events: none;
+      box-shadow: var(--shadow);
+    }
+
+    .tooltip-wrap:hover .tooltip-box {
+      display: block;
+    }
+
+    /* ── NAV BUTTONS ── */
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-back {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 10px 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .btn-back:hover {
+      border-color: var(--navy);
+      color: var(--navy);
+    }
+
+    .btn-next {
+      background: var(--navy);
+      border: 1.5px solid var(--navy);
+      border-radius: 100px;
+      padding: 10px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: white;
+      cursor: pointer;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 600;
+      transition: all 0.18s;
+      box-shadow: 0 2px 8px rgba(13, 31, 60, 0.18);
+    }
+
+    .btn-next:hover {
+      background: var(--navy-light);
+    }
+
+    .btn-generate {
+      background: var(--accent);
+      border: 1.5px solid var(--accent);
+      border-radius: 100px;
+      padding: 10px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--navy);
+      cursor: pointer;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 700;
+      transition: all 0.18s;
+      box-shadow: 0 2px 8px rgba(200, 169, 81, 0.3);
+    }
+
+    .btn-generate:hover {
+      background: var(--accent-dark);
+    }
+
+    /* ── REVIEW ── */
+    .review-section {
+      margin-bottom: 22px;
+    }
+
+    .review-section-title {
+      font-size: 11px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--navy);
+      font-weight: 700;
+      margin: 0 -22px 12px;
+      padding: 10px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .review-edit {
+      font-size: 11px;
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+
+    .review-edit:hover {
+      text-decoration: underline;
+    }
+
+    .review-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .review-row:last-child {
+      border-bottom: none;
+    }
+
+    .review-key {
+      color: var(--text-muted);
+    }
+
+    .review-val {
+      color: var(--navy);
+      font-weight: 600;
+      text-align: right;
+      max-width: 60%;
+    }
+
+    /* ── RESULT ── */
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #eaf4ee;
+      border: 1px solid #b3d9c0;
+      border-radius: var(--radius-sm);
+      padding: 7px 14px;
+      font-size: 12px;
+      color: var(--success);
+      font-weight: 600;
+      margin-bottom: 22px;
+    }
+
+    .result-doc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--navy);
+      border-radius: var(--radius);
+      padding: 28px 30px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.9;
+      color: var(--text);
+      white-space: pre-wrap;
+      margin-bottom: 18px;
+    }
+
+    .btn-print {
+      width: 100%;
+      background: var(--navy);
+      border: 1.5px solid var(--navy);
+      border-radius: 100px;
+      padding: 11px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.18s;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+
+    .btn-print:hover {
+      background: var(--navy-light);
+    }
+
+    /* ── STEP VISIBILITY ── */
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    /* ── COLLAPSIBLE ── */
+    .collapsible-content {
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.25s ease;
+      max-height: 0;
+      opacity: 0;
+    }
+
+    .collapsible-content.open {
+      max-height: 2000px;
+      opacity: 1;
+    }
+
+    /* ── MISC ── */
+    .minor-badge {
+      display: inline-block;
+      background: var(--accent-bg);
+      color: var(--accent-dark);
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-left: 5px;
+    }
+
+    #minor-suggestion {
+      font-size: 11.5px;
+      color: var(--accent-dark);
+      padding: 6px 0 10px;
+      font-weight: 600;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--navy);
+      border-top: 2px solid var(--accent);
+      padding: 14px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .footer-note {
+      font-size: 10.5px;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 0.03em;
+    }
+
+    .footer-logo img {
+      height: 22px;
+      width: auto;
+      opacity: 0.3;
+      object-fit: contain;
+    }
+
+    @media (max-width: 640px) {
+      .form-header .header-banner {
+        padding: 20px 16px 16px;
+      }
+
+      .form-header .header-inner {
+        padding: 0 16px 20px;
+      }
+
+      .progress-band {
+        padding: 14px 20px 24px;
+      }
+
+      .card {
+        border-radius: 0;
+      }
+
+      .step {
+        padding: 0 16px 16px;
+      }
+
+      .step-label {
+        margin: 0 -16px 16px;
+      }
+
+      .review-section-title {
+        margin: 0 -16px 12px;
+        padding: 10px 16px;
+      }
+
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+
+      footer {
+        padding: 14px 20px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- HEADER -->
-<div class="form-header">
-  <div class="header-banner">
-    <div class="banner-rule"></div>
-    <img class="header-logo" src="logo.png" alt="VDM Logo"
-         onerror="this.style.display='none'">
-    <div class="banner-rule right"></div>
-  </div>
-  <div class="header-inner">
-    <div class="header-title">Last Will &amp; Testament</div>
-    <div class="header-subtitle">South African Guided Will Wizard</div>
-  </div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progress-fill"></div>
-  </div>
-</div>
-
-<!-- PROGRESS STEPS -->
-<div class="progress-band" id="progress-wrap"></div>
-
-<!-- MAIN -->
-<div class="main">
-<div class="card">
-
-  <!-- STEP 1: MARITAL STATUS -->
-  <div class="step active" id="step-1">
-    <div class="step-label">Step 1 of 6</div>
-    <div class="step-title">Marital Status</div>
-    <div class="step-desc">Your marital status determines the structure of your will. Please select the option that best applies to your current situation.</div>
-
-    <div class="status-cards">
-      <div class="status-card" onclick="selectMarital('single',this)">
-        <div class="status-radio"></div>
-        <div>
-          <div class="status-card-title">Single</div>
-          <div class="status-card-desc">Unmarried, divorced, or widowed. No spouse will be included in this will.</div>
-        </div>
-      </div>
-      <div class="status-card" onclick="selectMarital('community',this)">
-        <div class="status-radio"></div>
-        <div>
-          <div class="status-card-title">Married – In Community of Property</div>
-          <div class="status-card-desc">Your estate is jointly shared with your spouse. Both parties own all assets and liabilities equally.</div>
-        </div>
-      </div>
-      <div class="status-card" onclick="selectMarital('out_community',this)">
-        <div class="status-radio"></div>
-        <div>
-          <div class="status-card-title">Married – Out of Community of Property</div>
-          <div class="status-card-desc">Each spouse maintains a separate estate, typically governed by an antenuptial contract.</div>
-        </div>
-      </div>
+  <!-- HEADER -->
+  <div class="form-header">
+    <div class="header-banner">
+      <div class="banner-rule"></div>
+      <img class="header-logo" src="logo.png" alt="VDM Logo" onerror="this.style.display='none'">
+      <div class="banner-rule right"></div>
     </div>
-
-    <div id="marital-error" class="field-error" style="margin-top:12px;display:none;">Please select a marital status to continue.</div>
-
-    <div class="nav-row">
-      <div></div>
-      <button class="btn-next" onclick="goNext(1)">Continue →</button>
+    <div class="header-inner">
+      <div class="header-title">Last Will &amp; Testament</div>
+      <div class="header-subtitle">South African Guided Will Wizard</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill"></div>
     </div>
   </div>
 
-  <!-- STEP 2: YOUR DETAILS -->
-  <div class="step" id="step-2">
-    <div class="step-label">Step 2 of 6</div>
-    <div class="step-title">Your Details</div>
-    <div class="step-desc">Please provide your full legal name, South African ID number, and gender. If you are married, your details will be carried forward to the spouse section automatically.</div>
+  <!-- PROGRESS STEPS -->
+  <div class="progress-band" id="progress-wrap"></div>
 
-    <div class="field-group">
-      <label>Gender</label>
-      <div class="gender-cards">
-        <div class="gender-card" id="gender-male" onclick="selectGender('male',this)">
-          <div class="gender-radio"></div>
-          <span>Male</span>
-        </div>
-        <div class="gender-card" id="gender-female" onclick="selectGender('female',this)">
-          <div class="gender-radio"></div>
-          <span>Female</span>
-        </div>
-      </div>
-      <div id="gender-error" class="field-error" style="display:none;margin-top:6px;">Please select your gender to continue.</div>
-    </div>
+  <!-- MAIN -->
+  <div class="main">
+    <div class="card">
 
-    <div class="field-group">
-      <label>Full Name and Surname</label>
-      <input type="text" id="testator-name" placeholder="e.g. Johannes Petrus van der Berg">
-    </div>
-    <div class="field-group">
-      <label>South African ID Number</label>
-      <input type="text" id="testator-id" placeholder="13-digit ID number" maxlength="13">
-    </div>
+      <!-- STEP 1: MARITAL STATUS -->
+      <div class="step active" id="step-1">
+        <div class="step-label">Step 1 of 6</div>
+        <div class="step-title">Marital Status</div>
+        <div class="step-desc">Your marital status determines the structure of your will. Please select the option that
+          best applies to your current situation.</div>
 
-    <div class="nav-row">
-      <button class="btn-back" onclick="goBack(2)">← Back</button>
-      <button class="btn-next" onclick="goNext(2)">Continue →</button>
-    </div>
-  </div>
-
-  <!-- STEP 3: SPOUSE DETAILS -->
-  <div class="step" id="step-3">
-    <div class="step-label">Step 3 of 6</div>
-    <div class="step-title">Spouse Details</div>
-    <div class="step-desc" id="spouse-step-desc">Your details have been carried over. Please provide your spouse's details below.</div>
-
-    <div class="subsection prefilled-subsection">
-      <div class="subsection-title" id="testator-slot-label">Husband <span class="prefilled-badge">You</span></div>
-      <div class="field-group">
-        <label>Full Name and Surname</label>
-        <div class="prefilled-field" id="display-testator-name"></div>
-      </div>
-      <div class="field-group">
-        <label>ID Number</label>
-        <div class="prefilled-field" id="display-testator-id"></div>
-      </div>
-    </div>
-
-    <div class="subsection">
-      <div class="subsection-title" id="other-slot-label">Wife</div>
-      <div class="field-group">
-        <label>Full Name and Surname</label>
-        <input type="text" id="other-spouse-name" placeholder="Full legal name">
-      </div>
-      <div class="field-group">
-        <label>ID Number</label>
-        <input type="text" id="other-spouse-id" placeholder="13-digit ID number" maxlength="13">
-      </div>
-    </div>
-
-    <div class="nav-row">
-      <button class="btn-back" onclick="goBack(3)">← Back</button>
-      <button class="btn-next" onclick="goNext(3)">Continue →</button>
-    </div>
-  </div>
-
-  <!-- STEP 4: EXECUTOR -->
-  <div class="step" id="step-4">
-    <div class="step-label">Step 4 of 6</div>
-    <div class="step-title">Executor Details</div>
-    <div class="step-desc">
-      The executor administers your estate after your death — collecting assets, settling debts, and distributing inheritances.
-      <span class="tooltip-wrap">
-        <span class="tooltip-icon">i</span>
-        <span class="tooltip-box">Appoint a trusted adult: a family member, attorney, or financial institution. They must accept the appointment.</span>
-      </span>
-    </div>
-
-    <div class="field-group">
-      <label>Full Name and Surname</label>
-      <input type="text" id="executor-name" placeholder="Full legal name of executor">
-    </div>
-    <div class="field-group">
-      <label>ID Number</label>
-      <input type="text" id="executor-id" placeholder="13-digit ID number" maxlength="13">
-    </div>
-
-    <div class="nav-row">
-      <button class="btn-back" onclick="goBack(4)">← Back</button>
-      <button class="btn-next" onclick="goNext(4)">Continue →</button>
-    </div>
-  </div>
-
-  <!-- STEP 5: HEIRS -->
-  <div class="step" id="step-5">
-    <div class="step-label">Step 5 of 6</div>
-    <div class="step-title">Heirs &amp; Beneficiaries</div>
-    <div class="step-desc">Specify who will inherit from your estate. Toggle each category and fill in the relevant details.</div>
-
-    <!-- Spouse heir -->
-    <div id="spouse-heir-section" style="display:none;">
-      <div class="toggle-row" onclick="toggleHeir('spouse-heir-details','spouse-heir-toggle')">
-        <div class="toggle-label-wrap">
-          <span class="toggle-main">Spouse</span>
-          <span class="toggle-hint">Does your spouse inherit from this estate?</span>
-        </div>
-        <label class="toggle-switch" onclick="event.stopPropagation()">
-          <input type="checkbox" id="spouse-heir-toggle" onchange="toggleHeir('spouse-heir-details',this.id)">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="collapsible-content" id="spouse-heir-details">
-        <div class="subsection" style="margin-top:10px;">
-          <div class="field-group">
-            <label>Portion / Percentage of Estate</label>
-            <input type="text" id="spouse-heir-portion" placeholder="e.g. 50% or residue of estate">
+        <div class="status-cards">
+          <div class="status-card" onclick="selectMarital('single',this)">
+            <div class="status-radio"></div>
+            <div>
+              <div class="status-card-title">Single</div>
+              <div class="status-card-desc">Unmarried, divorced, or widowed. No spouse will be included in this will.
+              </div>
+            </div>
+          </div>
+          <div class="status-card" onclick="selectMarital('community',this)">
+            <div class="status-radio"></div>
+            <div>
+              <div class="status-card-title">Married – In Community of Property</div>
+              <div class="status-card-desc">Your estate is jointly shared with your spouse. Both parties own all assets
+                and liabilities equally.</div>
+            </div>
+          </div>
+          <div class="status-card" onclick="selectMarital('out_community',this)">
+            <div class="status-radio"></div>
+            <div>
+              <div class="status-card-title">Married – Out of Community of Property</div>
+              <div class="status-card-desc">Each spouse maintains a separate estate, typically governed by an
+                antenuptial contract.</div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Children -->
-    <div class="toggle-row" onclick="toggleHeir('children-details','children-toggle')">
-      <div class="toggle-label-wrap">
-        <span class="toggle-main">Children</span>
-        <span class="toggle-hint">Do you have children who should inherit?</span>
-      </div>
-      <label class="toggle-switch" onclick="event.stopPropagation()">
-        <input type="checkbox" id="children-toggle" onchange="toggleHeir('children-details',this.id);syncTestamentary()">
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-    <div class="collapsible-content" id="children-details">
-      <div id="children-list"></div>
-      <button class="btn-add" onclick="addChild()">Add a child</button>
-      <div style="height:14px;"></div>
-    </div>
+        <div id="marital-error" class="field-error" style="margin-top:12px;display:none;">Please select a marital status
+          to continue.</div>
 
-    <!-- Intervivos Trust -->
-    <div class="toggle-row" onclick="toggleHeir('intervivos-details','intervivos-toggle')">
-      <div class="toggle-label-wrap">
-        <span class="toggle-main">Intervivos Trust
+        <div class="nav-row">
+          <div></div>
+          <button class="btn-next" onclick="goNext(1)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: YOUR DETAILS -->
+      <div class="step" id="step-2">
+        <div class="step-label">Step 2 of 6</div>
+        <div class="step-title">Your Details</div>
+        <div class="step-desc">Please provide your full legal name, South African ID number, and gender. If you are
+          married, your details will be carried forward to the spouse section automatically.</div>
+
+        <div class="field-group">
+          <label>Gender</label>
+          <div class="gender-cards">
+            <div class="gender-card" id="gender-male" onclick="selectGender('male',this)">
+              <div class="gender-radio"></div>
+              <span>Male</span>
+            </div>
+            <div class="gender-card" id="gender-female" onclick="selectGender('female',this)">
+              <div class="gender-radio"></div>
+              <span>Female</span>
+            </div>
+          </div>
+          <div id="gender-error" class="field-error" style="display:none;margin-top:6px;">Please select your gender to
+            continue.</div>
+        </div>
+
+        <div class="field-group">
+          <label>Full Name and Surname</label>
+          <input type="text" id="testator-name" placeholder="e.g. Johannes Petrus van der Berg">
+        </div>
+        <div class="field-group">
+          <label>South African ID Number</label>
+          <input type="text" id="testator-id" placeholder="13-digit ID number" maxlength="13">
+        </div>
+
+        <div class="nav-row">
+          <button class="btn-back" onclick="goBack(2)">← Back</button>
+          <button class="btn-next" onclick="goNext(2)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: SPOUSE DETAILS -->
+      <div class="step" id="step-3">
+        <div class="step-label">Step 3 of 6</div>
+        <div class="step-title">Spouse Details</div>
+        <div class="step-desc" id="spouse-step-desc">Your details have been carried over. Please provide your spouse's
+          details below.</div>
+
+        <div class="subsection prefilled-subsection">
+          <div class="subsection-title" id="testator-slot-label">Husband <span class="prefilled-badge">You</span></div>
+          <div class="field-group">
+            <label>Full Name and Surname</label>
+            <div class="prefilled-field" id="display-testator-name"></div>
+          </div>
+          <div class="field-group">
+            <label>ID Number</label>
+            <div class="prefilled-field" id="display-testator-id"></div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-title" id="other-slot-label">Wife</div>
+          <div class="field-group">
+            <label>Full Name and Surname</label>
+            <input type="text" id="other-spouse-name" placeholder="Full legal name">
+          </div>
+          <div class="field-group">
+            <label>ID Number</label>
+            <input type="text" id="other-spouse-id" placeholder="13-digit ID number" maxlength="13">
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <button class="btn-back" onclick="goBack(3)">← Back</button>
+          <button class="btn-next" onclick="goNext(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: EXECUTOR -->
+      <div class="step" id="step-4">
+        <div class="step-label">Step 4 of 6</div>
+        <div class="step-title">Executor Details</div>
+        <div class="step-desc">
+          The executor administers your estate after your death — collecting assets, settling debts, and distributing
+          inheritances.
           <span class="tooltip-wrap">
             <span class="tooltip-icon">i</span>
-            <span class="tooltip-box">A trust already existing during your lifetime. Assets can be transferred directly into it upon death.</span>
+            <span class="tooltip-box">Appoint a trusted adult: a family member, attorney, or financial institution. They
+              must accept the appointment.</span>
           </span>
-        </span>
-        <span class="toggle-hint">Is there an existing trust to inherit?</span>
-      </div>
-      <label class="toggle-switch" onclick="event.stopPropagation()">
-        <input type="checkbox" id="intervivos-toggle" onchange="toggleHeir('intervivos-details',this.id)">
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-    <div class="collapsible-content" id="intervivos-details">
-      <div class="subsection" style="margin-top:10px;">
+        </div>
+
         <div class="field-group">
-          <label>Trust Name</label>
-          <input type="text" id="intervivos-name" placeholder="e.g. The Van der Berg Family Trust">
+          <label>Full Name and Surname</label>
+          <input type="text" id="executor-name" placeholder="Full legal name of executor">
         </div>
-        <div class="field-row">
-          <div class="field-group">
-            <label>Registration Number</label>
-            <input type="text" id="intervivos-reg" placeholder="IT number">
-          </div>
-          <div class="field-group">
-            <label>Portion of Estate</label>
-            <input type="text" id="intervivos-portion" placeholder="e.g. 30%">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Testamentary Trust -->
-    <div class="toggle-row" onclick="toggleHeir('testamentary-details','testamentary-toggle')">
-      <div class="toggle-label-wrap">
-        <span class="toggle-main">Testamentary Trust
-          <span class="tooltip-wrap">
-            <span class="tooltip-icon">i</span>
-            <span class="tooltip-box">A trust created by this will upon your death. Recommended when minor children are named as heirs.</span>
-          </span>
-        </span>
-        <span class="toggle-hint">Should a trust be created by this will?</span>
-      </div>
-      <label class="toggle-switch" onclick="event.stopPropagation()">
-        <input type="checkbox" id="testamentary-toggle" onchange="toggleHeir('testamentary-details',this.id)">
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-    <div id="minor-suggestion" style="display:none;">⚠ Minor children detected — a Testamentary Trust is recommended.</div>
-    <div class="collapsible-content" id="testamentary-details">
-      <div class="subsection" style="margin-top:10px;">
         <div class="field-group">
-          <label>Trustee Full Name and Surname</label>
-          <input type="text" id="trustee-name" placeholder="Full legal name of trustee">
+          <label>ID Number</label>
+          <input type="text" id="executor-id" placeholder="13-digit ID number" maxlength="13">
         </div>
-        <div class="field-row">
-          <div class="field-group">
-            <label>Trustee ID Number</label>
-            <input type="text" id="trustee-id" placeholder="13-digit ID" maxlength="13">
+
+        <div class="nav-row">
+          <button class="btn-back" onclick="goBack(4)">← Back</button>
+          <button class="btn-next" onclick="goNext(4)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- STEP 5: HEIRS -->
+      <div class="step" id="step-5">
+        <div class="step-label">Step 5 of 6</div>
+        <div class="step-title">Heirs &amp; Beneficiaries</div>
+        <div class="step-desc">Specify who will inherit from your estate. Toggle each category and fill in the relevant
+          details.</div>
+
+        <!-- Spouse heir -->
+        <div id="spouse-heir-section" style="display:none;">
+          <div class="toggle-row" onclick="toggleHeir('spouse-heir-details','spouse-heir-toggle')">
+            <div class="toggle-label-wrap">
+              <span class="toggle-main">Spouse</span>
+              <span class="toggle-hint">Does your spouse inherit from this estate?</span>
+            </div>
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="spouse-heir-toggle" onchange="toggleHeir('spouse-heir-details',this.id)">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
-          <div class="field-group">
-            <label>Trust Terminates at Age</label>
-            <input type="number" id="trust-age" placeholder="e.g. 21" min="18" max="35">
+          <div class="collapsible-content" id="spouse-heir-details">
+            <div class="subsection" style="margin-top:10px;">
+              <div class="field-group">
+                <label>Portion / Percentage of Estate</label>
+                <input type="text" id="spouse-heir-portion" placeholder="e.g. 50% or residue of estate">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Children -->
+        <div class="toggle-row" onclick="toggleHeir('children-details','children-toggle')">
+          <div class="toggle-label-wrap">
+            <span class="toggle-main">Children</span>
+            <span class="toggle-hint">Do you have children who should inherit?</span>
+          </div>
+          <label class="toggle-switch" onclick="event.stopPropagation()">
+            <input type="checkbox" id="children-toggle"
+              onchange="toggleHeir('children-details',this.id);syncTestamentary()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="collapsible-content" id="children-details">
+          <div id="children-list"></div>
+          <button class="btn-add" onclick="addChild()">Add a child</button>
+          <div style="height:14px;"></div>
+        </div>
+
+        <!-- Intervivos Trust -->
+        <div class="toggle-row" onclick="toggleHeir('intervivos-details','intervivos-toggle')">
+          <div class="toggle-label-wrap">
+            <span class="toggle-main">Intervivos Trust
+              <span class="tooltip-wrap">
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-box">A trust already existing during your lifetime. Assets can be transferred
+                  directly into it upon death.</span>
+              </span>
+            </span>
+            <span class="toggle-hint">Is there an existing trust to inherit?</span>
+          </div>
+          <label class="toggle-switch" onclick="event.stopPropagation()">
+            <input type="checkbox" id="intervivos-toggle" onchange="toggleHeir('intervivos-details',this.id)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="collapsible-content" id="intervivos-details">
+          <div class="subsection" style="margin-top:10px;">
+            <div class="field-group">
+              <label>Trust Name</label>
+              <input type="text" id="intervivos-name" placeholder="e.g. The Van der Berg Family Trust">
+            </div>
+            <div class="field-row">
+              <div class="field-group">
+                <label>Registration Number</label>
+                <input type="text" id="intervivos-reg" placeholder="IT number">
+              </div>
+              <div class="field-group">
+                <label>Portion of Estate</label>
+                <input type="text" id="intervivos-portion" placeholder="e.g. 30%">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testamentary Trust -->
+        <div class="toggle-row" onclick="toggleHeir('testamentary-details','testamentary-toggle')">
+          <div class="toggle-label-wrap">
+            <span class="toggle-main">Testamentary Trust
+              <span class="tooltip-wrap">
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-box">A trust created by this will upon your death. Recommended when minor children
+                  are named as heirs.</span>
+              </span>
+            </span>
+            <span class="toggle-hint">Should a trust be created by this will?</span>
+          </div>
+          <label class="toggle-switch" onclick="event.stopPropagation()">
+            <input type="checkbox" id="testamentary-toggle" onchange="toggleHeir('testamentary-details',this.id)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div id="minor-suggestion" style="display:none;">⚠ Minor children detected — a Testamentary Trust is
+          recommended.</div>
+        <div class="collapsible-content" id="testamentary-details">
+          <div class="subsection" style="margin-top:10px;">
+            <div class="field-group">
+              <label>Trustee Full Name and Surname</label>
+              <input type="text" id="trustee-name" placeholder="Full legal name of trustee">
+            </div>
+            <div class="field-row">
+              <div class="field-group">
+                <label>Trustee ID Number</label>
+                <input type="text" id="trustee-id" placeholder="13-digit ID" maxlength="13">
+              </div>
+              <div class="field-group">
+                <label>Trust Terminates at Age</label>
+                <input type="number" id="trust-age" placeholder="e.g. 21" min="18" max="35">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <button class="btn-back" onclick="goBack(5)">← Back</button>
+          <button class="btn-next" onclick="goNext(5)">Review Will →</button>
+        </div>
+      </div>
+
+      <!-- STEP 6: REVIEW -->
+      <div class="step" id="step-6">
+        <div class="step-label">Step 6 of 6</div>
+        <div class="step-title">Review &amp; Confirm</div>
+        <div class="step-desc">Please review all captured details carefully before generating your will. Click
+          <em>Edit</em> on any section to make changes.</div>
+        <div id="review-content"></div>
+        <div class="nav-row">
+          <button class="btn-back" onclick="goBack(6)">← Edit</button>
+          <button class="btn-generate" onclick="generateWill()">Generate Will Document</button>
+        </div>
+      </div>
+
+      <!-- STEP 7: GENERATED -->
+      <div class="step" id="step-7">
+        <div class="step-label">Complete</div>
+        <div class="step-title">Will Generated</div>
+        <div class="step-desc">Your will has been drafted below. It must be signed in the presence of two competent
+          witnesses who are not beneficiaries to be legally valid.</div>
+        <div class="result-badge">✓ Document ready for review</div>
+        <div class="result-doc" id="will-document"></div>
+        <button class="btn-print" onclick="window.print()">🖨 Print / Save as PDF</button>
+        <div class="nav-row">
+          <button class="btn-back" onclick="goBack(7)">← Edit</button>
+          <div style="font-size:11px;color:var(--text-light);text-align:right;line-height:1.7;">
+            Draft only. Consult a legal professional<br>before signing and executing this will.
           </div>
         </div>
       </div>
+
+    </div><!-- /card -->
+  </div><!-- /main -->
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-note">This wizard produces a draft document only. Not a substitute for legal advice. Wills Act 7
+      of 1953 applies.</span>
+    <div class="footer-logo">
+      <img src="logo.png" alt="" onerror="this.style.display='none'">
     </div>
+  </footer>
 
-    <div class="nav-row">
-      <button class="btn-back" onclick="goBack(5)">← Back</button>
-      <button class="btn-next" onclick="goNext(5)">Review Will →</button>
-    </div>
-  </div>
+  <script>
+    const state = {
+      marital: null,
+      gender: null,
+      testator: { name: '', id: '' },
+      spouse: { husband: { name: '', id: '' }, wife: { name: '', id: '' } },
+      executor: { name: '', id: '' },
+      heirs: {
+        spouse: { active: false, portion: '' },
+        children: [],
+        intervivos: { active: false, name: '', reg: '', portion: '' },
+        testamentary: { active: false, trusteeName: '', trusteeId: '', age: '' }
+      }
+    };
 
-  <!-- STEP 6: REVIEW -->
-  <div class="step" id="step-6">
-    <div class="step-label">Step 6 of 6</div>
-    <div class="step-title">Review &amp; Confirm</div>
-    <div class="step-desc">Please review all captured details carefully before generating your will. Click <em>Edit</em> on any section to make changes.</div>
-    <div id="review-content"></div>
-    <div class="nav-row">
-      <button class="btn-back" onclick="goBack(6)">← Edit</button>
-      <button class="btn-generate" onclick="generateWill()">Generate Will Document</button>
-    </div>
-  </div>
+    let childCount = 0;
 
-  <!-- STEP 7: GENERATED -->
-  <div class="step" id="step-7">
-    <div class="step-label">Complete</div>
-    <div class="step-title">Will Generated</div>
-    <div class="step-desc">Your will has been drafted below. It must be signed in the presence of two competent witnesses who are not beneficiaries to be legally valid.</div>
-    <div class="result-badge">✓ Document ready for review</div>
-    <div class="result-doc" id="will-document"></div>
-    <button class="btn-print" onclick="window.print()">🖨 Print / Save as PDF</button>
-    <div class="nav-row">
-      <button class="btn-back" onclick="goBack(7)">← Edit</button>
-      <div style="font-size:11px;color:var(--text-light);text-align:right;line-height:1.7;">
-        Draft only. Consult a legal professional<br>before signing and executing this will.
-      </div>
-    </div>
-  </div>
+    document.getElementById('today-date').textContent =
+      new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
 
-</div><!-- /card -->
-</div><!-- /main -->
+    // ── PROGRESS ──
+    function renderProgress(current) {
+      const single = state.marital === 'single';
+      const steps = single ? [1, 2, 4, 5, 6, 7] : [1, 2, 3, 4, 5, 6, 7];
+      const labels = single
+        ? ['Status', 'Details', 'Executor', 'Heirs', 'Review', 'Done']
+        : ['Status', 'Details', 'Spouse', 'Executor', 'Heirs', 'Review', 'Done'];
 
-<!-- FOOTER -->
-<footer>
-  <span class="footer-note">This wizard produces a draft document only. Not a substitute for legal advice. Wills Act 7 of 1953 applies.</span>
-  <div class="footer-logo">
-    <img src="logo.png" alt="" onerror="this.style.display='none'">
-  </div>
-</footer>
-
-<script>
-const state = {
-  marital:  null,
-  gender:   null,
-  testator: { name: '', id: '' },
-  spouse:   { husband: { name: '', id: '' }, wife: { name: '', id: '' } },
-  executor: { name: '', id: '' },
-  heirs: {
-    spouse:       { active: false, portion: '' },
-    children:     [],
-    intervivos:   { active: false, name: '', reg: '', portion: '' },
-    testamentary: { active: false, trusteeName: '', trusteeId: '', age: '' }
-  }
-};
-
-let childCount = 0;
-
-document.getElementById('today-date').textContent =
-  new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
-
-// ── PROGRESS ──
-function renderProgress(current) {
-  const single = state.marital === 'single';
-  const steps  = single ? [1,2,4,5,6,7] : [1,2,3,4,5,6,7];
-  const labels = single
-    ? ['Status','Details','Executor','Heirs','Review','Done']
-    : ['Status','Details','Spouse','Executor','Heirs','Review','Done'];
-
-  document.getElementById('progress-wrap').innerHTML = steps.map((s, i) => {
-    const done   = s < current;
-    const active = s === current;
-    const cls    = done ? 'done' : active ? 'active' : '';
-    const line   = i < steps.length - 1
-      ? `<div class="pip-line ${done ? 'done' : ''}"></div>` : '';
-    return `<div class="step-pip" style="position:relative;">
+      document.getElementById('progress-wrap').innerHTML = steps.map((s, i) => {
+        const done = s < current;
+        const active = s === current;
+        const cls = done ? 'done' : active ? 'active' : '';
+        const line = i < steps.length - 1
+          ? `<div class="pip-line ${done ? 'done' : ''}"></div>` : '';
+        return `<div class="step-pip" style="position:relative;">
       <div class="pip-dot ${cls}" style="position:relative;">
         ${done ? '✓' : i + 1}
         <span class="pip-label">${labels[i]}</span>
       </div>${line}
     </div>`;
-  }).join('');
+      }).join('');
 
-  // Update thin progress bar
-  const idx = steps.indexOf(current);
-  const pct = Math.round((idx / (steps.length - 1)) * 100);
-  const fill = document.getElementById('progress-fill');
-  if (fill) fill.style.width = pct + '%';
-}
+      // Update thin progress bar
+      const idx = steps.indexOf(current);
+      const pct = Math.round((idx / (steps.length - 1)) * 100);
+      const fill = document.getElementById('progress-fill');
+      if (fill) fill.style.width = pct + '%';
+    }
 
-renderProgress(1);
+    renderProgress(1);
 
-// ── SELECTIONS ──
-function selectMarital(val, el) {
-  document.querySelectorAll('.status-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  state.marital = val;
-  document.getElementById('marital-error').style.display = 'none';
-}
+    // ── SELECTIONS ──
+    function selectMarital(val, el) {
+      document.querySelectorAll('.status-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      state.marital = val;
+      document.getElementById('marital-error').style.display = 'none';
+    }
 
-function selectGender(val, el) {
-  document.querySelectorAll('.gender-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  state.gender = val;
-  document.getElementById('gender-error').style.display = 'none';
-}
+    function selectGender(val, el) {
+      document.querySelectorAll('.gender-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      state.gender = val;
+      document.getElementById('gender-error').style.display = 'none';
+    }
 
-// ── NAVIGATION ──
-function showStep(n) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  document.getElementById('step-' + n).classList.add('active');
-  renderProgress(n);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+    // ── NAVIGATION ──
+    function showStep(n) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + n).classList.add('active');
+      renderProgress(n);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-function getNextStep(from) {
-  if (from === 2 && state.marital === 'single') return 4;
-  return from + 1;
-}
+    function getNextStep(from) {
+      if (from === 2 && state.marital === 'single') return 4;
+      return from + 1;
+    }
 
-function getPrevStep(from) {
-  if (from === 4 && state.marital === 'single') return 2;
-  return from - 1;
-}
+    function getPrevStep(from) {
+      if (from === 4 && state.marital === 'single') return 2;
+      return from - 1;
+    }
 
-function goBack(step) { showStep(getPrevStep(step)); }
+    function goBack(step) { showStep(getPrevStep(step)); }
 
-function goNext(step) {
-  if (!validateStep(step)) return;
-  saveStep(step);
-  const next = getNextStep(step);
-  if (next === 3) prepareSpouseStep();
-  if (next === 5) prepareHeirsStep();
-  if (next === 6) buildReview();
-  showStep(next);
-}
+    function goNext(step) {
+      if (!validateStep(step)) return;
+      saveStep(step);
+      const next = getNextStep(step);
+      if (next === 3) prepareSpouseStep();
+      if (next === 5) prepareHeirsStep();
+      if (next === 6) buildReview();
+      showStep(next);
+    }
 
-// ── VALIDATE ──
-function validateStep(step) {
-  if (step === 1) {
-    if (!state.marital) { document.getElementById('marital-error').style.display = 'block'; return false; }
-    return true;
-  }
-  if (step === 2) {
-    if (!state.gender) { document.getElementById('gender-error').style.display = 'block'; return false; }
-    return requireFields(['testator-name','testator-id']);
-  }
-  if (step === 3) return requireFields(['other-spouse-name','other-spouse-id']);
-  if (step === 4) return requireFields(['executor-name','executor-id']);
-  return true;
-}
-
-function requireFields(ids) {
-  let ok = true;
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el || !el.value.trim()) {
-      if (el) {
-        el.classList.add('error');
-        el.addEventListener('input', () => el.classList.remove('error'), { once: true });
+    // ── VALIDATE ──
+    function validateStep(step) {
+      if (step === 1) {
+        if (!state.marital) { document.getElementById('marital-error').style.display = 'block'; return false; }
+        return true;
       }
-      ok = false;
+      if (step === 2) {
+        if (!state.gender) { document.getElementById('gender-error').style.display = 'block'; return false; }
+        return requireFields(['testator-name', 'testator-id']);
+      }
+      if (step === 3) return requireFields(['other-spouse-name', 'other-spouse-id']);
+      if (step === 4) return requireFields(['executor-name', 'executor-id']);
+      return true;
     }
-  });
-  return ok;
-}
 
-// ── SAVE ──
-function saveStep(step) {
-  if (step === 2) {
-    state.testator.name = document.getElementById('testator-name').value.trim();
-    state.testator.id   = document.getElementById('testator-id').value.trim();
-  }
-  if (step === 3) {
-    const n = document.getElementById('other-spouse-name').value.trim();
-    const i = document.getElementById('other-spouse-id').value.trim();
-    if (state.gender === 'male') {
-      state.spouse.husband = { name: state.testator.name, id: state.testator.id };
-      state.spouse.wife    = { name: n, id: i };
-    } else {
-      state.spouse.wife    = { name: state.testator.name, id: state.testator.id };
-      state.spouse.husband = { name: n, id: i };
-    }
-  }
-  if (step === 4) {
-    state.executor.name = document.getElementById('executor-name').value.trim();
-    state.executor.id   = document.getElementById('executor-id').value.trim();
-  }
-  if (step === 5) {
-    const st = document.getElementById('spouse-heir-toggle');
-    state.heirs.spouse.active  = st ? st.checked : false;
-    state.heirs.spouse.portion = document.getElementById('spouse-heir-portion')?.value.trim() || '';
-
-    state.heirs.children = [];
-    document.querySelectorAll('.child-entry').forEach(e => {
-      state.heirs.children.push({
-        name:   e.querySelector('.child-name').value.trim(),
-        id:     e.querySelector('.child-id').value.trim(),
-        portion:e.querySelector('.child-portion').value.trim(),
-        minor:  e.querySelector('.child-minor').checked
+    function requireFields(ids) {
+      let ok = true;
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || !el.value.trim()) {
+          if (el) {
+            el.classList.add('error');
+            el.addEventListener('input', () => el.classList.remove('error'), { once: true });
+          }
+          ok = false;
+        }
       });
-    });
+      return ok;
+    }
 
-    state.heirs.intervivos.active  = document.getElementById('intervivos-toggle').checked;
-    state.heirs.intervivos.name    = document.getElementById('intervivos-name').value.trim();
-    state.heirs.intervivos.reg     = document.getElementById('intervivos-reg').value.trim();
-    state.heirs.intervivos.portion = document.getElementById('intervivos-portion').value.trim();
+    // ── SAVE ──
+    function saveStep(step) {
+      if (step === 2) {
+        state.testator.name = document.getElementById('testator-name').value.trim();
+        state.testator.id = document.getElementById('testator-id').value.trim();
+      }
+      if (step === 3) {
+        const n = document.getElementById('other-spouse-name').value.trim();
+        const i = document.getElementById('other-spouse-id').value.trim();
+        if (state.gender === 'male') {
+          state.spouse.husband = { name: state.testator.name, id: state.testator.id };
+          state.spouse.wife = { name: n, id: i };
+        } else {
+          state.spouse.wife = { name: state.testator.name, id: state.testator.id };
+          state.spouse.husband = { name: n, id: i };
+        }
+      }
+      if (step === 4) {
+        state.executor.name = document.getElementById('executor-name').value.trim();
+        state.executor.id = document.getElementById('executor-id').value.trim();
+      }
+      if (step === 5) {
+        const st = document.getElementById('spouse-heir-toggle');
+        state.heirs.spouse.active = st ? st.checked : false;
+        state.heirs.spouse.portion = document.getElementById('spouse-heir-portion')?.value.trim() || '';
 
-    state.heirs.testamentary.active      = document.getElementById('testamentary-toggle').checked;
-    state.heirs.testamentary.trusteeName = document.getElementById('trustee-name').value.trim();
-    state.heirs.testamentary.trusteeId   = document.getElementById('trustee-id').value.trim();
-    state.heirs.testamentary.age         = document.getElementById('trust-age').value.trim();
-  }
-}
+        state.heirs.children = [];
+        document.querySelectorAll('.child-entry').forEach(e => {
+          state.heirs.children.push({
+            name: e.querySelector('.child-name').value.trim(),
+            id: e.querySelector('.child-id').value.trim(),
+            portion: e.querySelector('.child-portion').value.trim(),
+            minor: e.querySelector('.child-minor').checked
+          });
+        });
 
-// ── SPOUSE STEP SETUP ──
-function prepareSpouseStep() {
-  document.getElementById('display-testator-name').textContent = state.testator.name || '—';
-  document.getElementById('display-testator-id').textContent   = state.testator.id   || '—';
+        state.heirs.intervivos.active = document.getElementById('intervivos-toggle').checked;
+        state.heirs.intervivos.name = document.getElementById('intervivos-name').value.trim();
+        state.heirs.intervivos.reg = document.getElementById('intervivos-reg').value.trim();
+        state.heirs.intervivos.portion = document.getElementById('intervivos-portion').value.trim();
 
-  const isMale = state.gender === 'male';
-  document.getElementById('testator-slot-label').innerHTML =
-    (isMale ? 'Husband' : 'Wife') + ' <span class="prefilled-badge">You</span>';
-  document.getElementById('other-slot-label').textContent = isMale ? 'Wife' : 'Husband';
+        state.heirs.testamentary.active = document.getElementById('testamentary-toggle').checked;
+        state.heirs.testamentary.trusteeName = document.getElementById('trustee-name').value.trim();
+        state.heirs.testamentary.trusteeId = document.getElementById('trustee-id').value.trim();
+        state.heirs.testamentary.age = document.getElementById('trust-age').value.trim();
+      }
+    }
 
-  const prev = isMale ? state.spouse.wife : state.spouse.husband;
-  document.getElementById('other-spouse-name').value = prev.name || '';
-  document.getElementById('other-spouse-id').value   = prev.id   || '';
+    // ── SPOUSE STEP SETUP ──
+    function prepareSpouseStep() {
+      document.getElementById('display-testator-name').textContent = state.testator.name || '—';
+      document.getElementById('display-testator-id').textContent = state.testator.id || '—';
 
-  document.getElementById('spouse-step-desc').textContent =
-    (state.marital === 'community'
-      ? 'Married in community of property. '
-      : 'Married out of community of property. ') +
-    "Your details have been carried over. Please provide your spouse's details below.";
-}
+      const isMale = state.gender === 'male';
+      document.getElementById('testator-slot-label').innerHTML =
+        (isMale ? 'Husband' : 'Wife') + ' <span class="prefilled-badge">You</span>';
+      document.getElementById('other-slot-label').textContent = isMale ? 'Wife' : 'Husband';
 
-// ── HEIRS STEP SETUP ──
-function prepareHeirsStep() {
-  document.getElementById('spouse-heir-section').style.display =
-    state.marital !== 'single' ? 'block' : 'none';
-}
+      const prev = isMale ? state.spouse.wife : state.spouse.husband;
+      document.getElementById('other-spouse-name').value = prev.name || '';
+      document.getElementById('other-spouse-id').value = prev.id || '';
 
-// ── TOGGLE ──
-function toggleHeir(contentId, toggleId) {
-  const toggle  = document.getElementById(toggleId);
-  const content = document.getElementById(contentId);
-  if (!content) return;
-  if (toggle && !toggle.matches(':focus')) toggle.checked = !toggle.checked;
-  content.classList.toggle('open', toggle.checked);
-}
+      document.getElementById('spouse-step-desc').textContent =
+        (state.marital === 'community'
+          ? 'Married in community of property. '
+          : 'Married out of community of property. ') +
+        "Your details have been carried over. Please provide your spouse's details below.";
+    }
 
-// ── CHILDREN ──
-function addChild() {
-  childCount++;
-  const div = document.createElement('div');
-  div.className = 'heir-entry child-entry';
-  div.innerHTML = `
+    // ── HEIRS STEP SETUP ──
+    function prepareHeirsStep() {
+      document.getElementById('spouse-heir-section').style.display =
+        state.marital !== 'single' ? 'block' : 'none';
+    }
+
+    // ── TOGGLE ──
+    function toggleHeir(contentId, toggleId) {
+      const toggle = document.getElementById(toggleId);
+      const content = document.getElementById(contentId);
+      if (!content) return;
+      if (toggle && !toggle.matches(':focus')) toggle.checked = !toggle.checked;
+      content.classList.toggle('open', toggle.checked);
+    }
+
+    // ── CHILDREN ──
+    function addChild() {
+      childCount++;
+      const div = document.createElement('div');
+      div.className = 'heir-entry child-entry';
+      div.innerHTML = `
     <div class="heir-entry-header">
       <span class="heir-entry-num">Child ${childCount}</span>
       <button class="btn-remove" onclick="removeChild(this)">Remove</button>
@@ -1390,125 +1604,128 @@ function addChild() {
       <input type="checkbox" class="child-minor" onchange="syncTestamentary()">
       This child is a minor (under 18)
     </label>`;
-  document.getElementById('children-list').appendChild(div);
-  syncTestamentary();
-}
+      document.getElementById('children-list').appendChild(div);
+      syncTestamentary();
+    }
 
-function removeChild(btn) {
-  btn.closest('.child-entry').remove();
-  syncTestamentary();
-  document.querySelectorAll('.child-entry .heir-entry-num').forEach((el, i) => {
-    el.textContent = 'Child ' + (i + 1);
-  });
-}
+    function removeChild(btn) {
+      btn.closest('.child-entry').remove();
+      syncTestamentary();
+      document.querySelectorAll('.child-entry .heir-entry-num').forEach((el, i) => {
+        el.textContent = 'Child ' + (i + 1);
+      });
+    }
 
-function syncTestamentary() {
-  const hasMinors = Array.from(document.querySelectorAll('.child-minor')).some(c => c.checked);
-  document.getElementById('minor-suggestion').style.display = hasMinors ? 'block' : 'none';
-}
+    function syncTestamentary() {
+      const hasMinors = Array.from(document.querySelectorAll('.child-minor')).some(c => c.checked);
+      document.getElementById('minor-suggestion').style.display = hasMinors ? 'block' : 'none';
+    }
 
-// ── REVIEW ──
-function buildReview() {
-  saveStep(5);
-  const maritalLabels = {
-    single:        'Single',
-    community:     'Married – In Community of Property',
-    out_community: 'Married – Out of Community of Property'
-  };
+    // ── REVIEW ──
+    function buildReview() {
+      saveStep(5);
+      const maritalLabels = {
+        single: 'Single',
+        community: 'Married – In Community of Property',
+        out_community: 'Married – Out of Community of Property'
+      };
 
-  const sec = (title, step, rows) =>
-    `<div class="review-section">
+      const sec = (title, step, rows) =>
+        `<div class="review-section">
       <div class="review-section-title">${title}
         <span class="review-edit" onclick="showStep(${step})">Edit</span>
       </div>
-      ${rows.map(([k,v]) => `<div class="review-row">
+      ${rows.map(([k, v]) => `<div class="review-row">
         <span class="review-key">${k}</span>
         <span class="review-val">${v}</span>
       </div>`).join('')}
     </div>`;
 
-  let html = '';
-  html += sec('Marital Status', 1, [['Status', maritalLabels[state.marital]]]);
-  html += sec('Testator', 2, [['Full Name', state.testator.name||'—'],['ID Number', state.testator.id||'—']]);
+      let html = '';
+      html += sec('Marital Status', 1, [['Status', maritalLabels[state.marital]]]);
+      html += sec('Testator', 2, [['Full Name', state.testator.name || '—'], ['ID Number', state.testator.id || '—']]);
 
-  if (state.marital !== 'single') {
-    html += sec('Spouse', 3, [
-      ['Husband', `${state.spouse.husband.name} (${state.spouse.husband.id})`],
-      ['Wife',    `${state.spouse.wife.name} (${state.spouse.wife.id})`]
-    ]);
-  }
+      if (state.marital !== 'single') {
+        html += sec('Spouse', 3, [
+          ['Husband', `${state.spouse.husband.name} (${state.spouse.husband.id})`],
+          ['Wife', `${state.spouse.wife.name} (${state.spouse.wife.id})`]
+        ]);
+      }
 
-  html += sec('Executor', 4, [['Full Name', state.executor.name||'—'],['ID Number', state.executor.id||'—']]);
+      html += sec('Executor', 4, [['Full Name', state.executor.name || '—'], ['ID Number', state.executor.id || '—']]);
 
-  const hRows = [];
-  if (state.marital !== 'single' && state.heirs.spouse.active)
-    hRows.push(['Spouse', state.heirs.spouse.portion || 'Included']);
-  state.heirs.children.forEach((c, i) =>
-    hRows.push([`Child ${i+1}${c.minor ? ' <span class="minor-badge">Minor</span>' : ''}`,
-      `${c.name} – ${c.portion || 'unspecified'}`]));
-  if (state.heirs.intervivos.active)
-    hRows.push(['Intervivos Trust', `${state.heirs.intervivos.name} – ${state.heirs.intervivos.portion}`]);
-  if (state.heirs.testamentary.active)
-    hRows.push(['Testamentary Trust', `Trustee: ${state.heirs.testamentary.trusteeName}, age ${state.heirs.testamentary.age}`]);
-  if (!hRows.length) hRows.push(['Note', 'No heirs specified']);
-  html += sec('Heirs &amp; Beneficiaries', 5, hRows);
+      const hRows = [];
+      if (state.marital !== 'single' && state.heirs.spouse.active)
+        hRows.push(['Spouse', state.heirs.spouse.portion || 'Included']);
+      state.heirs.children.forEach((c, i) =>
+        hRows.push([`Child ${i + 1}${c.minor ? ' <span class="minor-badge">Minor</span>' : ''}`,
+        `${c.name} – ${c.portion || 'unspecified'}`]));
+      if (state.heirs.intervivos.active)
+        hRows.push(['Intervivos Trust', `${state.heirs.intervivos.name} – ${state.heirs.intervivos.portion}`]);
+      if (state.heirs.testamentary.active)
+        hRows.push(['Testamentary Trust', `Trustee: ${state.heirs.testamentary.trusteeName}, age ${state.heirs.testamentary.age}`]);
+      if (!hRows.length) hRows.push(['Note', 'No heirs specified']);
+      html += sec('Heirs &amp; Beneficiaries', 5, hRows);
 
-  document.getElementById('review-content').innerHTML = html;
-}
+      document.getElementById('review-content').innerHTML = html;
+    }
 
-// ── GENERATE WILL ──
-function generateWill() {
-  const today = new Date().toLocaleDateString('en-ZA',{day:'numeric',month:'long',year:'numeric'});
-  const mDesc = { single:'unmarried', community:'married in community of property',
-                  out_community:'married out of community of property' }[state.marital];
-  const D = '─'.repeat(52);
+    // ── GENERATE WILL ──
+    function generateWill() {
+      const today = new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+      const mDesc = {
+        single: 'unmarried', community: 'married in community of property',
+        out_community: 'married out of community of property'
+      }[state.marital];
+      const D = '─'.repeat(52);
 
-  let doc = `LAST WILL AND TESTAMENT\n${D}\n\n`;
-  doc += `I, ${state.testator.name} (ID: ${state.testator.id}), hereby declare this to be my Last Will and Testament, executed on ${today}.\n\nI am currently ${mDesc}.\n`;
+      let doc = `LAST WILL AND TESTAMENT\n${D}\n\n`;
+      doc += `I, ${state.testator.name} (ID: ${state.testator.id}), hereby declare this to be my Last Will and Testament, executed on ${today}.\n\nI am currently ${mDesc}.\n`;
 
-  if (state.marital !== 'single') {
-    doc += `\n${D}\nSPOUSE DETAILS\n${D}\n`;
-    doc += `Husband: ${state.spouse.husband.name} (ID: ${state.spouse.husband.id})\n`;
-    doc += `Wife:    ${state.spouse.wife.name} (ID: ${state.spouse.wife.id})\n`;
-  }
+      if (state.marital !== 'single') {
+        doc += `\n${D}\nSPOUSE DETAILS\n${D}\n`;
+        doc += `Husband: ${state.spouse.husband.name} (ID: ${state.spouse.husband.id})\n`;
+        doc += `Wife:    ${state.spouse.wife.name} (ID: ${state.spouse.wife.id})\n`;
+      }
 
-  doc += `\n${D}\nEXECUTOR\n${D}\n`;
-  doc += `I hereby appoint ${state.executor.name} (ID: ${state.executor.id}) as the Executor of my estate, with full power to administer and distribute my estate in accordance with this Will.\n`;
+      doc += `\n${D}\nEXECUTOR\n${D}\n`;
+      doc += `I hereby appoint ${state.executor.name} (ID: ${state.executor.id}) as the Executor of my estate, with full power to administer and distribute my estate in accordance with this Will.\n`;
 
-  doc += `\n${D}\nHEIRS AND BENEFICIARIES\n${D}\nI bequeath my estate as follows:\n\n`;
+      doc += `\n${D}\nHEIRS AND BENEFICIARIES\n${D}\nI bequeath my estate as follows:\n\n`;
 
-  if (state.marital !== 'single' && state.heirs.spouse.active)
-    doc += `To my spouse: ${state.heirs.spouse.portion||'portion of estate as agreed'}\n\n`;
+      if (state.marital !== 'single' && state.heirs.spouse.active)
+        doc += `To my spouse: ${state.heirs.spouse.portion || 'portion of estate as agreed'}\n\n`;
 
-  if (state.heirs.children.length) {
-    doc += `Children:\n`;
-    state.heirs.children.forEach((c,i) =>
-      doc += `  ${i+1}. ${c.name} (ID/DOB: ${c.id})${c.minor?' [minor]':''} — ${c.portion||'equal share'}\n`);
-    doc += '\n';
-  }
+      if (state.heirs.children.length) {
+        doc += `Children:\n`;
+        state.heirs.children.forEach((c, i) =>
+          doc += `  ${i + 1}. ${c.name} (ID/DOB: ${c.id})${c.minor ? ' [minor]' : ''} — ${c.portion || 'equal share'}\n`);
+        doc += '\n';
+      }
 
-  if (state.heirs.intervivos.active && state.heirs.intervivos.name) {
-    doc += `Intervivos Trust:\n  ${state.heirs.intervivos.name} (Reg: ${state.heirs.intervivos.reg}) — ${state.heirs.intervivos.portion}\n\n`;
-  }
+      if (state.heirs.intervivos.active && state.heirs.intervivos.name) {
+        doc += `Intervivos Trust:\n  ${state.heirs.intervivos.name} (Reg: ${state.heirs.intervivos.reg}) — ${state.heirs.intervivos.portion}\n\n`;
+      }
 
-  if (state.heirs.testamentary.active) {
-    doc += `Testamentary Trust:\n  I direct that a Testamentary Trust be established upon my death.\n`;
-    doc += `  Trustee: ${state.heirs.testamentary.trusteeName} (ID: ${state.heirs.testamentary.trusteeId})\n`;
-    doc += `  The trust shall terminate when all beneficiaries reach age ${state.heirs.testamentary.age||'21'}.\n\n`;
-  }
+      if (state.heirs.testamentary.active) {
+        doc += `Testamentary Trust:\n  I direct that a Testamentary Trust be established upon my death.\n`;
+        doc += `  Trustee: ${state.heirs.testamentary.trusteeName} (ID: ${state.heirs.testamentary.trusteeId})\n`;
+        doc += `  The trust shall terminate when all beneficiaries reach age ${state.heirs.testamentary.age || '21'}.\n\n`;
+      }
 
-  doc += `${D}\nREVOCATION\n${D}\nI hereby revoke all former Wills and Testamentary dispositions previously made by me.\n\n`;
-  doc += `${D}\nSIGNATURE\n${D}\n`;
-  doc += `Signed at ________________________ on the _____ day of ________________ 20____\n\n`;
-  doc += `Signature: ___________________________\n${state.testator.name}\n\n`;
-  doc += `${D}\nWITNESSES\n${D}\nBoth witnesses must be present simultaneously and must not be beneficiaries.\n\n`;
-  doc += `Witness 1\nFull Name:  _______________________________\nID Number:  _______________________________\nSignature:  _______________________________\n\n`;
-  doc += `Witness 2\nFull Name:  _______________________________\nID Number:  _______________________________\nSignature:  _______________________________\n\n`;
-  doc += `${D}\nDRAFT ONLY — Must be executed in accordance with the Wills Act 7 of 1953.`;
+      doc += `${D}\nREVOCATION\n${D}\nI hereby revoke all former Wills and Testamentary dispositions previously made by me.\n\n`;
+      doc += `${D}\nSIGNATURE\n${D}\n`;
+      doc += `Signed at ________________________ on the _____ day of ________________ 20____\n\n`;
+      doc += `Signature: ___________________________\n${state.testator.name}\n\n`;
+      doc += `${D}\nWITNESSES\n${D}\nBoth witnesses must be present simultaneously and must not be beneficiaries.\n\n`;
+      doc += `Witness 1\nFull Name:  _______________________________\nID Number:  _______________________________\nSignature:  _______________________________\n\n`;
+      doc += `Witness 2\nFull Name:  _______________________________\nID Number:  _______________________________\nSignature:  _______________________________\n\n`;
+      doc += `${D}\nDRAFT ONLY — Must be executed in accordance with the Wills Act 7 of 1953.`;
 
-  document.getElementById('will-document').textContent = doc;
-  showStep(7);
-}
-</script>
+      document.getElementById('will-document').textContent = doc;
+      showStep(7);
+    }
+  </script>
 </body>
+
 </html>

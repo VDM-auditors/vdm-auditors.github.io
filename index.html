@@ -1,207 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VDM – Tools & Links</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap"
-    rel="stylesheet">
-  <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VDM – Tools & Links</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap"
+  rel="stylesheet">
+<style>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-    :root {
-      var(--navy): #111827;
-      --gold: #b39556;
-      --gold-light: #d1b882;
-      --bg: #ffffff;
-      --card-bg: #ffffff;
-      --mid: #e5e7eb;
-      --text: #374151;
-      --muted: #6b7280;
-    }
+  :root {
+    var(--navy): #111827;
+    --gold: #b39556;
+    --gold-light: #d1b882;
+    --bg: #ffffff;
+    --card-bg: #ffffff;
+    --mid: #e5e7eb;
+    --text: #374151;
+    --muted: #6b7280;
+  }
 
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 24px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 64px;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .logo-wrap {
+    width: 100%;
+    max-width: 350px;
+    /* Slightly larger to let the logo breathe without text below it */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-wrap img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    width: 100%;
+    max-width: 820px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--mid);
+    border-radius: 12px;
+    padding: 32px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  }
+
+  .card-button {
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.3s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 12px 24px -8px rgba(17, 24, 39, 0.15);
+    transform: translateY(-4px);
+    border-color: var(--gold-light);
+  }
+
+  .card:hover::before {
+    width: 6px;
+  }
+
+  .card-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(17, 24, 39, 0.2);
+  }
+
+  .card-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--gold);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: #111827;
+    font-weight: 600;
+  }
+
+  .card-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  .card-arrow {
+    margin-top: auto;
+    padding-top: 16px;
+    font-size: 0.8rem;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+  }
+
+  .card-arrow::after {
+    content: '→';
+    transition: transform 0.3s ease;
+  }
+
+  .card:hover .card-arrow {
+    color: #111827;
+  }
+
+  .card:hover .card-arrow::after {
+    transform: translateX(6px);
+  }
+
+  footer {
+    margin-top: 80px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
     body {
-      font-family: 'Source Sans 3', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 60px 24px 80px;
-      -webkit-font-smoothing: antialiased;
+      padding: 40px 16px 60px;
     }
 
-    /* ── HEADER ── */
-    header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 64px;
-      width: 100%;
-      max-width: 600px;
-    }
-
-    .logo-wrap {
-      width: 100%;
-      max-width: 350px;
-      /* Slightly larger to let the logo breathe without text below it */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .logo-wrap img {
-      width: 100%;
-      height: auto;
-      object-fit: contain;
-    }
-
-    /* ── GRID ── */
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
-      width: 100%;
-      max-width: 820px;
+      grid-template-columns: 1fr;
     }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--mid);
-      border-radius: 12px;
-      padding: 32px;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    }
-
-    .card-button {
-      width: 100%;
-      font: inherit;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-      background: var(--gold);
-      transition: width 0.3s ease;
-    }
-
-    .card:hover {
-      box-shadow: 0 12px 24px -8px rgba(17, 24, 39, 0.15);
-      transform: translateY(-4px);
-      border-color: var(--gold-light);
-    }
-
-    .card:hover::before {
-      width: 6px;
-    }
-
-    .card-icon {
-      width: 42px;
-      height: 42px;
-      background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-      box-shadow: 0 2px 8px rgba(17, 24, 39, 0.2);
-    }
-
-    .card-icon svg {
-      width: 20px;
-      height: 20px;
-      stroke: var(--gold);
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .card-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.25rem;
-      color: #111827;
-      font-weight: 600;
-    }
-
-    .card-desc {
-      font-size: 0.9rem;
-      color: var(--muted);
-      font-weight: 300;
-      line-height: 1.6;
-    }
-
-    .card-arrow {
-      margin-top: auto;
-      padding-top: 16px;
-      font-size: 0.8rem;
-      color: var(--gold);
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: color 0.2s;
-    }
-
-    .card-arrow::after {
-      content: '→';
-      transition: transform 0.3s ease;
-    }
-
-    .card:hover .card-arrow {
-      color: #111827;
-    }
-
-    .card:hover .card-arrow::after {
-      transform: translateX(6px);
-    }
-
-    footer {
-      margin-top: 80px;
-      font-size: 0.8rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-align: center;
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 600px) {
-      body {
-        padding: 40px 16px 60px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 
 <body>

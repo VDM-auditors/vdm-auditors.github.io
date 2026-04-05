@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VDM — Financial Statement Policy Generator</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet">
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="css/styles.css">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VDM — Financial Statement Policy Generator</title>
+<link
+  href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 
 
@@ -131,7 +131,8 @@
 
         <!-- Trading As toggle + name (optional) -->
         <div class="field-group form-grid-full">
-          <label style="font-size:13px;font-weight:600;color:var(--ink);">Does the entity trade under a different name?</label>
+          <label style="font-size:13px;font-weight:600;color:var(--ink);">Does the entity trade under a different
+            name?</label>
           <div class="options-group" style="margin-top:4px;flex-direction:row;flex-wrap:wrap;">
             <label class="option-pill">
               <input type="radio" name="hasTradingAs" value="no" checked onchange="onTradingAsToggle(); liveUpdate()">
@@ -171,14 +172,16 @@
           <div class="date-input-wrap">
             <input type="text" id="yearEnd" placeholder="e.g. 28 February 2025"
               oninput="autoFillPrevYear(); liveUpdate()">
-            <button type="button" class="btn-cal" onclick="toggleCal('cal-yearEnd')" title="Pick date">&#x1f4c5;</button>
+            <button type="button" class="btn-cal" onclick="toggleCal('cal-yearEnd')"
+              title="Pick date">&#x1f4c5;</button>
             <div id="cal-yearEnd" class="cal-popup hidden"></div>
           </div>
         </div>
 
         <!-- Row 3: Previous Year End + Nature of Business -->
         <div class="field-group">
-          <label>Previous Year End <span style="font-weight:400;color:#9090b0;font-size:11px;">(auto-filled)</span></label>
+          <label>Previous Year End <span
+              style="font-weight:400;color:#9090b0;font-size:11px;">(auto-filled)</span></label>
           <div class="date-input-wrap">
             <input type="text" id="prevYearEnd" placeholder="Auto-filled from year end" oninput="liveUpdate()"
               style="background:#f9f7f2;">
@@ -947,11 +950,13 @@
           <label>Include accounting policies in the document?</label>
           <div class="options-group">
             <label class="option-pill">
-              <input type="radio" name="churchPolicies" value="yes" checked onchange="toggleChurchStep7(); liveUpdate()"> Yes — include
+              <input type="radio" name="churchPolicies" value="yes" checked
+                onchange="toggleChurchStep7(); liveUpdate()"> Yes — include
               policies
             </label>
             <label class="option-pill">
-              <input type="radio" name="churchPolicies" value="no" onchange="toggleChurchStep7(); liveUpdate()"> No — skip policies
+              <input type="radio" name="churchPolicies" value="no" onchange="toggleChurchStep7(); liveUpdate()"> No —
+              skip policies
             </label>
           </div>
           <p class="hint">If included, select the applicable policies below in Step 7.</p>
@@ -1076,12 +1081,12 @@
         <div id="engagement-types-panel"
           style="display:none;margin-top:10px;padding:12px 16px;background:var(--panel);border-radius:8px;border:1px solid var(--border);">
           <div id="engagement-types-standard">
-            <label
-              style="font-size:12px;font-weight:600;color:var(--ink-light);display:block;margin-bottom:8px;">Select
+            <label style="font-size:12px;font-weight:600;color:var(--ink-light);display:block;margin-bottom:8px;">Select
               engagement letter type(s):</label>
             <div style="display:flex;flex-wrap:wrap;gap:10px;">
               <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
-                <input type="checkbox" id="engTypeAccounting" onchange="onEngagementTypesChange(); liveUpdate()"> Accounting
+                <input type="checkbox" id="engTypeAccounting" onchange="onEngagementTypesChange(); liveUpdate()">
+                Accounting
               </label>
               <label class="option-pill" style="display:inline-flex;align-items:center;gap:6px;">
                 <input type="checkbox" id="engTypeReview" onchange="onEngagementTypesChange(); liveUpdate()"> Review
@@ -1122,12 +1127,14 @@
                 <option value="L VAN DER MERWE">L van der Merwe</option>
                 <option value="R DE BEER">R de Beer</option>
               </select>
-              <p class="hint" style="margin-top:6px;">Audit engagement letters may only be signed by Leon van der Merwe or Reinette de Beer.</p>
+              <p class="hint" style="margin-top:6px;">Audit engagement letters may only be signed by Leon van der Merwe
+                or Reinette de Beer.</p>
             </div>
             <p class="hint" id="engagement-signer-warning" style="display:none;color:var(--danger);margin-top:10px;">
               The same partner may not sign different engagement letters. Please select different signatories.
             </p>
-            <p class="hint" id="engagement-signer-required-warning" style="display:none;color:var(--danger);margin-top:8px;">
+            <p class="hint" id="engagement-signer-required-warning"
+              style="display:none;color:var(--danger);margin-top:8px;">
               Please choose a signer for each selected engagement letter (Accounting/Review/Audit) before generating.
             </p>
           </div>
@@ -1166,22 +1173,39 @@
           <button class="tb-btn" onclick="execFmt('underline')" title="Underline"><u>U</u></button>
           <button class="tb-btn" onclick="execFmt('strikeThrough')" title="Strikethrough"><s>S</s></button>
           <button class="tb-btn" id="btn-fmt-painter" onclick="toggleFormatPainter()" title="Format Painter">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M12 9v4"/><path d="M8 17h8l-4 4-4-4z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 3H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" />
+              <path d="M12 9v4" />
+              <path d="M8 17h8l-4 4-4-4z" />
+            </svg>
           </button>
         </div>
         <div class="toolbar-sep"></div>
         <!-- Align | Size -->
         <div class="toolbar-group">
           <button class="tb-btn" onclick="execFmt('justifyLeft')" title="Align Left">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="15" y2="12" />
+              <line x1="3" y1="18" x2="18" y2="18" />
+            </svg>
           </button>
           <button class="tb-btn" onclick="execFmt('justifyCenter')" title="Align Center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="6" y1="12" x2="18" y2="12" />
+              <line x1="4" y1="18" x2="20" y2="18" />
+            </svg>
           </button>
           <button class="tb-btn" onclick="execFmt('justifyFull')" title="Justify">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
           </button>
-          <select class="tb-select" onchange="execFmtVal('fontSize', this.value); this.selectedIndex=0;" title="Font Size">
+          <select class="tb-select" onchange="execFmtVal('fontSize', this.value); this.selectedIndex=0;"
+            title="Font Size">
             <option value="" disabled selected>Aa</option>
             <option value="1">8</option>
             <option value="2">10</option>
@@ -1212,17 +1236,26 @@
             <span style="font-size:10px;font-weight:700;line-height:1;">#</span>
           </button>
           <button class="tb-btn" onclick="insertSignatureSpace()" title="Signature">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18.5l3.5-3.5c.83-.83 2.17-.83 3 0s.83 2.17 0 3L6 21.5H3v-3z"/><line x1="2" y1="22" x2="22" y2="22"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 18.5l3.5-3.5c.83-.83 2.17-.83 3 0s.83 2.17 0 3L6 21.5H3v-3z" />
+              <line x1="2" y1="22" x2="22" y2="22" />
+            </svg>
           </button>
         </div>
         <div class="toolbar-sep"></div>
         <!-- Undo / Redo -->
         <div class="toolbar-group">
           <button class="tb-btn" onclick="toolbarUndo()" title="Undo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg>
           </button>
           <button class="tb-btn" onclick="toolbarRedo()" title="Redo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" />
+            </svg>
           </button>
         </div>
       </div>
