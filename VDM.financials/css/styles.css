@@ -1537,12 +1537,215 @@ header p {
   cursor: not-allowed;
 }
 
+/* ── HELP BUTTON ── */
+.tb-btn-help {
+  color: #C8A951 !important;
+}
+.tb-btn-help:hover {
+  background: rgba(200,169,81,0.2) !important;
+}
+
+/* ── HELP MODAL ── */
+.help-modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.25);
+  padding: 28px 32px 24px;
+  max-width: 560px;
+  width: 94%;
+  max-height: 82vh;
+  overflow-y: auto;
+  animation: psModalIn .25s ease;
+}
+.help-modal h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 4px;
+}
+.help-modal .help-subtitle {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 20px;
+}
+.help-modal .help-section {
+  margin-bottom: 18px;
+}
+.help-modal .help-section-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #C8A951;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f0ead6;
+}
+.help-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+.help-row:last-child {
+  border-bottom: none;
+}
+.help-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ccc;
+}
+.help-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.help-icon .help-icon-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+.help-text {
+  flex: 1;
+  min-width: 0;
+}
+.help-text strong {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+  display: block;
+  margin-bottom: 1px;
+}
+.help-text span {
+  font-size: 12px;
+  color: #777;
+  line-height: 1.4;
+}
+.help-close-wrap {
+  text-align: right;
+  margin-top: 16px;
+}
+
 /* ── SELECTED PAGE GLOW in preview ── */
 .doc-page.page-selected-glow,
 .cover-page.page-selected-glow {
   outline: 3px solid #C8A951;
   outline-offset: -3px;
   box-shadow: 0 0 0 6px rgba(200,169,81,0.2), 0 2px 12px rgba(0,0,0,0.1);
+}
+
+/* ── PAGE REORDER MODAL ── */
+.reorder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+  min-height: 100px;
+}
+
+.reorder-card {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+  cursor: grab;
+  transition: box-shadow .2s, border-color .2s, transform .15s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  position: relative;
+}
+.reorder-card:hover {
+  border-color: #C8A951;
+}
+.reorder-card:active {
+  cursor: grabbing;
+}
+.reorder-card.dragging {
+  opacity: 0.4;
+  border-color: #C8A951;
+  transform: scale(0.95);
+}
+.reorder-card.drag-over {
+  border-color: #C8A951;
+  box-shadow: 0 0 0 3px rgba(200,169,81,0.35);
+  transform: scale(1.03);
+}
+
+.reorder-card .ps-thumb-wrap {
+  width: 100%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: #fff;
+  position: relative;
+  border-bottom: 1px solid #eee;
+}
+
+.reorder-card .reorder-footer {
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f5f5f5;
+}
+.reorder-card .reorder-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.reorder-card .reorder-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.reorder-card .reorder-grip {
+  color: #bbb;
+  font-size: 14px;
+  flex-shrink: 0;
+  letter-spacing: 2px;
+}
+
+/* ── WORD UPLOAD PROGRESS ── */
+.ps-upload-status {
+  text-align: center;
+  padding: 24px 0;
+  font-family: 'Poppins', sans-serif;
+}
+.ps-upload-status .ps-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #eee;
+  border-top-color: #C8A951;
+  border-radius: 50%;
+  animation: psSpin .7s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes psSpin { to { transform: rotate(360deg); } }
+.ps-upload-status p {
+  font-size: 13px;
+  color: #666;
 }
 
 /* ── COVER PAGE ── */

@@ -493,6 +493,440 @@ async function insertSignatureSpace() {
   });
 }
 
+// ── Upload Word Document ──
+function uploadWordDoc() {
+  const output = document.getElementById('document-output');
+  if (!output) { alert('Generate a document first before importing.'); return; }
+
+  const fileInput = document.getElementById('upload-word');
+  fileInput.onchange = async function () {
+    const file = this.files[0];
+    if (!file) return;
+    this.value = '';
+
+    // Show loading overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'page-selector-overlay';
+    overlay.innerHTML = `
+      <div class="page-selector-modal" style="text-align:center;">
+        <div class="ps-upload-status">
+          <div class="ps-spinner"></div>
+          <p>Importing <strong>${file.name}</strong>…</p>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.convertToHtml({ arrayBuffer }, {
+        styleMap: [
+          "p[style-name='Heading 1'] => h2:fresh",
+          "p[style-name='Heading 2'] => h3:fresh",
+          "p[style-name='Heading 3'] => h4:fresh"
+        ]
+      });
+
+      const html = result.value;
+      if (!html || !html.trim()) {
+        overlay.remove();
+        alert('The document appears to be empty or could not be read.');
+        return;
+      }
+
+      _saveSnapshot();
+
+      // Split content into pages at <h2> boundaries or create a single page
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = html;
+      const sections = [];
+      let currentSection = [];
+
+      wrapper.childNodes.forEach(node => {
+        if (node.nodeName === 'H2' && currentSection.length > 0) {
+          sections.push(currentSection);
+          currentSection = [];
+        }
+        currentSection.push(node);
+      });
+      if (currentSection.length) sections.push(currentSection);
+
+      // Count existing pages for numbering
+      const existingPages = output.querySelectorAll('.doc-page, .cover-page');
+      let pageNum = existingPages.length + 1;
+
+      sections.forEach(nodes => {
+        const page = document.createElement('div');
+        page.className = 'doc-page';
+        nodes.forEach(n => page.appendChild(n.cloneNode(true)));
+
+        // Add page number
+        const pgNum = document.createElement('div');
+        pgNum.className = 'page-number';
+        pgNum.textContent = pageNum++;
+        page.appendChild(pgNum);
+
+        // If in edit mode, make editable
+        const editBtn = document.getElementById('btn-edit-preview');
+        if (editBtn && editBtn.classList.contains('active')) {
+          page.setAttribute('contenteditable', 'true');
+        }
+
+        output.appendChild(page);
+      });
+
+      overlay.remove();
+    } catch (err) {
+      overlay.remove();
+      console.error('Word import error:', err);
+      alert('Failed to import the document. Please ensure it is a valid .docx file.');
+    }
+  };
+  fileInput.click();
+}
+
+// ── Reorder Pages (Drag & Drop) ──
+function reorderPages() {
+  const output = document.getElementById('document-output');
+  if (!output) return;
+  const pages = output.querySelectorAll('.doc-page, .cover-page');
+  if (!pages.length) { alert('No pages to reorder. Generate a document first.'); return; }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'page-selector-overlay';
+
+  function _pageLabel(page, i) {
+    const h2 = page.querySelector('h2');
+    if (h2) return h2.textContent.trim().substring(0, 22);
+    if (page.classList.contains('cover-page')) return 'Cover Page';
+    return 'Page ' + (i + 1);
+  }
+
+  // Build ordered list of page references
+  const pageOrder = Array.from(pages);
+
+  function buildGrid() {
+    let html = '';
+    pageOrder.forEach((page, i) => {
+      html += `<div class="reorder-card" data-reorder-idx="${i}" draggable="true">
+        <div class="ps-thumb-wrap" data-reorder-thumb="${i}"></div>
+        <div class="reorder-footer">
+          <span class="reorder-num">${i + 1}</span>
+          <span class="reorder-label">${_pageLabel(page, i)}</span>
+          <span class="reorder-grip">⠿</span>
+        </div>
+      </div>`;
+    });
+    return html;
+  }
+
+  overlay.innerHTML = `
+    <div class="page-selector-modal">
+      <h3>Reorder Pages</h3>
+      <p class="ps-subtitle">Drag and drop pages to reorder them</p>
+      <div class="reorder-grid" id="reorder-grid">${buildGrid()}</div>
+      <div class="ps-actions">
+        <button class="ps-btn ps-btn-cancel">Cancel</button>
+        <button class="ps-btn ps-btn-apply">Apply Order</button>
+      </div>
+    </div>`;
+
+  const grid = overlay.querySelector('#reorder-grid');
+  let dragIdx = null;
+
+  function renderThumbs() {
+    overlay.querySelectorAll('.ps-thumb-wrap[data-reorder-thumb]').forEach(wrap => {
+      const idx = +wrap.dataset.reorderThumb;
+      const page = pageOrder[idx];
+      if (!page || wrap.childElementCount) return;
+      const clone = page.cloneNode(true);
+      clone.removeAttribute('contenteditable');
+      clone.classList.remove('page-selected-glow');
+      const wrapW = wrap.offsetWidth || 130;
+      const pageW = page.offsetWidth || 740;
+      const scale = wrapW / pageW;
+      clone.style.cssText = `
+        width: ${pageW}px; min-height:auto; margin:0;
+        padding:20px 24px; box-shadow:none; pointer-events:none;
+        font-size:9.5pt; line-height:1.4;
+        position:absolute; top:0; left:0;
+        transform:scale(${scale}); transform-origin:top left;
+      `;
+      clone.className = page.className + ' ps-thumb-inner';
+      wrap.appendChild(clone);
+    });
+  }
+
+  function rebuildGridDOM() {
+    grid.innerHTML = buildGrid();
+    attachDragListeners();
+    requestAnimationFrame(renderThumbs);
+  }
+
+  function attachDragListeners() {
+    const cards = grid.querySelectorAll('.reorder-card');
+    cards.forEach(card => {
+      card.addEventListener('dragstart', e => {
+        dragIdx = +card.dataset.reorderIdx;
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        // Required for Firefox
+        e.dataTransfer.setData('text/plain', dragIdx);
+      });
+
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        grid.querySelectorAll('.reorder-card').forEach(c => c.classList.remove('drag-over'));
+        dragIdx = null;
+      });
+
+      card.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const targetIdx = +card.dataset.reorderIdx;
+        if (targetIdx !== dragIdx) {
+          card.classList.add('drag-over');
+        }
+      });
+
+      card.addEventListener('dragleave', () => {
+        card.classList.remove('drag-over');
+      });
+
+      card.addEventListener('drop', e => {
+        e.preventDefault();
+        card.classList.remove('drag-over');
+        const targetIdx = +card.dataset.reorderIdx;
+        if (dragIdx === null || dragIdx === targetIdx) return;
+
+        // Swap in the order array
+        const moved = pageOrder.splice(dragIdx, 1)[0];
+        pageOrder.splice(targetIdx, 0, moved);
+        dragIdx = null;
+        rebuildGridDOM();
+      });
+    });
+
+    // Touch support for mobile
+    let touchDragIdx = null;
+    let touchClone = null;
+    let touchTarget = null;
+
+    cards.forEach(card => {
+      card.addEventListener('touchstart', e => {
+        touchDragIdx = +card.dataset.reorderIdx;
+        card.classList.add('dragging');
+
+        // Create visual drag clone
+        touchClone = card.cloneNode(true);
+        touchClone.style.cssText = `
+          position:fixed; z-index:99999; pointer-events:none;
+          width:${card.offsetWidth}px; opacity:0.85;
+          transform:rotate(2deg); box-shadow:0 8px 24px rgba(0,0,0,0.3);
+        `;
+        document.body.appendChild(touchClone);
+        const t = e.touches[0];
+        touchClone.style.left = (t.clientX - card.offsetWidth / 2) + 'px';
+        touchClone.style.top = (t.clientY - 40) + 'px';
+      }, { passive: true });
+
+      card.addEventListener('touchmove', e => {
+        if (touchClone) {
+          const t = e.touches[0];
+          touchClone.style.left = (t.clientX - touchClone.offsetWidth / 2) + 'px';
+          touchClone.style.top = (t.clientY - 40) + 'px';
+
+          // Find card under touch
+          const el = document.elementFromPoint(t.clientX, t.clientY);
+          const targetCard = el?.closest('.reorder-card');
+          grid.querySelectorAll('.reorder-card').forEach(c => c.classList.remove('drag-over'));
+          if (targetCard && +targetCard.dataset.reorderIdx !== touchDragIdx) {
+            targetCard.classList.add('drag-over');
+            touchTarget = +targetCard.dataset.reorderIdx;
+          } else {
+            touchTarget = null;
+          }
+        }
+        e.preventDefault();
+      }, { passive: false });
+
+      card.addEventListener('touchend', () => {
+        if (touchClone) {
+          touchClone.remove();
+          touchClone = null;
+        }
+        grid.querySelectorAll('.reorder-card').forEach(c => {
+          c.classList.remove('dragging');
+          c.classList.remove('drag-over');
+        });
+        if (touchDragIdx !== null && touchTarget !== null && touchDragIdx !== touchTarget) {
+          const moved = pageOrder.splice(touchDragIdx, 1)[0];
+          pageOrder.splice(touchTarget, 0, moved);
+          rebuildGridDOM();
+        }
+        touchDragIdx = null;
+        touchTarget = null;
+      });
+    });
+  }
+
+  // Cancel
+  overlay.querySelector('.ps-btn-cancel').addEventListener('click', () => overlay.remove());
+
+  // Apply
+  overlay.querySelector('.ps-btn-apply').addEventListener('click', () => {
+    _saveSnapshot();
+
+    // Re-append pages in new order
+    pageOrder.forEach((page, i) => {
+      output.appendChild(page);
+      // Update page numbers
+      const pgNum = page.querySelector('.page-number');
+      if (pgNum) pgNum.textContent = i + 1;
+    });
+
+    overlay.remove();
+  });
+
+  // Close on background click
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.remove();
+  });
+
+  document.body.appendChild(overlay);
+  attachDragListeners();
+  requestAnimationFrame(renderThumbs);
+}
+
+// ── Toolbar Help ──
+function showToolbarHelp() {
+  const overlay = document.createElement('div');
+  overlay.className = 'page-selector-overlay';
+  overlay.innerHTML = `
+    <div class="help-modal">
+      <h3>Toolbar Guide</h3>
+      <p class="help-subtitle">A quick overview of every tool available in the editing toolbar</p>
+
+      <div class="help-section">
+        <div class="help-section-title">Text Formatting</div>
+
+        <div class="help-row">
+          <div class="help-icon"><span class="help-icon-text" style="font-weight:900;">B</span></div>
+          <div class="help-text"><strong>Bold</strong><span>Make selected text bold</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon"><span class="help-icon-text" style="font-style:italic;">I</span></div>
+          <div class="help-text"><strong>Italic</strong><span>Italicise selected text</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon"><span class="help-icon-text" style="text-decoration:underline;">U</span></div>
+          <div class="help-text"><strong>Underline</strong><span>Underline selected text</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon"><span class="help-icon-text" style="text-decoration:line-through;">S</span></div>
+          <div class="help-text"><strong>Strikethrough</strong><span>Strike through selected text</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M12 9v4"/><path d="M8 17h8l-4 4-4-4z"/></svg>
+          </div>
+          <div class="help-text"><strong>Format Painter</strong><span>Copy formatting from one selection and apply it to another. Click once to activate, then select target text.</span></div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Alignment &amp; Size</div>
+
+        <div class="help-row">
+          <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+          </div>
+          <div class="help-text"><strong>Align Left</strong><span>Align selected text to the left margin</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+          </div>
+          <div class="help-text"><strong>Align Centre</strong><span>Centre-align selected text</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </div>
+          <div class="help-text"><strong>Justify</strong><span>Justify text so it aligns evenly on both left and right margins</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon"><span class="help-icon-text">Aa</span></div>
+          <div class="help-text"><strong>Font Size</strong><span>Change the font size of selected text. Choose from 8pt, 10pt, 12pt, 14pt, 18pt, or 24pt.</span></div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Document Elements</div>
+
+        <div class="help-row">
+          <div class="help-icon"><span class="help-icon-text">Hdr</span></div>
+          <div class="help-text"><strong>Insert Letterhead</strong><span>Add a letterhead image to the top of selected pages. Choose a preset (CA or Audit) or upload your own image.</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon"><span class="help-icon-text">Ftr</span></div>
+          <div class="help-text"><strong>Insert Footer</strong><span>Add a footer image to the bottom of selected pages. Choose a preset (CA or Audit) or upload your own image.</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon"><span class="help-icon-text" style="font-weight:900;">#</span></div>
+          <div class="help-text"><strong>Page Numbers</strong><span>Toggle page numbers on or off at the bottom of each page</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18.5l3.5-3.5c.83-.83 2.17-.83 3 0s.83 2.17 0 3L6 21.5H3v-3z"/><line x1="2" y1="22" x2="22" y2="22"/></svg>
+          </div>
+          <div class="help-text"><strong>Signature Line</strong><span>Insert a signature block with an optional name label on selected pages. Placed above the footer if one exists.</span></div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">Pages</div>
+
+        <div class="help-row">
+          <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+          </div>
+          <div class="help-text"><strong>Import Word Document</strong><span>Upload a .docx file to append its content as new pages at the end of the document. Headings are used to split content into separate pages.</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><path d="M17 8h2a1 1 0 0 1 1 1v2"/><polyline points="20 8 17 8 17 5"/><path d="M7 16H5a1 1 0 0 0-1 1v2"/><polyline points="4 16 7 16 7 19"/></svg>
+          </div>
+          <div class="help-text"><strong>Reorder Pages</strong><span>Open a visual page sorter. Drag and drop page thumbnails to rearrange them, then click Apply to confirm the new order.</span></div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-section-title">History</div>
+
+        <div class="help-row">
+          <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          </div>
+          <div class="help-text"><strong>Undo</strong><span>Reverse the last change you made to the document</span></div>
+        </div>
+        <div class="help-row">
+          <div class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+          </div>
+          <div class="help-text"><strong>Redo</strong><span>Re-apply a change that was undone</span></div>
+        </div>
+      </div>
+
+      <div class="help-close-wrap">
+        <button class="ps-btn ps-btn-apply" id="help-close-btn">Got it</button>
+      </div>
+    </div>`;
+
+  overlay.querySelector('#help-close-btn').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
 // ── Initialise on load ──
 entityManager.onReportTypeChange();
 entityManager.addDirector();

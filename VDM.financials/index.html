@@ -9,6 +9,7 @@
   href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap"
   rel="stylesheet">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <link rel="stylesheet" href="css/styles.css">
 </head>
 
@@ -1243,6 +1244,29 @@
           </button>
         </div>
         <div class="toolbar-sep"></div>
+        <!-- Upload Word / Reorder Pages -->
+        <div class="toolbar-group">
+          <button class="tb-btn" onclick="uploadWordDoc()" title="Import Word Document">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <polyline points="9 15 12 12 15 15"/>
+            </svg>
+          </button>
+          <input type="file" id="upload-word" accept=".docx,.doc" style="display:none">
+          <button class="tb-btn" onclick="reorderPages()" title="Reorder Pages">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="9" rx="1"/>
+              <rect x="14" y="12" width="7" height="9" rx="1"/>
+              <path d="M17 8h2a1 1 0 0 1 1 1v2"/>
+              <polyline points="20 8 17 8 17 5"/>
+              <path d="M7 16H5a1 1 0 0 0-1 1v2"/>
+              <polyline points="4 16 7 16 7 19"/>
+            </svg>
+          </button>
+        </div>
+        <div class="toolbar-sep"></div>
         <!-- Undo / Redo -->
         <div class="toolbar-group">
           <button class="tb-btn" onclick="toolbarUndo()" title="Undo">
@@ -1255,6 +1279,17 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="23 4 23 10 17 10" />
               <path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" />
+            </svg>
+          </button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <!-- Help -->
+        <div class="toolbar-group">
+          <button class="tb-btn tb-btn-help" onclick="showToolbarHelp()" title="Toolbar Help">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
           </button>
         </div>
