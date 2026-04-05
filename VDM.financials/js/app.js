@@ -205,6 +205,36 @@ function _getPages() {
   return pages.length ? pages : null;
 }
 
+// ── Styled input modal (replaces browser prompt) ──
+function _styledPrompt(title, hint, placeholder) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'ps-input-overlay';
+    overlay.innerHTML = `
+      <div class="ps-input-modal">
+        <h3>${title}</h3>
+        <p class="ps-input-hint">${hint || ''}</p>
+        <input type="text" placeholder="${placeholder || ''}" autofocus>
+        <div class="ps-actions">
+          <button class="ps-btn ps-btn-cancel">Cancel</button>
+          <button class="ps-btn ps-btn-apply">OK</button>
+        </div>
+      </div>`;
+
+    const input = overlay.querySelector('input');
+    const apply = () => { const v = input.value; overlay.remove(); resolve(v); };
+    const cancel = () => { overlay.remove(); resolve(null); };
+
+    overlay.querySelector('.ps-btn-apply').addEventListener('click', apply);
+    overlay.querySelector('.ps-btn-cancel').addEventListener('click', cancel);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') apply(); if (e.key === 'Escape') cancel(); });
+    overlay.addEventListener('click', e => { if (e.target === overlay) cancel(); });
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => input.focus());
+  });
+}
+
 // ── Visual page selector (replaces old prompt) ──
 function _selectPages(pages, actionLabel) {
   return new Promise(resolve => {
@@ -214,8 +244,8 @@ function _selectPages(pages, actionLabel) {
     // Build page label for each card
     function _pageLabel(page, i) {
       const h2 = page.querySelector('h2');
-      if (h2) return h2.textContent.trim().substring(0, 18);
-      if (page.classList.contains('cover-page')) return 'Cover';
+      if (h2) return h2.textContent.trim().substring(0, 22);
+      if (page.classList.contains('cover-page')) return 'Cover Page';
       return 'Page ' + (i + 1);
     }
 
@@ -239,11 +269,15 @@ function _selectPages(pages, actionLabel) {
       overlay.remove();
     }
 
+    // Build cards with thumbnail placeholders
     let gridHTML = '';
     for (let i = 0; i < pages.length; i++) {
       gridHTML += `<div class="ps-page-card" data-idx="${i}">
-        ${i + 1}
-        <span class="ps-page-label">${_pageLabel(pages[i], i)}</span>
+        <div class="ps-thumb-wrap" data-thumb-idx="${i}"></div>
+        <div class="ps-card-footer">
+          <span class="ps-card-num">${i + 1}</span>
+          <span class="ps-card-label">${_pageLabel(pages[i], i)}</span>
+        </div>
       </div>`;
     }
 
@@ -258,6 +292,39 @@ function _selectPages(pages, actionLabel) {
           <button class="ps-btn ps-btn-apply" disabled>Apply</button>
         </div>
       </div>`;
+
+    // Render mini thumbnails by cloning pages
+    requestAnimationFrame(() => {
+      overlay.querySelectorAll('.ps-thumb-wrap').forEach(wrap => {
+        const idx = +wrap.dataset.thumbIdx;
+        const page = pages[idx];
+        const clone = page.cloneNode(true);
+        clone.removeAttribute('contenteditable');
+        clone.classList.remove('page-selected-glow');
+
+        // Measure thumb container
+        const wrapW = wrap.offsetWidth || 120;
+        const pageW = page.offsetWidth || 740;
+        const scale = wrapW / pageW;
+
+        clone.style.cssText = `
+          width: ${pageW}px;
+          min-height: auto;
+          margin: 0;
+          padding: 20px 24px;
+          box-shadow: none;
+          pointer-events: none;
+          font-size: 9.5pt;
+          line-height: 1.4;
+          position: absolute;
+          top: 0; left: 0;
+          transform: scale(${scale});
+          transform-origin: top left;
+        `;
+        clone.className = page.className + ' ps-thumb-inner';
+        wrap.appendChild(clone);
+      });
+    });
 
     // Card clicks
     overlay.querySelectorAll('.ps-page-card').forEach(card => {
@@ -401,7 +468,11 @@ async function insertSignatureSpace() {
   const idx = await _selectPages(pages, 'Insert Signature');
   if (!idx || !idx.length) return;
 
-  const nameVal = prompt('Name for signature line (leave blank for empty):','') ?? '';
+  const nameVal = await _styledPrompt(
+    'Signature Line',
+    'Enter a name to display below the line, or leave blank.',
+    'e.g. J. van der Merwe'
+  ) ?? '';
 
   _saveSnapshot();
   idx.forEach(i => {
