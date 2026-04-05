@@ -184,6 +184,14 @@
       border-color: var(--accent);
       color: var(--navy);
       font-size: 12px;
+      cursor: pointer;
+    }
+
+    .pip-dot.done:hover {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+      box-shadow: 0 0 0 3px rgba(200, 169, 81, 0.25);
+      transform: scale(1.1);
     }
 
     .pip-dot.active {
@@ -1398,10 +1406,11 @@
         const done = s < current;
         const active = s === current;
         const cls = done ? 'done' : active ? 'active' : '';
+        const clickHandler = done ? `onclick="showStep(${s})" title="Go back to ${labels[i]}"` : '';
         const line = i < steps.length - 1
           ? `<div class="pip-line ${done ? 'done' : ''}"></div>` : '';
         return `<div class="step-pip" style="position:relative;">
-      <div class="pip-dot ${cls}" style="position:relative;">
+      <div class="pip-dot ${cls}" style="position:relative;" ${clickHandler}>
         ${done ? '✓' : i + 1}
         <span class="pip-label">${labels[i]}</span>
       </div>${line}
