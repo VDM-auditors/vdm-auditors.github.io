@@ -205,19 +205,100 @@ function _getPages() {
   return pages.length ? pages : null;
 }
 
-function _promptPage(totalPages) {
-  const input = prompt(`Enter page number (1–${totalPages}), or "all" for every page:`, 'all');
-  if (input === null) return null;
-  const val = input.trim().toLowerCase();
-  if (val === 'all' || val === '') {
-    return Array.from({ length: totalPages }, (_, i) => i);
-  }
-  const n = parseInt(val);
-  if (isNaN(n) || n < 1 || n > totalPages) {
-    alert(`Invalid page number. Please enter a number between 1 and ${totalPages}.`);
-    return null;
-  }
-  return [n - 1];
+// ── Visual page selector (replaces old prompt) ──
+function _selectPages(pages, actionLabel) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'page-selector-overlay';
+
+    // Build page label for each card
+    function _pageLabel(page, i) {
+      const h2 = page.querySelector('h2');
+      if (h2) return h2.textContent.trim().substring(0, 18);
+      if (page.classList.contains('cover-page')) return 'Cover';
+      return 'Page ' + (i + 1);
+    }
+
+    const selected = new Set();
+
+    function render() {
+      const cards = overlay.querySelectorAll('.ps-page-card');
+      cards.forEach(c => {
+        const idx = +c.dataset.idx;
+        c.classList.toggle('selected', selected.has(idx));
+      });
+      overlay.querySelector('.ps-btn-apply').disabled = selected.size === 0;
+      // highlight pages in preview
+      Array.from(pages).forEach((p, i) => {
+        p.classList.toggle('page-selected-glow', selected.has(i));
+      });
+    }
+
+    function cleanup() {
+      Array.from(pages).forEach(p => p.classList.remove('page-selected-glow'));
+      overlay.remove();
+    }
+
+    let gridHTML = '';
+    for (let i = 0; i < pages.length; i++) {
+      gridHTML += `<div class="ps-page-card" data-idx="${i}">
+        ${i + 1}
+        <span class="ps-page-label">${_pageLabel(pages[i], i)}</span>
+      </div>`;
+    }
+
+    overlay.innerHTML = `
+      <div class="page-selector-modal">
+        <h3>${actionLabel || 'Select Pages'}</h3>
+        <p class="ps-subtitle">Click pages to select, then apply</p>
+        <div class="ps-grid">${gridHTML}</div>
+        <div class="ps-actions">
+          <button class="ps-select-all">Select All</button>
+          <button class="ps-btn ps-btn-cancel">Cancel</button>
+          <button class="ps-btn ps-btn-apply" disabled>Apply</button>
+        </div>
+      </div>`;
+
+    // Card clicks
+    overlay.querySelectorAll('.ps-page-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const idx = +card.dataset.idx;
+        if (selected.has(idx)) selected.delete(idx); else selected.add(idx);
+        render();
+      });
+    });
+
+    // Select All
+    overlay.querySelector('.ps-select-all').addEventListener('click', () => {
+      if (selected.size === pages.length) {
+        selected.clear();
+      } else {
+        for (let i = 0; i < pages.length; i++) selected.add(i);
+      }
+      render();
+    });
+
+    // Cancel
+    overlay.querySelector('.ps-btn-cancel').addEventListener('click', () => {
+      cleanup();
+      resolve(null);
+    });
+
+    // Apply
+    overlay.querySelector('.ps-btn-apply').addEventListener('click', () => {
+      const result = Array.from(selected).sort((a, b) => a - b);
+      cleanup();
+      resolve(result);
+    });
+
+    // Close on overlay background click
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) { cleanup(); resolve(null); }
+    });
+
+    document.body.appendChild(overlay);
+    render();
+  });
 }
 
 function _applyHeaderImage(src, pageIndices, pages) {
@@ -268,13 +349,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const uploadHeader = document.getElementById('upload-header');
   const uploadFooter = document.getElementById('upload-footer');
 
-  if (selHeader) selHeader.addEventListener('change', function() {
+  if (selHeader) selHeader.addEventListener('change', async function() {
     const val = this.value;
     this.selectedIndex = 0;
     const pages = _getPages();
     if (!pages) return;
-    const idx = _promptPage(pages.length);
-    if (!idx) return;
+    const idx = await _selectPages(pages, 'Insert Letterhead');
+    if (!idx || !idx.length) return;
 
     if (val === '__upload') {
       uploadHeader.onchange = function() {
@@ -290,13 +371,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  if (selFooter) selFooter.addEventListener('change', function() {
+  if (selFooter) selFooter.addEventListener('change', async function() {
     const val = this.value;
     this.selectedIndex = 0;
     const pages = _getPages();
     if (!pages) return;
-    const idx = _promptPage(pages.length);
-    if (!idx) return;
+    const idx = await _selectPages(pages, 'Insert Footer');
+    if (!idx || !idx.length) return;
 
     if (val === '__upload') {
       uploadFooter.onchange = function() {
@@ -314,11 +395,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Insert Signature Space ──
-function insertSignatureSpace() {
+async function insertSignatureSpace() {
   const pages = _getPages();
   if (!pages) return;
-  const idx = _promptPage(pages.length);
-  if (!idx) return;
+  const idx = await _selectPages(pages, 'Insert Signature');
+  if (!idx || !idx.length) return;
 
   const nameVal = prompt('Name for signature line (leave blank for empty):','') ?? '';
 
