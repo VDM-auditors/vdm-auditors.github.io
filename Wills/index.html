@@ -1381,6 +1381,36 @@
           <div style="height:14px;"></div>
         </div>
 
+        <!-- Guardian (minor children) -->
+        <div id="guardian-section" style="display:none;">
+          <div class="toggle-row" style="margin-top:12px;" onclick="toggleHeir('guardian-details','guardian-toggle')">
+            <div class="toggle-label-wrap">
+              <span class="toggle-main">Guardian for Minor Children</span>
+              <span class="toggle-hint">Nominate a guardian if any children are minors (under 18).</span>
+            </div>
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="guardian-toggle" onchange="toggleHeir('guardian-details',this.id)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="collapsible-content" id="guardian-details">
+            <div class="subsection" style="margin-top:10px; background:var(--accent-bg); border-color:var(--accent);">
+              <div class="field-group">
+                <label>Guardian Full Name and Surname</label>
+                <input type="text" id="guardian-name" placeholder="Full legal name of guardian">
+              </div>
+              <div class="field-group">
+                <label>Guardian ID Number</label>
+                <input type="text" id="guardian-id" placeholder="13-digit ID number" maxlength="13">
+              </div>
+              <p style="font-size:11px; color:var(--text-muted); line-height:1.6; margin-top:10px;">
+                If any of my children are minors at the time of my death, I nominate the above person to be appointed as
+                guardian.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <!-- Intervivos Trust -->
         <div class="toggle-row" onclick="toggleHeir('intervivos-details','intervivos-toggle')">
           <div class="toggle-label-wrap">
@@ -1412,6 +1442,24 @@
               <div class="field-group">
                 <label>Portion of Estate</label>
                 <input type="text" id="intervivos-portion" placeholder="e.g. 30%">
+              </div>
+            </div>
+
+            <hr style="border:none;border-top:1px dashed var(--border);margin:14px 0 12px;">
+            <div class="field-group" style="margin-bottom:8px;">
+              <label style="text-transform:none; letter-spacing:0; font-size:12px;">
+                <input type="checkbox" id="intervivos-successor-toggle" style="width:auto; margin-right:8px;">
+                I am a trustee of this intervivos trust and want to appoint my successor trustee
+              </label>
+            </div>
+            <div class="field-row" id="intervivos-successor-fields" style="display:none;">
+              <div class="field-group">
+                <label>Successor Trustee Full Name and Surname</label>
+                <input type="text" id="intervivos-successor-name" placeholder="Full legal name">
+              </div>
+              <div class="field-group">
+                <label>Successor Trustee ID Number</label>
+                <input type="text" id="intervivos-successor-id" placeholder="13-digit ID number" maxlength="13">
               </div>
             </div>
           </div>
@@ -1491,19 +1539,57 @@
               </label>
               <input type="text" id="trust-name" placeholder="e.g. The Van der Berg Testamentary Trust">
             </div>
-            <div class="field-group">
-              <label>Trustee Full Name and Surname</label>
-              <input type="text" id="trustee-name" placeholder="Full legal name of trustee">
-            </div>
-            <div class="field-row">
-              <div class="field-group">
-                <label>Trustee ID Number</label>
-                <input type="text" id="trustee-id" placeholder="13-digit ID" maxlength="13">
+            <div class="subsection" style="margin-top:12px;">
+              <div class="subsection-title">Trustees <span class="prefilled-badge">Min 3</span></div>
+              <p style="font-size:11px; color:var(--text-muted); margin-bottom:10px; line-height:1.6;">
+                Minimum of 3 trustees are required. At least 1 must be independent.
+              </p>
+
+              <div class="field-row">
+                <div class="field-group">
+                  <label>Trustee 1 — Full Name and Surname</label>
+                  <input type="text" id="trustee1-name" placeholder="Full legal name">
+                </div>
+                <div class="field-group">
+                  <label>Trustee 1 — ID Number</label>
+                  <input type="text" id="trustee1-id" placeholder="13-digit ID" maxlength="13">
+                </div>
               </div>
+
+              <div class="field-row">
+                <div class="field-group">
+                  <label>Trustee 2 — Full Name and Surname</label>
+                  <input type="text" id="trustee2-name" placeholder="Full legal name">
+                </div>
+                <div class="field-group">
+                  <label>Trustee 2 — ID Number</label>
+                  <input type="text" id="trustee2-id" placeholder="13-digit ID" maxlength="13">
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field-group">
+                  <label>Trustee 3 — Full Name and Surname</label>
+                  <input type="text" id="trustee3-name" placeholder="Full legal name">
+                </div>
+                <div class="field-group">
+                  <label>Trustee 3 — ID Number</label>
+                  <input type="text" id="trustee3-id" placeholder="13-digit ID" maxlength="13">
+                </div>
+              </div>
+
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;text-transform:none;letter-spacing:0;cursor:pointer;margin:10px 0 0;color:var(--text-mid);">
+                <input type="checkbox" id="trustee3-independent" checked>
+                Trustee 3 is independent
+              </label>
+            </div>
+
+            <div class="field-row" style="margin-top:12px;">
               <div class="field-group">
                 <label>Trust Terminates at Age</label>
                 <input type="number" id="trust-age" placeholder="e.g. 21" min="18" max="35">
               </div>
+              <div class="field-group"></div>
             </div>
             <div style="margin-top:14px;">
               <label>Capital &amp; Income Beneficiaries</label>
@@ -1625,10 +1711,27 @@
       heirs: {
         spouse: { active: false, portion: '' },
         children: [],
+        guardian: { active: false, name: '', id: '' },
         shares: [],
         specificAssets: [],
-        intervivos: { active: false, name: '', reg: '', portion: '' },
-        testamentary: { active: false, trustName: '', trusteeName: '', trusteeId: '', age: '', beneficiaries: [] },
+        intervivos: {
+          active: false,
+          name: '',
+          reg: '',
+          portion: '',
+          successor: { active: false, name: '', id: '' }
+        },
+        testamentary: {
+          active: false,
+          trustName: '',
+          trustees: [
+            { name: '', id: '' },
+            { name: '', id: '' },
+            { name: '', id: '', independent: true }
+          ],
+          age: '',
+          beneficiaries: []
+        },
         residue: { name: '', id: '' },
         livingWill: false
       }
@@ -1669,6 +1772,16 @@
     }
 
     renderProgress(1);
+
+    // Intervivos successor toggle UI
+    (function initIntervivosSuccessorUI() {
+      const t = document.getElementById('intervivos-successor-toggle');
+      const fields = document.getElementById('intervivos-successor-fields');
+      if (!t || !fields) return;
+      const apply = () => { fields.style.display = t.checked ? 'grid' : 'none'; };
+      t.addEventListener('change', apply);
+      apply();
+    })();
 
     // ── SELECTIONS ──
     function selectMarital(val, el) {
@@ -1781,10 +1894,17 @@
           });
         });
 
+        state.heirs.guardian.active = document.getElementById('guardian-toggle')?.checked || false;
+        state.heirs.guardian.name = document.getElementById('guardian-name')?.value.trim() || '';
+        state.heirs.guardian.id = document.getElementById('guardian-id')?.value.trim() || '';
+
         state.heirs.intervivos.active = document.getElementById('intervivos-toggle').checked;
         state.heirs.intervivos.name = document.getElementById('intervivos-name').value.trim();
         state.heirs.intervivos.reg = document.getElementById('intervivos-reg').value.trim();
         state.heirs.intervivos.portion = document.getElementById('intervivos-portion').value.trim();
+        state.heirs.intervivos.successor.active = document.getElementById('intervivos-successor-toggle')?.checked || false;
+        state.heirs.intervivos.successor.name = document.getElementById('intervivos-successor-name')?.value.trim() || '';
+        state.heirs.intervivos.successor.id = document.getElementById('intervivos-successor-id')?.value.trim() || '';
 
         state.heirs.shares = [];
         document.querySelectorAll('.share-entry').forEach(e => {
@@ -1806,8 +1926,15 @@
 
         state.heirs.testamentary.active = document.getElementById('testamentary-toggle').checked;
         state.heirs.testamentary.trustName = document.getElementById('trust-name').value.trim();
-        state.heirs.testamentary.trusteeName = document.getElementById('trustee-name').value.trim();
-        state.heirs.testamentary.trusteeId = document.getElementById('trustee-id').value.trim();
+        state.heirs.testamentary.trustees = [
+          { name: document.getElementById('trustee1-name')?.value.trim() || '', id: document.getElementById('trustee1-id')?.value.trim() || '' },
+          { name: document.getElementById('trustee2-name')?.value.trim() || '', id: document.getElementById('trustee2-id')?.value.trim() || '' },
+          {
+            name: document.getElementById('trustee3-name')?.value.trim() || '',
+            id: document.getElementById('trustee3-id')?.value.trim() || '',
+            independent: document.getElementById('trustee3-independent')?.checked || false
+          }
+        ];
         state.heirs.testamentary.age = document.getElementById('trust-age').value.trim();
         state.heirs.testamentary.beneficiaries = [];
         document.querySelectorAll('.trust-ben-entry').forEach(e => {
@@ -1904,6 +2031,8 @@
     function syncTestamentary() {
       const hasMinors = Array.from(document.querySelectorAll('.child-minor')).some(c => c.checked);
       document.getElementById('minor-suggestion').style.display = hasMinors ? 'block' : 'none';
+      const gs = document.getElementById('guardian-section');
+      if (gs) gs.style.display = hasMinors ? 'block' : 'none';
     }
 
     // ── SHARES / LOAN ACCOUNTS ──
@@ -2050,10 +2179,25 @@
         hRows.push([`Specific Asset ${i + 1}`, `${a.description} → ${a.beneficiary} (${a.beneficiaryId})`]));
       if (state.heirs.intervivos.active)
         hRows.push(['Intervivos Trust', `${state.heirs.intervivos.name} – ${state.heirs.intervivos.portion}`]);
+      if (state.heirs.intervivos.active && state.heirs.intervivos.successor.active) {
+        hRows.push(['Intervivos Successor Trustee', `${state.heirs.intervivos.successor.name} (${state.heirs.intervivos.successor.id})`]);
+      }
       if (state.heirs.testamentary.active) {
-        hRows.push(['Testamentary Trust', `${state.heirs.testamentary.trustName || 'Unnamed'} — Trustee: ${state.heirs.testamentary.trusteeName}`]);
+        const ts = (state.heirs.testamentary.trustees || [])
+          .map((t, idx) => {
+            if (!t || (!t.name && !t.id)) return null;
+            const indep = (idx === 2 && t.independent) ? ' (independent)' : '';
+            return `${t.name || '—'}${t.id ? ' (' + t.id + ')' : ''}${indep}`;
+          })
+          .filter(Boolean)
+          .join(', ');
+        hRows.push(['Testamentary Trust', `${state.heirs.testamentary.trustName || 'Unnamed'} — Trustees: ${ts || '—'}`]);
         state.heirs.testamentary.beneficiaries.forEach((b, i) =>
           hRows.push([`Trust Beneficiary ${i + 1}`, `${b.name} (${b.relation})`]));
+      }
+      const hasMinors = state.heirs.children.some(c => c.minor);
+      if (hasMinors && state.heirs.guardian.active) {
+        hRows.push(['Guardian (Minors)', `${state.heirs.guardian.name} (${state.heirs.guardian.id})`]);
       }
       if (state.heirs.residue.name)
         hRows.push(['Residue of Estate', `${state.heirs.residue.name} (${state.heirs.residue.id})`]);
@@ -2131,9 +2275,20 @@
         subNum++;
       }
 
+      if (state.heirs.intervivos.active && state.heirs.intervivos.successor.active) {
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> I record that I am a trustee of the ${E(state.heirs.intervivos.name, 'Trust Name')} (Reg: ${E(state.heirs.intervivos.reg, 'Registration')}) and I nominate ${E(state.heirs.intervivos.successor.name, 'Successor Trustee Name')} (ID: ${E(state.heirs.intervivos.successor.id, 'Successor Trustee ID')}) to be appointed as my successor trustee in my stead.</div>`;
+        subNum++;
+      }
+
       if (state.heirs.testamentary.active) {
         const tName = state.heirs.testamentary.trustName || 'Testamentary Trust';
         pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> To the trustees of the, to be formed, ${E(tName, 'Trust Name')} TRUST, my total estate to be held in the trust for the income and capital beneficiaries of the trust.</div>`;
+        subNum++;
+      }
+
+      const hasMinors = state.heirs.children.some(c => c.minor);
+      if (hasMinors && state.heirs.guardian.active) {
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> If any of my children are minors at the time of my death, I nominate ${E(state.heirs.guardian.name, 'Guardian Name')} (ID: ${E(state.heirs.guardian.id, 'Guardian ID')}) to be appointed as guardian of such minor child/children.</div>`;
         subNum++;
       }
 
@@ -2170,7 +2325,14 @@
         pgTrust += `<h1>${E(tName, 'Trust Name')} Trust</h1>`;
 
         pgTrust += `<h2>${clauseNum}. Trustee Appointment</h2>`;
-        pgTrust += `<p>I appoint ${E(t.trusteeName, 'Trustee Name')} (ID: ${E(t.trusteeId, 'Trustee ID')}) as Trustee. I grant unto them all such power and authority as required by law, especially that of assumption, and do hereby exempt them from furnishing any security to the Master of the Supreme Court for the fulfillment of their duties as such.</p>`;
+        const t1 = t.trustees?.[0] || { name: '', id: '' };
+        const t2 = t.trustees?.[1] || { name: '', id: '' };
+        const t3 = t.trustees?.[2] || { name: '', id: '', independent: false };
+        const indepTxt = t3.independent ? ' (independent)' : '';
+        pgTrust += `<p>I appoint ${E(t1.name, 'Trustee 1 Name')} (ID: ${E(t1.id, 'Trustee 1 ID')}), ${E(t2.name, 'Trustee 2 Name')} (ID: ${E(t2.id, 'Trustee 2 ID')}), and ${E(t3.name, 'Trustee 3 Name')} (ID: ${E(t3.id, 'Trustee 3 ID')})${indepTxt} as Trustees. I grant unto them all such power and authority as required by law, especially that of assumption, and do hereby exempt them from furnishing any security to the Master of the Supreme Court for the fulfillment of their duties as such.</p>`;
+        if (t3.independent) {
+          pgTrust += `<p>It is recorded that at least one trustee is independent.</p>`;
+        }
         clauseNum++;
 
         pgTrust += `<h2>${clauseNum}. Capital and Income Beneficiaries</h2>`;
