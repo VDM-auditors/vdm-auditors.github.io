@@ -1483,6 +1483,15 @@
         <div class="collapsible-content" id="testamentary-details">
           <div class="subsection" style="margin-top:10px;">
             <div class="field-group">
+              <label>Trust Name
+                <span class="tooltip-wrap">
+                  <span class="tooltip-icon">i</span>
+                  <span class="tooltip-box">The name of the testamentary trust to be formed, e.g. "The Van der Berg Testamentary Trust".</span>
+                </span>
+              </label>
+              <input type="text" id="trust-name" placeholder="e.g. The Van der Berg Testamentary Trust">
+            </div>
+            <div class="field-group">
               <label>Trustee Full Name and Surname</label>
               <input type="text" id="trustee-name" placeholder="Full legal name of trustee">
             </div>
@@ -1495,6 +1504,12 @@
                 <label>Trust Terminates at Age</label>
                 <input type="number" id="trust-age" placeholder="e.g. 21" min="18" max="35">
               </div>
+            </div>
+            <div style="margin-top:14px;">
+              <label>Capital &amp; Income Beneficiaries</label>
+              <p style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">List the people who will benefit from the trust income and capital.</p>
+              <div id="trust-beneficiaries-list"></div>
+              <button class="btn-add" onclick="addTrustBeneficiary()">Add a beneficiary</button>
             </div>
           </div>
         </div>
@@ -1569,6 +1584,13 @@
         <div class="step-title">Will Generated</div>
         <div class="step-desc">Your will has been drafted below. Click any underlined text to edit it directly on the document. Use "Print / Save as PDF" to export.</div>
         <div class="result-badge">✓ Document ready &mdash; click text to edit inline</div>
+        <div style="padding:0 22px 12px; display:flex; align-items:center; gap:12px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;text-transform:none;letter-spacing:0;cursor:pointer;color:var(--navy);font-weight:600;">
+            <input type="checkbox" id="edit-mode-toggle" onchange="toggleEditMode(this.checked)" style="width:auto;">
+            Edit Mode
+          </label>
+          <span style="font-size:11px;color:var(--text-muted);">Enable to freely type anywhere on the document</span>
+        </div>
         <div id="will-document" style="margin:0 -22px;"></div>
         <div style="padding:0 22px;">
           <button class="btn-print" onclick="printWill()">Print / Save as PDF</button>
@@ -1606,7 +1628,7 @@
         shares: [],
         specificAssets: [],
         intervivos: { active: false, name: '', reg: '', portion: '' },
-        testamentary: { active: false, trusteeName: '', trusteeId: '', age: '' },
+        testamentary: { active: false, trustName: '', trusteeName: '', trusteeId: '', age: '', beneficiaries: [] },
         residue: { name: '', id: '' },
         livingWill: false
       }
@@ -1614,8 +1636,7 @@
 
     let childCount = 0;
 
-    document.getElementById('today-date').textContent =
-      new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+    // Date set dynamically when document is generated
 
     // ── PROGRESS ──
     function renderProgress(current) {
@@ -1784,9 +1805,18 @@
         });
 
         state.heirs.testamentary.active = document.getElementById('testamentary-toggle').checked;
+        state.heirs.testamentary.trustName = document.getElementById('trust-name').value.trim();
         state.heirs.testamentary.trusteeName = document.getElementById('trustee-name').value.trim();
         state.heirs.testamentary.trusteeId = document.getElementById('trustee-id').value.trim();
         state.heirs.testamentary.age = document.getElementById('trust-age').value.trim();
+        state.heirs.testamentary.beneficiaries = [];
+        document.querySelectorAll('.trust-ben-entry').forEach(e => {
+          state.heirs.testamentary.beneficiaries.push({
+            name: e.querySelector('.trust-ben-name').value.trim(),
+            id: e.querySelector('.trust-ben-id').value.trim(),
+            relation: e.querySelector('.trust-ben-relation').value.trim()
+          });
+        });
 
         state.heirs.residue.name = document.getElementById('residue-name').value.trim();
         state.heirs.residue.id = document.getElementById('residue-id').value.trim();
@@ -1942,6 +1972,39 @@
       });
     }
 
+    // ── TRUST BENEFICIARIES ──
+    let trustBenCount = 0;
+    function addTrustBeneficiary() {
+      trustBenCount++;
+      const div = document.createElement('div');
+      div.className = 'heir-entry trust-ben-entry';
+      div.innerHTML = `
+    <div class="heir-entry-header">
+      <span class="heir-entry-num">Beneficiary ${trustBenCount}</span>
+      <button class="btn-remove" onclick="removeTrustBeneficiary(this)">Remove</button>
+    </div>
+    <div class="field-group">
+      <label>Full Name and Surname</label>
+      <input type="text" class="trust-ben-name" placeholder="Full legal name">
+    </div>
+    <div class="field-group">
+      <label>ID Number</label>
+      <input type="text" class="trust-ben-id" placeholder="13-digit ID number" maxlength="13">
+    </div>
+    <div class="field-group">
+      <label>Relationship</label>
+      <input type="text" class="trust-ben-relation" placeholder="e.g. Son, Daughter, Spouse">
+    </div>`;
+      document.getElementById('trust-beneficiaries-list').appendChild(div);
+    }
+
+    function removeTrustBeneficiary(btn) {
+      btn.closest('.trust-ben-entry').remove();
+      document.querySelectorAll('.trust-ben-entry .heir-entry-num').forEach((el, i) => {
+        el.textContent = 'Beneficiary ' + (i + 1);
+      });
+    }
+
     // ── REVIEW ──
     function buildReview() {
       saveStep(5);
@@ -1987,8 +2050,11 @@
         hRows.push([`Specific Asset ${i + 1}`, `${a.description} → ${a.beneficiary} (${a.beneficiaryId})`]));
       if (state.heirs.intervivos.active)
         hRows.push(['Intervivos Trust', `${state.heirs.intervivos.name} – ${state.heirs.intervivos.portion}`]);
-      if (state.heirs.testamentary.active)
-        hRows.push(['Testamentary Trust', `Trustee: ${state.heirs.testamentary.trusteeName}, age ${state.heirs.testamentary.age}`]);
+      if (state.heirs.testamentary.active) {
+        hRows.push(['Testamentary Trust', `${state.heirs.testamentary.trustName || 'Unnamed'} — Trustee: ${state.heirs.testamentary.trusteeName}`]);
+        state.heirs.testamentary.beneficiaries.forEach((b, i) =>
+          hRows.push([`Trust Beneficiary ${i + 1}`, `${b.name} (${b.relation})`]));
+      }
       if (state.heirs.residue.name)
         hRows.push(['Residue of Estate', `${state.heirs.residue.name} (${state.heirs.residue.id})`]);
       if (!hRows.length) hRows.push(['Note', 'No heirs specified']);
@@ -2066,7 +2132,8 @@
       }
 
       if (state.heirs.testamentary.active) {
-        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> I direct that a Testamentary Trust be established upon my death. Trustee: ${E(state.heirs.testamentary.trusteeName, 'Trustee Name')} (ID: ${E(state.heirs.testamentary.trusteeId, 'Trustee ID')}). The trust shall terminate when all beneficiaries reach age ${E(state.heirs.testamentary.age || '21', 'Age')}.</div>`;
+        const tName = state.heirs.testamentary.trustName || 'Testamentary Trust';
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> To the trustees of the, to be formed, ${E(tName, 'Trust Name')} TRUST, my total estate to be held in the trust for the income and capital beneficiaries of the trust.</div>`;
         subNum++;
       }
 
@@ -2087,12 +2154,70 @@
       clauseNum++;
 
       pg2 += signedAt + sigBlock;
-      pg2 += `<div class="page-number">2</div></div>`;
 
-      // ── PAGE 3: LIVING WILL (if enabled) ──
-      let pg3 = '';
+      let pageNum = 2;
+      pg2 += `<div class="page-number">${pageNum}</div></div>`;
+
+      // ── TESTAMENTARY TRUST PAGES (if enabled) ──
+      let pgTrust = '';
+      if (state.heirs.testamentary.active) {
+        const t = state.heirs.testamentary;
+        const tName = t.trustName || 'Testamentary Trust';
+
+        // Trust page 1: Trustee appointment & beneficiaries
+        pageNum++;
+        pgTrust += `<div class="doc-page">`;
+        pgTrust += `<h1>${E(tName, 'Trust Name')} Trust</h1>`;
+
+        pgTrust += `<h2>${clauseNum}. Trustee Appointment</h2>`;
+        pgTrust += `<p>I appoint ${E(t.trusteeName, 'Trustee Name')} (ID: ${E(t.trusteeId, 'Trustee ID')}) as Trustee. I grant unto them all such power and authority as required by law, especially that of assumption, and do hereby exempt them from furnishing any security to the Master of the Supreme Court for the fulfillment of their duties as such.</p>`;
+        clauseNum++;
+
+        pgTrust += `<h2>${clauseNum}. Capital and Income Beneficiaries</h2>`;
+        if (t.beneficiaries.length) {
+          t.beneficiaries.forEach((b, i) => {
+            pgTrust += `<p>${E(b.name, 'Beneficiary Name')} (ID: ${E(b.id, 'ID Number')}) &mdash; ${E(b.relation, 'Relationship')}</p>`;
+          });
+        } else {
+          pgTrust += `<p>${E('', 'Beneficiary names and details')}</p>`;
+        }
+        pgTrust += `<p>are the capital and income beneficiaries.</p>`;
+        pgTrust += `<p>The Trustees should pay as much trust income as needed to enable the beneficiaries to keep the same standard of living as before as well as for the education of the children.</p>`;
+        clauseNum++;
+
+        pgTrust += signedAt + sigBlock;
+        pgTrust += `<div class="page-number">${pageNum}</div></div>`;
+
+        // Trust page 2: Trustee powers & duties
+        pageNum++;
+        pgTrust += `<div class="doc-page">`;
+        pgTrust += `<h2>${clauseNum}. Trustee Rights and Duties</h2>`;
+        pgTrust += `<p>The administrator will have the following rights and duties:</p>`;
+        pgTrust += `<p style="margin-left:28px;">(a) To receive the assets that was placed under his/her control and to issue a receipt therefor.</p>`;
+        pgTrust += `<p style="margin-left:28px;">(b) To sell or rent any assets that was placed under his/her control to the benefit of the trust.</p>`;
+        pgTrust += `<p style="margin-left:28px;">(c) The trustees shall be empowered to pay out any income of the trust or the trust capital if any expenses incurred by them in connection with the running of the trust and the execution of the powers vested in them as trustees.</p>`;
+        pgTrust += `<p style="margin-left:28px;">(d) The trustees shall be empowered to institute any proceedings, to defend any action, and to sign any deeds, proxies or other documents needed for the purpose.</p>`;
+        pgTrust += `<p style="margin-left:28px;">(e) The trustees shall have the right to open a bank account or accounts in the name of the trust and to operate on such account or accounts.</p>`;
+        clauseNum++;
+
+        pgTrust += `<h2>${clauseNum}. Trust Assets</h2>`;
+        pgTrust += `<p>All assets of the trust created hereby, moveable as well as immovable shall vest in the trustees, in their official capacity. All such trust assets and rights of trustees described herein vest in the trustees in their official capacity as trustees and for the purpose of the trust and in accordance with the general legal position of trustees, that they shall at all times be in control and administration of the assets and the execution of their rights for the benefit of the beneficiaries act within the framework of the trust and not for their own benefit. The comprehensiveness of the authority granted to the trustees herein must at all times be seen, understood and evaluated subject to this reservation.</p>`;
+        clauseNum++;
+
+        pgTrust += `<h2>${clauseNum}. Income and Capital Decisions</h2>`;
+        pgTrust += `<p>The trustees shall be empowered to decide as they may deem fit whether any monies should be treated as income or capital, including any liquidation dividend, or repayments of capital, or capitalization of profits in the case of companies whose shares are held as part of the trust fund, and on any matters on which any doubt exists of whatever nature that may originate from the execution of this trust, and the decision of the trustees shall be binding and final, and there shall be no appeal against such decision.</p>`;
+        pgTrust += `<p>When any part of the net income is paid to any beneficiary in terms of this deed, the trustees shall have the right to make such payment in cash or in kind, or partly in cash and partly in kind. The valuation by the trustees of the goods paid in kind in terms hereof, shall be final and binding on all interested parties.</p>`;
+        clauseNum++;
+
+        pgTrust += signedAt + sigBlock;
+        pgTrust += `<div class="page-number">${pageNum}</div></div>`;
+      }
+
+      // ── LIVING WILL PAGE (if enabled) ──
+      let pgLiving = '';
       if (state.heirs.livingWill) {
-        pg3 = `<div class="doc-page">
+        pageNum++;
+        pgLiving = `<div class="doc-page">
           <h2>${clauseNum}. Living Will Declaration</h2>
           <p><strong>TO MY FAMILY AND MY PHYSICIAN:</strong></p>
           <p>This is a living will of me, ${E(state.testator.name, 'Full Name')} (ID: ${E(state.testator.id, 'ID Number')}), presently domiciled and resident at ${E('', 'Address')}, being of sound mind and after careful consideration I make the following declaration:</p>
@@ -2106,16 +2231,45 @@
           <p style="margin-left:28px;">(b) I be given whatever quantity of drugs which may be required to keep me free from pain or distress even if the moment of death is hastened.</p>
           <p>It is my express wish that my doctors or members of my family who carry out my aforegoing requests be fully exonerated and exempt from all blame or liability arising from their use of or their failure to use or their decision to terminate the use of any systems.</p>
           ${signedAt}${sigBlock}
-          <div class="page-number">3</div></div>`;
+          <div class="page-number">${pageNum}</div></div>`;
       }
 
-      document.getElementById('will-document').innerHTML = pg1 + pg2 + pg3;
+      document.getElementById('will-document').innerHTML = pg1 + pg2 + pgTrust + pgLiving;
       showStep(7);
+    }
+
+    // ── EDIT MODE ──
+    function toggleEditMode(on) {
+      const pages = document.querySelectorAll('#will-document .doc-page');
+      pages.forEach(page => {
+        if (on) {
+          page.setAttribute('contenteditable', 'true');
+          page.style.outline = '2px dashed var(--accent)';
+          page.style.outlineOffset = '-4px';
+          // Remove individual contenteditable spans styling conflict
+          page.querySelectorAll('[contenteditable="true"]').forEach(el => {
+            el.style.borderBottom = 'none';
+          });
+        } else {
+          page.removeAttribute('contenteditable');
+          page.style.outline = '';
+          page.style.outlineOffset = '';
+          page.querySelectorAll('span[data-placeholder]').forEach(el => {
+            el.setAttribute('contenteditable', 'true');
+            el.style.borderBottom = '';
+          });
+        }
+      });
     }
 
     // ── PRINT TO PDF ──
     function printWill() {
-      const content = document.getElementById('will-document').innerHTML;
+      // Clone content and strip all editing artifacts
+      const clone = document.getElementById('will-document').cloneNode(true);
+      clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+      clone.querySelectorAll('.doc-page').forEach(el => { el.style.outline = ''; el.style.outlineOffset = ''; });
+      const content = clone.innerHTML;
+
       const win = window.open('', '_blank');
       const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
         .map(el => el.outerHTML).join('\n');
@@ -2124,6 +2278,7 @@
         ${styles}
         <style>
           @page { margin: 0; size: A4; }
+          * { box-sizing: border-box; }
           body { background: #fff; margin: 0; padding: 0; }
           .doc-page {
             box-shadow: none; margin: 0;
@@ -2131,7 +2286,9 @@
             page-break-after: always; page-break-inside: avoid;
           }
           .doc-page:last-child { page-break-after: auto; }
-          .doc-page [contenteditable="true"] { border-bottom: none; }
+          .doc-page [contenteditable] { border-bottom: none; }
+          span[data-placeholder] { border-bottom: none; }
+          span[data-placeholder]:empty::before { content: none; }
         </style>
       </head><body>${content}</body></html>`);
       win.document.close();
