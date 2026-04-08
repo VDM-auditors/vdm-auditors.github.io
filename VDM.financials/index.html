@@ -11,10 +11,174 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <link rel="stylesheet" href="css/styles.css">
+<style>
+  /* ── PASSWORD OVERLAY (matches main index.html) ── */
+  #lock-screen {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 24px;
+  }
+
+  #lock-screen .lock-logo {
+    width: 100%;
+    max-width: 260px;
+    margin-bottom: 40px;
+  }
+
+  #lock-screen .lock-logo img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  #lock-screen h2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.4rem;
+    color: #111827;
+    margin-bottom: 8px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  #lock-screen p {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .lock-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .lock-input-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .lock-input-wrap input {
+    width: 100%;
+    padding: 12px 44px 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.2em;
+  }
+
+  .lock-input-wrap input:focus {
+    border-color: #c9a84c;
+  }
+
+  .lock-input-wrap input.shake {
+    animation: shake 0.4s ease;
+    border-color: #ef4444;
+  }
+
+  .toggle-pw {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+  }
+
+  .toggle-pw svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .lock-btn {
+    width: 100%;
+    padding: 12px;
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .lock-btn:hover {
+    background: #c9a84c;
+  }
+
+  .lock-btn:active {
+    transform: scale(0.98);
+  }
+
+  .error-msg {
+    font-size: 0.85rem;
+    color: #ef4444;
+    text-align: center;
+    min-height: 20px;
+    transition: opacity 0.2s;
+  }
+
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+    100% { transform: translateX(0); }
+  }
+</style>
 </head>
 
 
 <body>
+
+  <!-- PASSWORD LOCK SCREEN -->
+  <div id="lock-screen">
+    <div class="lock-logo">
+      <img src="../Audit_Logo.jpg" alt="VDM Audit Logo">
+    </div>
+    <h2>Secure Access</h2>
+    <p>Enter your password to continue.</p>
+    <div class="lock-form">
+      <div class="lock-input-wrap">
+        <input type="password" id="pw-input" placeholder="Password" autocomplete="current-password">
+        <button class="toggle-pw" type="button" id="toggle-pw" aria-label="Show password">
+          <svg id="eye-icon" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="error-msg" id="error-msg"></div>
+      <button class="lock-btn" id="unlock-btn">Unlock</button>
+    </div>
+  </div>
 
   <div class="sticky-header-area" id="sticky-header-area">
     <header
@@ -1312,6 +1476,45 @@
     </div>
   </div>
 
+
+  <script>
+    // ── PASSWORD GATE (same as main index.html) ──
+    const CORRECT_PASSWORD = '123';
+    const lockScreen = document.getElementById('lock-screen');
+    const pwInput = document.getElementById('pw-input');
+    const errorMsg = document.getElementById('error-msg');
+    const unlockBtn = document.getElementById('unlock-btn');
+    const togglePw = document.getElementById('toggle-pw');
+    const eyeIcon = document.getElementById('eye-icon');
+
+    function unlock() {
+      if (pwInput.value === CORRECT_PASSWORD) {
+        lockScreen.style.display = 'none';
+      } else {
+        errorMsg.textContent = 'Incorrect password. Please try again.';
+        pwInput.classList.remove('shake');
+        void pwInput.offsetWidth;
+        pwInput.classList.add('shake');
+        pwInput.value = '';
+        pwInput.focus();
+        setTimeout(() => { errorMsg.textContent = ''; }, 3000);
+      }
+    }
+
+    unlockBtn.addEventListener('click', unlock);
+    pwInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') unlock();
+    });
+    togglePw.addEventListener('click', function() {
+      const isPassword = pwInput.type === 'password';
+      pwInput.type = isPassword ? 'text' : 'password';
+      eyeIcon.innerHTML = isPassword
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    });
+
+    pwInput.focus();
+  </script>
 
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
