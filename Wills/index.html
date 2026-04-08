@@ -1544,44 +1544,11 @@
               <p style="font-size:11px; color:var(--text-muted); margin-bottom:10px; line-height:1.6;">
                 Minimum of 3 trustees are required. At least 1 must be independent.
               </p>
-
-              <div class="field-row">
-                <div class="field-group">
-                  <label>Trustee 1 — Full Name and Surname</label>
-                  <input type="text" id="trustee1-name" placeholder="Full legal name">
-                </div>
-                <div class="field-group">
-                  <label>Trustee 1 — ID Number</label>
-                  <input type="text" id="trustee1-id" placeholder="13-digit ID" maxlength="13">
-                </div>
-              </div>
-
-              <div class="field-row">
-                <div class="field-group">
-                  <label>Trustee 2 — Full Name and Surname</label>
-                  <input type="text" id="trustee2-name" placeholder="Full legal name">
-                </div>
-                <div class="field-group">
-                  <label>Trustee 2 — ID Number</label>
-                  <input type="text" id="trustee2-id" placeholder="13-digit ID" maxlength="13">
-                </div>
-              </div>
-
-              <div class="field-row">
-                <div class="field-group">
-                  <label>Trustee 3 — Full Name and Surname</label>
-                  <input type="text" id="trustee3-name" placeholder="Full legal name">
-                </div>
-                <div class="field-group">
-                  <label>Trustee 3 — ID Number</label>
-                  <input type="text" id="trustee3-id" placeholder="13-digit ID" maxlength="13">
-                </div>
-              </div>
-
-              <label style="display:flex;align-items:center;gap:8px;font-size:12px;text-transform:none;letter-spacing:0;cursor:pointer;margin:10px 0 0;color:var(--text-mid);">
-                <input type="checkbox" id="trustee3-independent" checked>
-                Trustee 3 is independent
-              </label>
+              <div id="trustee-list"></div>
+              <button type="button" class="btn-add" onclick="addTrustee()">Add a trustee</button>
+              <p class="hint" id="trustee-independent-hint" style="margin-top:10px; display:none; color:var(--danger);">
+                Please mark at least one trustee as independent.
+              </p>
             </div>
 
             <div class="field-row" style="margin-top:12px;">
@@ -1926,15 +1893,14 @@
 
         state.heirs.testamentary.active = document.getElementById('testamentary-toggle').checked;
         state.heirs.testamentary.trustName = document.getElementById('trust-name').value.trim();
-        state.heirs.testamentary.trustees = [
-          { name: document.getElementById('trustee1-name')?.value.trim() || '', id: document.getElementById('trustee1-id')?.value.trim() || '' },
-          { name: document.getElementById('trustee2-name')?.value.trim() || '', id: document.getElementById('trustee2-id')?.value.trim() || '' },
-          {
-            name: document.getElementById('trustee3-name')?.value.trim() || '',
-            id: document.getElementById('trustee3-id')?.value.trim() || '',
-            independent: document.getElementById('trustee3-independent')?.checked || false
-          }
-        ];
+        state.heirs.testamentary.trustees = [];
+        document.querySelectorAll('.trustee-entry').forEach(e => {
+          state.heirs.testamentary.trustees.push({
+            name: e.querySelector('.trustee-name')?.value.trim() || '',
+            id: e.querySelector('.trustee-id')?.value.trim() || '',
+            independent: !!e.querySelector('.trustee-independent')?.checked
+          });
+        });
         state.heirs.testamentary.age = document.getElementById('trust-age').value.trim();
         state.heirs.testamentary.beneficiaries = [];
         document.querySelectorAll('.trust-ben-entry').forEach(e => {
@@ -2034,6 +2000,83 @@
       const gs = document.getElementById('guardian-section');
       if (gs) gs.style.display = hasMinors ? 'block' : 'none';
     }
+
+    // ── TRUSTEES (Testamentary Trust) ──
+    let trusteeCount = 0;
+
+    function addTrustee(prefill = {}) {
+      trusteeCount++;
+      const list = document.getElementById('trustee-list');
+      if (!list) return;
+
+      const div = document.createElement('div');
+      div.className = 'heir-entry trustee-entry';
+      div.innerHTML = `
+    <div class="heir-entry-header">
+      <span class="heir-entry-num">Trustee ${trusteeCount}</span>
+      <button class="btn-remove" onclick="removeTrustee(this)">Remove</button>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Full Name and Surname</label>
+        <input type="text" class="trustee-name" placeholder="Full legal name" value="${(prefill.name || '').replace(/"/g, '&quot;')}">
+      </div>
+      <div class="field-group">
+        <label>ID Number</label>
+        <input type="text" class="trustee-id" placeholder="13-digit ID" maxlength="13" value="${(prefill.id || '').replace(/"/g, '&quot;')}">
+      </div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;text-transform:none;letter-spacing:0;cursor:pointer;margin-bottom:0;color:var(--text-mid);">
+      <input type="checkbox" class="trustee-independent" ${prefill.independent ? 'checked' : ''} onchange="updateTrusteeIndependentHint()">
+      This trustee is independent
+    </label>`;
+
+      list.appendChild(div);
+      renumberTrustees();
+      updateTrusteeIndependentHint();
+    }
+
+    function removeTrustee(btn) {
+      const list = document.getElementById('trustee-list');
+      if (!list) return;
+      const entries = list.querySelectorAll('.trustee-entry');
+      if (entries.length <= 3) {
+        alert('A minimum of 3 trustees is required.');
+        return;
+      }
+      btn.closest('.trustee-entry')?.remove();
+      renumberTrustees();
+      updateTrusteeIndependentHint();
+    }
+
+    function renumberTrustees() {
+      const list = document.getElementById('trustee-list');
+      if (!list) return;
+      const entries = Array.from(list.querySelectorAll('.trustee-entry'));
+      entries.forEach((el, i) => {
+        const n = el.querySelector('.heir-entry-num');
+        if (n) n.textContent = 'Trustee ' + (i + 1);
+      });
+      trusteeCount = entries.length;
+    }
+
+    function updateTrusteeIndependentHint() {
+      const hint = document.getElementById('trustee-independent-hint');
+      const list = document.getElementById('trustee-list');
+      if (!hint || !list) return;
+      const independents = Array.from(list.querySelectorAll('.trustee-independent')).some(c => c.checked);
+      hint.style.display = independents ? 'none' : 'block';
+    }
+
+    // Ensure minimum of 3 trustees exist by default
+    (function initTrustees() {
+      const list = document.getElementById('trustee-list');
+      if (!list) return;
+      if (list.querySelectorAll('.trustee-entry').length) return;
+      addTrustee({ independent: false });
+      addTrustee({ independent: false });
+      addTrustee({ independent: true });
+    })();
 
     // ── SHARES / LOAN ACCOUNTS ──
     let shareCount = 0;
