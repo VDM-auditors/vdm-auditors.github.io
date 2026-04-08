@@ -749,9 +749,12 @@ ${auditFooter()}
 </ul>
 <p>We communicate with the governing body regarding, among other matters, the planned scope and timing of the audit and significant audit findings, including any significant deficiencies in internal control that we identify during our audit.</p>`;
 
+  const schoolBasisForOpinionParagraph =
+    `<p>We conducted our audit in accordance with <em>'International Standards on Auditing (ISAs)'</em>. Our responsibilities under those standards are further described in the <em>'Auditor's Responsibilities for the Audit of the Financial Statements'</em> section of our report. We are independent of the school in accordance with the <em>'Independent Regulatory Board for Auditors Code of Professional Conduct for Registered Auditors (IRBA Code)'</em> and other independence requirements applicable to performing audits of financial statements in South Africa. We have fulfilled our other ethical responsibilities in accordance with the <em>'IRBA Code'</em> and in accordance with other ethical requirements applicable to performing audits in South Africa. The <em>'IRBA Code'</em> is consistent with the <em>'International Ethics Standards Board for Accountants Code of Ethics for Professional Accountants (Parts A and B)'</em>. We believe that the audit evidence we have obtained is sufficient and appropriate to provide a basis for our opinion.</p>`;
+
   const schoolBasisForOpinion = `
 <h3>Basis for Opinion</h3>
-<p>We conducted our audit in accordance with <em>'International Standards on Auditing (ISAs)'</em>. Our responsibilities under those standards are further described in the <em>'Auditor's Responsibilities for the Audit of the Financial Statements'</em> section of our report. We are independent of the school in accordance with the <em>'Independent Regulatory Board for Auditors Code of Professional Conduct for Registered Auditors (IRBA Code)'</em> and other independence requirements applicable to performing audits of financial statements in South Africa. We have fulfilled our other ethical responsibilities in accordance with the <em>'IRBA Code'</em> and in accordance with other ethical requirements applicable to performing audits in South Africa. The <em>'IRBA Code'</em> is consistent with the <em>'International Ethics Standards Board for Accountants Code of Ethics for Professional Accountants (Parts A and B)'</em>. We believe that the audit evidence we have obtained is sufficient and appropriate to provide a basis for our opinion.</p>`;
+${schoolBasisForOpinionParagraph}`;
 
   let pageSchoolAudit = '';
   if (schoolSub === 'unqualified') {
@@ -786,11 +789,11 @@ ${auditLetterhead()}
 <p><em>To the Governing Body of ${co}</em></p>
 <h3>Qualified Opinion</h3>
 <p>We have audited the financial statements of ${co}, which comprise the statement of financial position as at ${yearEnd}, and the statement of financial performance, including a summary of significant accounting policies and other explanatory notes, as set out on pages ${pageStart} to ${pageEnd}.</p>
-<p>In our opinion, except for the matter described in the Basis for Qualified Opinion paragraph, the financial statements present fairly, in all material respects, the financial position of ${co} as at ${yearEnd}, and its financial performance and cash flows for the year then ended in accordance with the <em>'Financial Reporting Frameworks for Schools (FRFFS)'</em> and the requirements of the South African Schools Act.</p>
+<p>In our opinion, except for the possible effect of the matter described in the Basis for Qualified Opinion section of our report, the financial statements present fairly, in all material respects, the financial position of ${co} as at ${yearEnd}, and its financial performance and cash flows for the year then ended in accordance with the <em>'Financial Reporting Frameworks for Schools (FRFFS)'</em> and the requirements of the South African Schools Act.</p>
 <h3>Basis for Qualified Opinion</h3>
+${schoolBasisForOpinionParagraph}
 <p>${qualBasis}</p>
 ${otherMatter}
-${schoolBasisForOpinion}
 ${schoolGBResponsibilities}
 ${schoolAuditorResponsibilities}
 ${auditorBlock(schoolAuditorSigner, dateSigned)}
