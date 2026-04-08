@@ -2264,35 +2264,98 @@
 
     // ── PRINT TO PDF ──
     function printWill() {
-      // Clone content and strip all editing artifacts
-      const clone = document.getElementById('will-document').cloneNode(true);
-      clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
-      clone.querySelectorAll('.doc-page').forEach(el => { el.style.outline = ''; el.style.outlineOffset = ''; });
-      const content = clone.innerHTML;
+      const source = document.getElementById('will-document');
+      if (!source || !source.innerHTML.trim()) {
+        alert('Please generate the will first before printing.');
+        return;
+      }
 
-      const win = window.open('', '_blank');
-      const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-        .map(el => el.outerHTML).join('\n');
-      win.document.write(`<!DOCTYPE html><html><head>
-        <title>Last Will and Testament &ndash; ${state.testator.name || 'Draft'}</title>
-        ${styles}
-        <style>
-          @page { margin: 0; size: A4; }
-          * { box-sizing: border-box; }
-          body { background: #fff; margin: 0; padding: 0; }
-          .doc-page {
-            box-shadow: none; margin: 0;
-            width: 100%; min-height: 100vh;
-            page-break-after: always; page-break-inside: avoid;
-          }
-          .doc-page:last-child { page-break-after: auto; }
-          .doc-page [contenteditable] { border-bottom: none; }
-          span[data-placeholder] { border-bottom: none; }
-          span[data-placeholder]:empty::before { content: none; }
-        </style>
-      </head><body>${content}</body></html>`);
-      win.document.close();
-      setTimeout(() => { win.print(); setTimeout(() => win.close(), 500); }, 600);
+      // Clone content and strip all editing artifacts
+      const clone = source.cloneNode(true);
+      clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+      clone.querySelectorAll('.doc-page').forEach(el => {
+        el.style.outline = '';
+        el.style.outlineOffset = '';
+      });
+
+      // Collect all <style> elements from the main page
+      const allStyles = Array.from(document.querySelectorAll('style'))
+        .map(s => s.outerHTML)
+        .join('\n');
+
+      // Collect all <link rel="stylesheet"> (Google Fonts etc.)
+      const allLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+        .map(l => l.outerHTML)
+        .join('\n');
+
+      // IMPORTANT: keep the #will-document wrapper so any existing print CSS
+      // targeting it doesn't blank the output.
+      const docContent = `<div id="will-document">${clone.innerHTML}</div>`;
+
+      const printHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Last Will and Testament</title>
+  ${allLinks}
+  ${allStyles}
+  <style>
+    /* Print window overrides — match VDM financials approach */
+    @page { margin: 0; size: A4; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; background: white; }
+
+    /* Neutralise any "hide everything" print rules from the main page */
+    @media print {
+      body * { visibility: visible !important; }
+      #will-document, #will-document * { visibility: visible !important; }
+    }
+
+    #will-document {
+      display: block !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    .doc-page {
+      box-shadow: none !important;
+      margin: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-height: 100vh !important;
+      padding: 18mm 20mm 20mm !important;
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
+    .doc-page:last-child { page-break-after: auto; }
+
+    /* Remove editing placeholders/underlines in print */
+    span[data-placeholder] { border-bottom: none !important; }
+    span[data-placeholder]:empty::before { content: none !important; }
+  </style>
+</head>
+<body>
+  ${docContent}
+  <scr` + `ipt>
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+        setTimeout(function() { window.close(); }, 500);
+      }, 600);
+    };
+  </scr` + `ipt>
+</body>
+</html>`;
+
+      const printWindow = window.open('', '_blank', 'width=900,height=700');
+      if (!printWindow) {
+        alert('Pop-up blocked — please allow pop-ups for this page and try again.');
+        return;
+      }
+      printWindow.document.open();
+      printWindow.document.write(printHTML);
+      printWindow.document.close();
     }
   </script>
 </body>
