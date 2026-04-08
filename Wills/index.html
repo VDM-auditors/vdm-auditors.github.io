@@ -1288,6 +1288,50 @@
           </div>
         </div>
 
+        <!-- Shares / Loan Accounts -->
+        <div class="toggle-row" onclick="toggleHeir('shares-details','shares-toggle')">
+          <div class="toggle-label-wrap">
+            <span class="toggle-main">Shares &amp; Loan Accounts
+              <span class="tooltip-wrap">
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-box">If you hold shares or loan accounts in a company/entity, you can bequeath them to a specific person.</span>
+              </span>
+            </span>
+            <span class="toggle-hint">Do you hold shares or loan accounts in a company?</span>
+          </div>
+          <label class="toggle-switch" onclick="event.stopPropagation()">
+            <input type="checkbox" id="shares-toggle" onchange="toggleHeir('shares-details',this.id)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="collapsible-content" id="shares-details">
+          <div id="shares-list"></div>
+          <button class="btn-add" onclick="addShareEntry()">Add a company / entity</button>
+          <div style="height:14px;"></div>
+        </div>
+
+        <!-- Specific Assets -->
+        <div class="toggle-row" onclick="toggleHeir('specific-assets-details','specific-assets-toggle')">
+          <div class="toggle-label-wrap">
+            <span class="toggle-main">Specific Assets
+              <span class="tooltip-wrap">
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-box">Bequeath specific named assets (e.g. a vehicle, jewellery, firearm) to a specific person.</span>
+              </span>
+            </span>
+            <span class="toggle-hint">Are there specific assets to bequeath to named beneficiaries?</span>
+          </div>
+          <label class="toggle-switch" onclick="event.stopPropagation()">
+            <input type="checkbox" id="specific-assets-toggle" onchange="toggleHeir('specific-assets-details',this.id)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="collapsible-content" id="specific-assets-details">
+          <div id="specific-assets-list"></div>
+          <button class="btn-add" onclick="addSpecificAsset()">Add a specific asset</button>
+          <div style="height:14px;"></div>
+        </div>
+
         <!-- Testamentary Trust -->
         <div class="toggle-row" onclick="toggleHeir('testamentary-details','testamentary-toggle')">
           <div class="toggle-label-wrap">
@@ -1323,6 +1367,51 @@
                 <input type="number" id="trust-age" placeholder="e.g. 21" min="18" max="35">
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Residue of Estate -->
+        <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--border);">
+          <div class="subsection">
+            <div class="subsection-title">Residue of Estate</div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px; line-height:1.6;">
+              The residue is everything in your estate not specifically bequeathed above. Nominate who should receive it.
+            </p>
+            <div class="field-group">
+              <label>Beneficiary Full Name and Surname</label>
+              <input type="text" id="residue-name" placeholder="Full legal name of residue beneficiary">
+            </div>
+            <div class="field-group">
+              <label>Beneficiary ID Number</label>
+              <input type="text" id="residue-id" placeholder="13-digit ID number" maxlength="13">
+            </div>
+          </div>
+        </div>
+
+        <!-- Living Will Clause -->
+        <div class="toggle-row" style="margin-top:12px;" onclick="toggleHeir('living-will-details','living-will-toggle')">
+          <div class="toggle-label-wrap">
+            <span class="toggle-main">Living Will Clause
+              <span class="tooltip-wrap">
+                <span class="tooltip-icon">i</span>
+                <span class="tooltip-box">A living will declares your wishes regarding life-sustaining medical treatment should you become incapacitated. It is included as a clause in this will.</span>
+              </span>
+            </span>
+            <span class="toggle-hint">Include a living will declaration in this will?</span>
+          </div>
+          <label class="toggle-switch" onclick="event.stopPropagation()">
+            <input type="checkbox" id="living-will-toggle" onchange="toggleHeir('living-will-details',this.id)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="collapsible-content" id="living-will-details">
+          <div class="subsection" style="margin-top:10px; background:var(--accent-bg); border-color:var(--accent);">
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.7; margin-bottom:6px;">
+              By enabling this clause, the following declaration will be included in your will:
+            </p>
+            <p style="font-size:12px; color:var(--text); line-height:1.7; font-style:italic; margin-bottom:0;">
+              "Should I no longer be capable of making decisions for my own future and should my physical and/or mental condition deteriorate to such an extent that there is no reasonable prospect of my recovery, I request that I be allowed to die and that no life support systems be used to keep me alive. I further request that I be given whatever quantity of drugs may be required to keep me free from pain or distress even if the moment of death is hastened."
+            </p>
           </div>
         </div>
 
@@ -1384,8 +1473,12 @@
       heirs: {
         spouse: { active: false, portion: '' },
         children: [],
+        shares: [],
+        specificAssets: [],
         intervivos: { active: false, name: '', reg: '', portion: '' },
-        testamentary: { active: false, trusteeName: '', trusteeId: '', age: '' }
+        testamentary: { active: false, trusteeName: '', trusteeId: '', age: '' },
+        residue: { name: '', id: '' },
+        livingWill: false
       }
     };
 
@@ -1542,10 +1635,33 @@
         state.heirs.intervivos.reg = document.getElementById('intervivos-reg').value.trim();
         state.heirs.intervivos.portion = document.getElementById('intervivos-portion').value.trim();
 
+        state.heirs.shares = [];
+        document.querySelectorAll('.share-entry').forEach(e => {
+          state.heirs.shares.push({
+            entity: e.querySelector('.share-entity').value.trim(),
+            beneficiary: e.querySelector('.share-beneficiary').value.trim(),
+            beneficiaryId: e.querySelector('.share-beneficiary-id').value.trim()
+          });
+        });
+
+        state.heirs.specificAssets = [];
+        document.querySelectorAll('.asset-entry').forEach(e => {
+          state.heirs.specificAssets.push({
+            description: e.querySelector('.asset-desc').value.trim(),
+            beneficiary: e.querySelector('.asset-beneficiary').value.trim(),
+            beneficiaryId: e.querySelector('.asset-beneficiary-id').value.trim()
+          });
+        });
+
         state.heirs.testamentary.active = document.getElementById('testamentary-toggle').checked;
         state.heirs.testamentary.trusteeName = document.getElementById('trustee-name').value.trim();
         state.heirs.testamentary.trusteeId = document.getElementById('trustee-id').value.trim();
         state.heirs.testamentary.age = document.getElementById('trust-age').value.trim();
+
+        state.heirs.residue.name = document.getElementById('residue-name').value.trim();
+        state.heirs.residue.id = document.getElementById('residue-id').value.trim();
+
+        state.heirs.livingWill = document.getElementById('living-will-toggle').checked;
       }
     }
 
@@ -1630,6 +1746,72 @@
       document.getElementById('minor-suggestion').style.display = hasMinors ? 'block' : 'none';
     }
 
+    // ── SHARES / LOAN ACCOUNTS ──
+    let shareCount = 0;
+    function addShareEntry() {
+      shareCount++;
+      const div = document.createElement('div');
+      div.className = 'heir-entry share-entry';
+      div.innerHTML = `
+    <div class="heir-entry-header">
+      <span class="heir-entry-num">Entity ${shareCount}</span>
+      <button class="btn-remove" onclick="removeShareEntry(this)">Remove</button>
+    </div>
+    <div class="field-group">
+      <label>Company / Entity Name</label>
+      <input type="text" class="share-entity" placeholder="e.g. ABC Holdings (Pty) Ltd">
+    </div>
+    <div class="field-group">
+      <label>Beneficiary Full Name and Surname</label>
+      <input type="text" class="share-beneficiary" placeholder="Full legal name">
+    </div>
+    <div class="field-group">
+      <label>Beneficiary ID Number</label>
+      <input type="text" class="share-beneficiary-id" placeholder="13-digit ID number" maxlength="13">
+    </div>`;
+      document.getElementById('shares-list').appendChild(div);
+    }
+
+    function removeShareEntry(btn) {
+      btn.closest('.share-entry').remove();
+      document.querySelectorAll('.share-entry .heir-entry-num').forEach((el, i) => {
+        el.textContent = 'Entity ' + (i + 1);
+      });
+    }
+
+    // ── SPECIFIC ASSETS ──
+    let assetCount = 0;
+    function addSpecificAsset() {
+      assetCount++;
+      const div = document.createElement('div');
+      div.className = 'heir-entry asset-entry';
+      div.innerHTML = `
+    <div class="heir-entry-header">
+      <span class="heir-entry-num">Asset ${assetCount}</span>
+      <button class="btn-remove" onclick="removeSpecificAsset(this)">Remove</button>
+    </div>
+    <div class="field-group">
+      <label>Asset Description</label>
+      <input type="text" class="asset-desc" placeholder="e.g. 2020 Toyota Hilux, Registration ABC 123 GP">
+    </div>
+    <div class="field-group">
+      <label>Beneficiary Full Name and Surname</label>
+      <input type="text" class="asset-beneficiary" placeholder="Full legal name">
+    </div>
+    <div class="field-group">
+      <label>Beneficiary ID Number</label>
+      <input type="text" class="asset-beneficiary-id" placeholder="13-digit ID number" maxlength="13">
+    </div>`;
+      document.getElementById('specific-assets-list').appendChild(div);
+    }
+
+    function removeSpecificAsset(btn) {
+      btn.closest('.asset-entry').remove();
+      document.querySelectorAll('.asset-entry .heir-entry-num').forEach((el, i) => {
+        el.textContent = 'Asset ' + (i + 1);
+      });
+    }
+
     // ── REVIEW ──
     function buildReview() {
       saveStep(5);
@@ -1669,12 +1851,22 @@
       state.heirs.children.forEach((c, i) =>
         hRows.push([`Child ${i + 1}${c.minor ? ' <span class="minor-badge">Minor</span>' : ''}`,
         `${c.name} – ${c.portion || 'unspecified'}`]));
+      state.heirs.shares.forEach((s, i) =>
+        hRows.push([`Shares/Loan ${i + 1}`, `${s.entity} → ${s.beneficiary} (${s.beneficiaryId})`]));
+      state.heirs.specificAssets.forEach((a, i) =>
+        hRows.push([`Specific Asset ${i + 1}`, `${a.description} → ${a.beneficiary} (${a.beneficiaryId})`]));
       if (state.heirs.intervivos.active)
         hRows.push(['Intervivos Trust', `${state.heirs.intervivos.name} – ${state.heirs.intervivos.portion}`]);
       if (state.heirs.testamentary.active)
         hRows.push(['Testamentary Trust', `Trustee: ${state.heirs.testamentary.trusteeName}, age ${state.heirs.testamentary.age}`]);
+      if (state.heirs.residue.name)
+        hRows.push(['Residue of Estate', `${state.heirs.residue.name} (${state.heirs.residue.id})`]);
       if (!hRows.length) hRows.push(['Note', 'No heirs specified']);
       html += sec('Heirs &amp; Beneficiaries', 5, hRows);
+
+      if (state.heirs.livingWill) {
+        html += sec('Living Will Clause', 5, [['Status', 'Included in this will']]);
+      }
 
       document.getElementById('review-content').innerHTML = html;
     }
@@ -1700,29 +1892,75 @@
       doc += `\n${D}\nEXECUTOR\n${D}\n`;
       doc += `I hereby appoint ${state.executor.name} (ID: ${state.executor.id}) as the Executor of my estate, with full power to administer and distribute my estate in accordance with this Will.\n`;
 
-      doc += `\n${D}\nHEIRS AND BENEFICIARIES\n${D}\nI bequeath my estate as follows:\n\n`;
+      doc += `\n${D}\nHEIRS AND BENEFICIARIES\n${D}\n\nIn the event of my death, I make the following disposition:\n\n`;
 
-      if (state.marital !== 'single' && state.heirs.spouse.active)
-        doc += `To my spouse: ${state.heirs.spouse.portion || 'portion of estate as agreed'}\n\n`;
+      let clauseNum = 1;
+
+      if (state.marital !== 'single' && state.heirs.spouse.active) {
+        doc += `${clauseNum}. To my spouse: ${state.heirs.spouse.portion || 'portion of estate as agreed'}\n\n`;
+        clauseNum++;
+      }
 
       if (state.heirs.children.length) {
-        doc += `Children:\n`;
+        doc += `${clauseNum}. Children:\n`;
         state.heirs.children.forEach((c, i) =>
-          doc += `  ${i + 1}. ${c.name} (ID/DOB: ${c.id})${c.minor ? ' [minor]' : ''} — ${c.portion || 'equal share'}\n`);
+          doc += `  ${clauseNum}.${i + 1}. ${c.name} (ID/DOB: ${c.id})${c.minor ? ' [minor]' : ''} — ${c.portion || 'equal share'}\n`);
         doc += '\n';
+        clauseNum++;
+      }
+
+      if (state.heirs.shares.length) {
+        doc += `${clauseNum}. Shares and Loan Accounts:\n`;
+        doc += `  I bequeath the shareholding / members interest together with the loan accounts in:\n`;
+        state.heirs.shares.forEach((s, i) =>
+          doc += `  ${clauseNum}.${i + 1}. ${s.entity} — to ${s.beneficiary} (ID: ${s.beneficiaryId})\n`);
+        doc += '\n';
+        clauseNum++;
+      }
+
+      if (state.heirs.specificAssets.length) {
+        doc += `${clauseNum}. Specific Assets:\n`;
+        state.heirs.specificAssets.forEach((a, i) =>
+          doc += `  ${clauseNum}.${i + 1}. ${a.description} — to ${a.beneficiary} (ID: ${a.beneficiaryId})\n`);
+        doc += '\n';
+        clauseNum++;
       }
 
       if (state.heirs.intervivos.active && state.heirs.intervivos.name) {
-        doc += `Intervivos Trust:\n  ${state.heirs.intervivos.name} (Reg: ${state.heirs.intervivos.reg}) — ${state.heirs.intervivos.portion}\n\n`;
+        doc += `${clauseNum}. Intervivos Trust:\n  ${state.heirs.intervivos.name} (Reg: ${state.heirs.intervivos.reg}) — ${state.heirs.intervivos.portion}\n\n`;
+        clauseNum++;
       }
 
       if (state.heirs.testamentary.active) {
-        doc += `Testamentary Trust:\n  I direct that a Testamentary Trust be established upon my death.\n`;
+        doc += `${clauseNum}. Testamentary Trust:\n  I direct that a Testamentary Trust be established upon my death.\n`;
         doc += `  Trustee: ${state.heirs.testamentary.trusteeName} (ID: ${state.heirs.testamentary.trusteeId})\n`;
         doc += `  The trust shall terminate when all beneficiaries reach age ${state.heirs.testamentary.age || '21'}.\n\n`;
+        clauseNum++;
       }
 
-      doc += `${D}\nREVOCATION\n${D}\nI hereby revoke all former Wills and Testamentary dispositions previously made by me.\n\n`;
+      if (state.heirs.residue.name) {
+        doc += `${clauseNum}. The residue of my estate I bequeath to ${state.heirs.residue.name} (ID: ${state.heirs.residue.id}).\n\n`;
+        clauseNum++;
+      }
+
+      doc += `${clauseNum}. No asset accruing to any heir and or beneficiary in terms of this Will, nor the proceeds of the sale thereof, nor the income derived therefrom, nor any asset acquired from the proceeds of income, will form part of any marriage in community of property which may at any time exist or come into being in respect of such beneficiary and shall not be subject to the marital power or control of any husband of any female beneficiary.\n\n`;
+      clauseNum++;
+
+      doc += `${D}\nREVOCATION\n${D}\nI hereby revoke all former Wills and Testamentary dispositions previously made by me.\n`;
+      doc += `I hereby reserve to myself the right at any time hereafter to make any such alteration in or addition to this my will as I may think fit, either by separate act or at the foot hereof, desiring that all such alterations or additions so made under my signature, shall be held valid and effectual as if they had been incorporated herein.\n\n`;
+      if (state.heirs.livingWill) {
+        doc += `${D}\nLIVING WILL DECLARATION\n${D}\n`;
+        doc += `This living will does not revoke any previous will made by me.\n\n`;
+        doc += `In this clause:\n`;
+        doc += `  "my physician" means any one or more of the medical practitioners who may have been or may be called upon to examine me and to give a prognosis of my medical condition;\n`;
+        doc += `  "life support" means any mechanical or artificial life support systems or the use of drugs.\n\n`;
+        doc += `INCAPABILITY OF DECISIONS\n\n`;
+        doc += `Should I no longer be capable of making decisions for my own future and should my physical and/or mental condition deteriorate to such an extent that there is no reasonable prospect of my recovery from physical illness or impairment which is expected to cause me severe distress or to render me incapable of rational existence of thought, I request that:\n\n`;
+        doc += `  (a) I be allowed to die. I further request that no systems and/or operations be used or executed in order to keep me alive in circumstances where, but for the use of such systems, I would have died;\n\n`;
+        doc += `  (b) I be given whatever quantity of drugs which may be required to keep me free from pain or distress even if the moment of death is hastened.\n\n`;
+        doc += `It is my express wish that my doctors or members of my family who carry out my aforegoing requests be fully exonerated and exempt from all blame or liability arising from their use of or their failure to use or their decision to terminate the use of any systems.\n\n`;
+      }
+
       doc += `${D}\nSIGNATURE\n${D}\n`;
       doc += `Signed at ________________________ on the _____ day of ________________ 20____\n\n`;
       doc += `Signature: ___________________________\n${state.testator.name}\n\n`;
