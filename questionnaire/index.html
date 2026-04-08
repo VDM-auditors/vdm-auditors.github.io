@@ -807,8 +807,6 @@
       margin: 20px 0;
     }
 
-    .ei_hide_individual {}
-
     .ei_only_individual {
       display: none;
     }
@@ -1358,7 +1356,6 @@
               </div>
               <div class="field"><label>VAT Number</label><input type="text" id="ei_vat" placeholder="e.g. 4123456789">
               </div>
-              <div class="field"><label>WCA Reference</label><input type="text" id="ei_wca" placeholder=""></div>
               <div class="field"><label>UIF Reference</label><input type="text" id="ei_uif" placeholder=""></div>
               <div class="field"><label>PAYE Reference</label><input type="text" id="ei_paye" placeholder=""></div>
             </div>
@@ -1459,8 +1456,7 @@
                       name="svc" value="VAT"><span class="svc-box"></span>VAT</label><label class="svc-check"><input
                       type="checkbox" name="svc" value="PAYE"><span class="svc-box"></span>PAYE</label><label
                     class="svc-check"><input type="checkbox" name="svc" value="UIF"><span
-                      class="svc-box"></span>UIF</label><label class="svc-check"><input type="checkbox" name="svc"
-                      value="Compensation Commissioner"><span class="svc-box"></span>Compensation Commissioner</label>
+                      class="svc-box"></span>UIF</label>
                 </div>
                 <div class="svc-other-row"><label class="svc-check"><input type="checkbox" id="svc_company_other_cb"
                       onchange="toggleOther('company')"><span class="svc-box"></span>Other Services:</label><input
@@ -1488,8 +1484,6 @@
                       type="checkbox" name="svc_ind" value="PAYE"><span class="svc-box"></span>PAYE</label><label
                     class="svc-check"><input type="checkbox" name="svc_ind" value="UIF"><span
                       class="svc-box"></span>UIF</label><label class="svc-check"><input type="checkbox" name="svc_ind"
-                      value="Compensation Commissioner"><span class="svc-box"></span>Compensation
-                    Commissioner</label><label class="svc-check"><input type="checkbox" name="svc_ind"
                       value="Estate Administration"><span class="svc-box"></span>Estate Administration</label><label
                     class="svc-check"><input type="checkbox" name="svc_ind" value="Wills"><span
                       class="svc-box"></span>Wills</label></div>
@@ -1506,9 +1500,7 @@
                       type="checkbox" name="svc_sch" value="VAT"><span class="svc-box"></span>VAT</label><label
                     class="svc-check"><input type="checkbox" name="svc_sch" value="PAYE"><span
                       class="svc-box"></span>PAYE</label><label class="svc-check"><input type="checkbox" name="svc_sch"
-                      value="UIF"><span class="svc-box"></span>UIF</label><label class="svc-check"><input
-                      type="checkbox" name="svc_sch" value="Compensation Commissioner"><span
-                      class="svc-box"></span>Compensation Commissioner</label></div>
+                      value="UIF"><span class="svc-box"></span>UIF</label></div>
                 <div class="svc-other-row"><label class="svc-check"><input type="checkbox" id="svc_school_other_cb"
                       onchange="toggleOther('school')"><span class="svc-box"></span>Other Services:</label><input
                     type="text" id="svc_school_other" class="svc-other-input" placeholder="Describe..." disabled></div>
@@ -1522,9 +1514,7 @@
                       name="svc_tr" value="VAT"><span class="svc-box"></span>VAT</label><label class="svc-check"><input
                       type="checkbox" name="svc_tr" value="PAYE (incl. EMP501)"><span class="svc-box"></span>PAYE (incl.
                     EMP501)</label><label class="svc-check"><input type="checkbox" name="svc_tr"
-                      value="UIF Declarations"><span class="svc-box"></span>UIF Declarations</label><label
-                    class="svc-check"><input type="checkbox" name="svc_tr" value="Compensation Commissioner"><span
-                      class="svc-box"></span>Compensation Commissioner</label><label class="svc-check"><input
+                      value="UIF Declarations"><span class="svc-box"></span>UIF Declarations</label><label class="svc-check"><input
                       type="checkbox" name="svc_tr" value="Beneficial Ownership Register"><span
                       class="svc-box"></span>Beneficial Ownership Register</label></div>
                 <div class="svc-other-row"><label class="svc-check"><input type="checkbox" id="svc_trust_other_cb"
@@ -1912,7 +1902,7 @@
       const eiNameLabel = state.entityType === 'individual' ? 'Person Name & Surname' : state.entityType === 'trust' ? 'Trust Name' : state.entityType === 'school' ? 'School / Institution Name' : state.entityType === 'bodycorp' ? 'Body Corporate / HOA Name' : 'Entity Name';
       sectionHeader(eiTitle); fieldRow([['Date', val('ei_date')], [eiNameLabel, val('ei_name')]]);
       if (state.entityType !== 'individual') fieldRow([['Registration Number', val('ei_regno')], ['Tax Number', val('ei_tax')]]); else fieldRow([['Tax Number', val('ei_tax')], ['VAT Number', val('ei_vat')]]);
-      fieldRow([['VAT Number', val('ei_vat')], ['WCA Reference', val('ei_wca')]]); fieldRow([['UIF Reference', val('ei_uif')], ['PAYE Reference', val('ei_paye')]]); divider();
+      fieldRow([['VAT Number', val('ei_vat')], ['UIF Reference', val('ei_uif')]]); fieldRow([['PAYE Reference', val('ei_paye')], ['', '']]); divider();
       fieldFull('Physical Address', val('ei_physical')); fieldFull('Registered Address', val('ei_registered')); fieldFull('Postal Address', val('ei_postal')); fieldFull('Postal (Registered)', val('ei_postal_reg')); fieldFull('Principal Business Activity', val('ei_business')); divider();
       fieldRow([['Responsible Director', val('ei_resp_dir')], ['Contact Person', val('ei_contact')]]); fieldRow([['Email Address', val('ei_email')], ['Email (Contact)', val('ei_email_contact')]]); fieldRow([['Telephone Number', val('ei_tel')], ['Telephone (Contact)', val('ei_tel_contact')]]); spacer(4);
 
