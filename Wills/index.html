@@ -1030,6 +1030,135 @@
         padding: 14px 20px;
       }
     }
+
+    /* ── A4 DOCUMENT PAGES ── */
+    .doc-page {
+      width: 210mm;
+      min-height: 297mm;
+      background: #fff;
+      padding: 20mm 22mm 25mm;
+      margin: 0 auto 24px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+      font-family: 'Times New Roman', 'DM Serif Display', serif;
+      font-size: 12pt;
+      line-height: 1.8;
+      color: #1a1a1a;
+      position: relative;
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
+    .doc-page:last-child { margin-bottom: 0; }
+
+    .doc-page h1 {
+      font-family: 'Times New Roman', 'DM Serif Display', serif;
+      font-size: 18pt;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      color: #0D1F3C;
+    }
+    .doc-page h2 {
+      font-family: 'Times New Roman', 'DM Serif Display', serif;
+      font-size: 13pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 24px 0 10px;
+      color: #0D1F3C;
+    }
+    .doc-page p {
+      margin-bottom: 12px;
+      text-align: justify;
+    }
+    .doc-page .clause {
+      margin-bottom: 16px;
+    }
+    .doc-page .clause-num {
+      font-weight: 700;
+      margin-right: 6px;
+    }
+    .doc-page .sub-clause {
+      margin-left: 28px;
+      margin-bottom: 8px;
+    }
+    .doc-page .sig-block {
+      margin-top: 40px;
+    }
+    .doc-page .sig-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      gap: 40px;
+    }
+    .doc-page .sig-field {
+      flex: 1;
+      border-bottom: 1px solid #333;
+      min-height: 22px;
+      padding-bottom: 2px;
+      font-size: 10pt;
+    }
+    .doc-page .sig-label {
+      font-size: 9pt;
+      color: #666;
+      margin-top: 2px;
+    }
+    .doc-page .witness-block {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #ccc;
+    }
+    .doc-page .page-number {
+      position: absolute;
+      bottom: 12mm;
+      right: 22mm;
+      font-size: 9pt;
+      color: #999;
+    }
+    .doc-page [contenteditable="true"] {
+      outline: none;
+      border-bottom: 1px dashed #C8A951;
+      padding: 0 2px;
+      min-width: 40px;
+      display: inline-block;
+    }
+    .doc-page [contenteditable="true"]:focus {
+      background: #FBF7ED;
+      border-bottom-color: #0D1F3C;
+    }
+    .doc-page [contenteditable="true"]:empty::before {
+      content: attr(data-placeholder);
+      color: #bbb;
+      font-style: italic;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #will-document, #will-document * { visibility: visible; }
+      #will-document {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+      .doc-page {
+        box-shadow: none;
+        margin: 0;
+        padding: 18mm 20mm 20mm;
+        width: 100%;
+        min-height: 100vh;
+      }
+      .doc-page [contenteditable="true"] {
+        border-bottom: none;
+      }
+      .btn-print, .nav-row, .result-badge { display: none !important; }
+    }
+
+    @page {
+      margin: 0;
+      size: A4;
+    }
   </style>
 </head>
 
@@ -1438,15 +1567,16 @@
       <div class="step" id="step-7">
         <div class="step-label">Complete</div>
         <div class="step-title">Will Generated</div>
-        <div class="step-desc">Your will has been drafted below. It must be signed in the presence of two competent
-          witnesses who are not beneficiaries to be legally valid.</div>
-        <div class="result-badge">✓ Document ready for review</div>
-        <div class="result-doc" id="will-document"></div>
-        <button class="btn-print" onclick="window.print()">🖨 Print / Save as PDF</button>
-        <div class="nav-row">
-          <button class="btn-back" onclick="goBack(7)">← Edit</button>
-          <div style="font-size:11px;color:var(--text-light);text-align:right;line-height:1.7;">
-            Draft only. Consult a legal professional<br>before signing and executing this will.
+        <div class="step-desc">Your will has been drafted below. Click any underlined text to edit it directly on the document. Use "Print / Save as PDF" to export.</div>
+        <div class="result-badge">✓ Document ready &mdash; click text to edit inline</div>
+        <div id="will-document" style="margin:0 -22px;"></div>
+        <div style="padding:0 22px;">
+          <button class="btn-print" onclick="printWill()">Print / Save as PDF</button>
+          <div class="nav-row">
+            <button class="btn-back" onclick="goBack(7)">&larr; Edit Form</button>
+            <div style="font-size:11px;color:var(--text-light);text-align:right;line-height:1.7;">
+              Draft only. Consult a legal professional<br>before signing and executing this will.
+            </div>
           </div>
         </div>
       </div>
@@ -1873,104 +2003,139 @@
 
     // ── GENERATE WILL ──
     function generateWill() {
-      const today = new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
-      const mDesc = {
-        single: 'unmarried', community: 'married in community of property',
-        out_community: 'married out of community of property'
-      }[state.marital];
-      const D = '─'.repeat(52);
+      const E = (v, ph) => `<span contenteditable="true" data-placeholder="${ph || '___'}">${v || ''}</span>`;
+      const isSingle = state.marital === 'single';
+      const exTitle = state.gender === 'female' ? 'Executrix' : 'Executor';
+      const himHer = state.gender === 'female' ? 'her' : 'his';
 
-      let doc = `LAST WILL AND TESTAMENT\n${D}\n\n`;
-      doc += `I, ${state.testator.name} (ID: ${state.testator.id}), hereby declare this to be my Last Will and Testament, executed on ${today}.\n\nI am currently ${mDesc}.\n`;
+      const sigBlock = `<div class="sig-block">
+        <div style="display:flex;justify-content:space-between;gap:40px;margin-bottom:36px;">
+          <div style="flex:1;"><div class="sig-field">&nbsp;</div><div class="sig-label">Testator / Testatrix</div></div>
+          <div style="flex:1;"><div class="sig-field">&nbsp;</div><div class="sig-label">Witness 1</div></div>
+          <div style="flex:1;"><div class="sig-field">&nbsp;</div><div class="sig-label">Witness 2</div></div>
+        </div></div>`;
 
-      if (state.marital !== 'single') {
-        doc += `\n${D}\nSPOUSE DETAILS\n${D}\n`;
-        doc += `Husband: ${state.spouse.husband.name} (ID: ${state.spouse.husband.id})\n`;
-        doc += `Wife:    ${state.spouse.wife.name} (ID: ${state.spouse.wife.id})\n`;
-      }
+      const signedAt = `<p style="margin-top:20px;">Thus done and signed at ${E('', 'Place')} on this ${E('', 'day')} day of ${E('', 'month')} ${E('', 'year')}.</p>
+        <p>and signed in the presence of the undersigned witnesses, who in my presence and in the presence of one another, have duly affixed their signatures hereto.</p>`;
 
-      doc += `\n${D}\nEXECUTOR\n${D}\n`;
-      doc += `I hereby appoint ${state.executor.name} (ID: ${state.executor.id}) as the Executor of my estate, with full power to administer and distribute my estate in accordance with this Will.\n`;
-
-      doc += `\n${D}\nHEIRS AND BENEFICIARIES\n${D}\n\nIn the event of my death, I make the following disposition:\n\n`;
-
+      // ── PAGE 1: INTRODUCTION + EXECUTOR ──
       let clauseNum = 1;
+      let pg1 = `<div class="doc-page">
+        <h1>Last Will and Testament</h1>
+        <p>This is the Last Will and Testament of me, ${E(state.testator.name, 'Full Name')} (ID: ${E(state.testator.id, 'ID Number')}), presently residing at ${E('', 'Address')}, who hereby revoke, cancel and annul all former wills, codicils or other testamentary dispositions heretofore made by me, desiring that the same may be held of no force and effect whatsoever.</p>
 
-      if (state.marital !== 'single' && state.heirs.spouse.active) {
-        doc += `${clauseNum}. To my spouse: ${state.heirs.spouse.portion || 'portion of estate as agreed'}\n\n`;
-        clauseNum++;
+        <h2>${clauseNum}. ${exTitle}</h2>
+        <p>I appoint ${E(state.executor.name, 'Executor Name')} (ID: ${E(state.executor.id, 'Executor ID')}) to be the ${exTitle} of my Will and Administrator of my Estate. I grant unto ${himHer} all such power and authority as is required by law, especially that of assumption, and do hereby exempt ${himHer} from furnishing any security to the Master of the Supreme Court for the fulfillment of ${himHer} duties as such.</p>`;
+      clauseNum++;
+
+      pg1 += `<h2>${clauseNum}. Signing</h2>`;
+      pg1 += signedAt + sigBlock;
+      pg1 += `<div class="page-number">1</div></div>`;
+      clauseNum++;
+
+      // ── PAGE 2: HEIRS & BENEFICIARIES ──
+      let pg2 = `<div class="doc-page">
+        <h2>${clauseNum}. Heirs and Beneficiaries</h2>
+        <p>In the event of my death, I make the following disposition:</p>`;
+
+      let subNum = 1;
+
+      if (!isSingle && state.heirs.spouse.active) {
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> To my spouse: ${E(state.heirs.spouse.portion || '', 'portion / percentage')}</div>`;
+        subNum++;
       }
 
-      if (state.heirs.children.length) {
-        doc += `${clauseNum}. Children:\n`;
-        state.heirs.children.forEach((c, i) =>
-          doc += `  ${clauseNum}.${i + 1}. ${c.name} (ID/DOB: ${c.id})${c.minor ? ' [minor]' : ''} — ${c.portion || 'equal share'}\n`);
-        doc += '\n';
-        clauseNum++;
-      }
+      state.heirs.children.forEach(c => {
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> To ${E(c.name, 'Child Name')} (ID: ${E(c.id, 'ID/DOB')})${c.minor ? ' <em>[minor]</em>' : ''} &mdash; ${E(c.portion, 'portion')}</div>`;
+        subNum++;
+      });
 
-      if (state.heirs.shares.length) {
-        doc += `${clauseNum}. Shares and Loan Accounts:\n`;
-        doc += `  I bequeath the shareholding / members interest together with the loan accounts in:\n`;
-        state.heirs.shares.forEach((s, i) =>
-          doc += `  ${clauseNum}.${i + 1}. ${s.entity} — to ${s.beneficiary} (ID: ${s.beneficiaryId})\n`);
-        doc += '\n';
-        clauseNum++;
-      }
+      state.heirs.shares.forEach(s => {
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> The shareholding / members interest together with the loan accounts in ${E(s.entity, 'Entity Name')} I bequeath to ${E(s.beneficiary, 'Beneficiary Name')} (ID: ${E(s.beneficiaryId, 'Beneficiary ID')}).</div>`;
+        subNum++;
+      });
 
-      if (state.heirs.specificAssets.length) {
-        doc += `${clauseNum}. Specific Assets:\n`;
-        state.heirs.specificAssets.forEach((a, i) =>
-          doc += `  ${clauseNum}.${i + 1}. ${a.description} — to ${a.beneficiary} (ID: ${a.beneficiaryId})\n`);
-        doc += '\n';
-        clauseNum++;
-      }
+      state.heirs.specificAssets.forEach(a => {
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> ${E(a.description, 'Asset Description')} &mdash; I bequeath to ${E(a.beneficiary, 'Beneficiary Name')} (ID: ${E(a.beneficiaryId, 'Beneficiary ID')}).</div>`;
+        subNum++;
+      });
 
       if (state.heirs.intervivos.active && state.heirs.intervivos.name) {
-        doc += `${clauseNum}. Intervivos Trust:\n  ${state.heirs.intervivos.name} (Reg: ${state.heirs.intervivos.reg}) — ${state.heirs.intervivos.portion}\n\n`;
-        clauseNum++;
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> To the ${E(state.heirs.intervivos.name, 'Trust Name')} (Reg: ${E(state.heirs.intervivos.reg, 'Registration')}) &mdash; ${E(state.heirs.intervivos.portion, 'portion')}</div>`;
+        subNum++;
       }
 
       if (state.heirs.testamentary.active) {
-        doc += `${clauseNum}. Testamentary Trust:\n  I direct that a Testamentary Trust be established upon my death.\n`;
-        doc += `  Trustee: ${state.heirs.testamentary.trusteeName} (ID: ${state.heirs.testamentary.trusteeId})\n`;
-        doc += `  The trust shall terminate when all beneficiaries reach age ${state.heirs.testamentary.age || '21'}.\n\n`;
-        clauseNum++;
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> I direct that a Testamentary Trust be established upon my death. Trustee: ${E(state.heirs.testamentary.trusteeName, 'Trustee Name')} (ID: ${E(state.heirs.testamentary.trusteeId, 'Trustee ID')}). The trust shall terminate when all beneficiaries reach age ${E(state.heirs.testamentary.age || '21', 'Age')}.</div>`;
+        subNum++;
       }
 
       if (state.heirs.residue.name) {
-        doc += `${clauseNum}. The residue of my estate I bequeath to ${state.heirs.residue.name} (ID: ${state.heirs.residue.id}).\n\n`;
-        clauseNum++;
+        pg2 += `<div class="clause"><span class="clause-num">${clauseNum}.${subNum}</span> The residue of my estate I bequeath to ${E(state.heirs.residue.name, 'Beneficiary Name')} (ID: ${E(state.heirs.residue.id, 'Beneficiary ID')}).</div>`;
+        subNum++;
       }
-
-      doc += `${clauseNum}. No asset accruing to any heir and or beneficiary in terms of this Will, nor the proceeds of the sale thereof, nor the income derived therefrom, nor any asset acquired from the proceeds of income, will form part of any marriage in community of property which may at any time exist or come into being in respect of such beneficiary and shall not be subject to the marital power or control of any husband of any female beneficiary.\n\n`;
       clauseNum++;
 
-      doc += `${D}\nREVOCATION\n${D}\nI hereby revoke all former Wills and Testamentary dispositions previously made by me.\n`;
-      doc += `I hereby reserve to myself the right at any time hereafter to make any such alteration in or addition to this my will as I may think fit, either by separate act or at the foot hereof, desiring that all such alterations or additions so made under my signature, shall be held valid and effectual as if they had been incorporated herein.\n\n`;
+      // Protection clause
+      pg2 += `<h2>${clauseNum}. Protection of Bequests</h2>`;
+      pg2 += `<p>No asset accruing to any heir and or beneficiary in terms of this Will, nor the proceeds of the sale thereof, nor the income derived therefrom, nor any asset acquired from the proceeds of income, will form part of any marriage in community of property which may at any time exist or come into being in respect of such beneficiary and shall not be subject to the marital power or control of any husband of any female beneficiary.</p>`;
+      clauseNum++;
+
+      // Right to alter
+      pg2 += `<h2>${clauseNum}. Right to Alter</h2>`;
+      pg2 += `<p>I hereby reserve to myself the right at any time hereafter to make any such alteration in or addition to this my will as I may think fit, either by separate act or at the foot hereof, desiring that all such alterations or additions so made under my signature, shall be held valid and effectual as if they had been incorporated herein.</p>`;
+      clauseNum++;
+
+      pg2 += signedAt + sigBlock;
+      pg2 += `<div class="page-number">2</div></div>`;
+
+      // ── PAGE 3: LIVING WILL (if enabled) ──
+      let pg3 = '';
       if (state.heirs.livingWill) {
-        doc += `${D}\nLIVING WILL DECLARATION\n${D}\n`;
-        doc += `This living will does not revoke any previous will made by me.\n\n`;
-        doc += `In this clause:\n`;
-        doc += `  "my physician" means any one or more of the medical practitioners who may have been or may be called upon to examine me and to give a prognosis of my medical condition;\n`;
-        doc += `  "life support" means any mechanical or artificial life support systems or the use of drugs.\n\n`;
-        doc += `INCAPABILITY OF DECISIONS\n\n`;
-        doc += `Should I no longer be capable of making decisions for my own future and should my physical and/or mental condition deteriorate to such an extent that there is no reasonable prospect of my recovery from physical illness or impairment which is expected to cause me severe distress or to render me incapable of rational existence of thought, I request that:\n\n`;
-        doc += `  (a) I be allowed to die. I further request that no systems and/or operations be used or executed in order to keep me alive in circumstances where, but for the use of such systems, I would have died;\n\n`;
-        doc += `  (b) I be given whatever quantity of drugs which may be required to keep me free from pain or distress even if the moment of death is hastened.\n\n`;
-        doc += `It is my express wish that my doctors or members of my family who carry out my aforegoing requests be fully exonerated and exempt from all blame or liability arising from their use of or their failure to use or their decision to terminate the use of any systems.\n\n`;
+        pg3 = `<div class="doc-page">
+          <h2>${clauseNum}. Living Will Declaration</h2>
+          <p><strong>TO MY FAMILY AND MY PHYSICIAN:</strong></p>
+          <p>This is a living will of me, ${E(state.testator.name, 'Full Name')} (ID: ${E(state.testator.id, 'ID Number')}), presently domiciled and resident at ${E('', 'Address')}, being of sound mind and after careful consideration I make the following declaration:</p>
+          <p>This living will does not revoke any previous will made by me.</p>
+          <p>In this clause:</p>
+          <p style="margin-left:28px;"><strong>"my physician"</strong> means any one or more of the medical practitioners who may have been or may be called upon to examine me and to give a prognosis of my medical condition;</p>
+          <p style="margin-left:28px;"><strong>"life support"</strong> means any mechanical or artificial life support systems or the use of drugs.</p>
+          <h2 style="font-size:12pt;">Incapability of Decisions</h2>
+          <p>Should I no longer be capable of making decisions for my own future and should my physical and/or mental condition deteriorate to such an extent that there is no reasonable prospect of my recovery from physical illness or impairment which is expected to cause me severe distress or to render me incapable of rational existence of thought, I request that:</p>
+          <p style="margin-left:28px;">(a) I be allowed to die. I further request that no systems and/or operations be used or executed in order to keep me alive in circumstances where, but for the use of such systems, I would have died;</p>
+          <p style="margin-left:28px;">(b) I be given whatever quantity of drugs which may be required to keep me free from pain or distress even if the moment of death is hastened.</p>
+          <p>It is my express wish that my doctors or members of my family who carry out my aforegoing requests be fully exonerated and exempt from all blame or liability arising from their use of or their failure to use or their decision to terminate the use of any systems.</p>
+          ${signedAt}${sigBlock}
+          <div class="page-number">3</div></div>`;
       }
 
-      doc += `${D}\nSIGNATURE\n${D}\n`;
-      doc += `Signed at ________________________ on the _____ day of ________________ 20____\n\n`;
-      doc += `Signature: ___________________________\n${state.testator.name}\n\n`;
-      doc += `${D}\nWITNESSES\n${D}\nBoth witnesses must be present simultaneously and must not be beneficiaries.\n\n`;
-      doc += `Witness 1\nFull Name:  _______________________________\nID Number:  _______________________________\nSignature:  _______________________________\n\n`;
-      doc += `Witness 2\nFull Name:  _______________________________\nID Number:  _______________________________\nSignature:  _______________________________\n\n`;
-      doc += `${D}\nDRAFT ONLY — Must be executed in accordance with the Wills Act 7 of 1953.`;
-
-      document.getElementById('will-document').textContent = doc;
+      document.getElementById('will-document').innerHTML = pg1 + pg2 + pg3;
       showStep(7);
+    }
+
+    // ── PRINT TO PDF ──
+    function printWill() {
+      const content = document.getElementById('will-document').innerHTML;
+      const win = window.open('', '_blank');
+      const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+        .map(el => el.outerHTML).join('\n');
+      win.document.write(`<!DOCTYPE html><html><head>
+        <title>Last Will and Testament &ndash; ${state.testator.name || 'Draft'}</title>
+        ${styles}
+        <style>
+          @page { margin: 0; size: A4; }
+          body { background: #fff; margin: 0; padding: 0; }
+          .doc-page {
+            box-shadow: none; margin: 0;
+            width: 100%; min-height: 100vh;
+            page-break-after: always; page-break-inside: avoid;
+          }
+          .doc-page:last-child { page-break-after: auto; }
+          .doc-page [contenteditable="true"] { border-bottom: none; }
+        </style>
+      </head><body>${content}</body></html>`);
+      win.document.close();
+      setTimeout(() => { win.print(); setTimeout(() => win.close(), 500); }, 600);
     }
   </script>
 </body>
