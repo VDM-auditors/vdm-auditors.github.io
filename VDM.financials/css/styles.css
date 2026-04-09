@@ -1954,7 +1954,9 @@ header p {
     page-break-after: always;
     max-width: 100%;
     width: 100%;
-    padding: 18mm 20mm 16mm;
+    padding: 18mm 20mm 20mm;
+    font-size: 9.5pt;
+    line-height: 1.55;
     min-height: unset;
   }
 
@@ -1965,44 +1967,9 @@ header p {
     page-break-inside: avoid;
     max-width: 100%;
     width: 100%;
-    padding: 18mm 20mm 16mm;
-    font-size: 9pt;
-    line-height: 1.45;
-  }
-
-  .doc-page .page-header {
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-  }
-
-  .doc-page h2 {
-    margin: 10px 0 10px;
+    padding: 18mm 20mm 20mm;
     font-size: 9.5pt;
-  }
-
-  .doc-page h3 {
-    margin: 8px 0 4px;
-    font-size: 9pt;
-  }
-
-  .doc-page p {
-    margin-bottom: 5px;
-  }
-
-  .doc-page ul {
-    margin: 4px 0 6px 18px;
-  }
-
-  .doc-page ul li {
-    margin-bottom: 3px;
-  }
-
-  .doc-page .signature-block {
-    margin-top: 14px;
-  }
-
-  .doc-page .compiler-block {
-    margin-top: 16px;
+    line-height: 1.55;
   }
 
   .page-number {
@@ -2018,7 +1985,7 @@ header p {
   .letterhead-footer-img {
     width: calc(100% + 40mm) !important;
     margin-left: -20mm !important;
-    margin-bottom: -16mm !important;
+    margin-bottom: -20mm !important;
   }
 
   #document-output {

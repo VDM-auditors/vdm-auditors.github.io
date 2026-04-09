@@ -1473,6 +1473,7 @@ ${auditFooter()}
     pageTrustMinutes = `
   <div class="doc-page">
 <div class="page-header">
+  <div class="co-name">${coUpper}</div>
   ${reg ? `<div class="co-reg">(${reg})</div>` : ''}
 </div>
 <h2>Minutes of the Annual General Meeting of Trustees of ${co}</h2>
@@ -1793,6 +1794,7 @@ ${lcSigned}
   <div class="doc-page">
 ${auditLetterhead()}
 <div class="page-header">
+  <div class="co-name">${coUpper}</div>
   ${reg ? `<div class="co-reg">(Sectional Title Scheme Number — ${reg})</div>` : ''}
 </div>
 <h2 style="margin-top:8px;">Minutes of the Annual General Meeting of Trustees of the Body Corporate</h2>

@@ -119,12 +119,39 @@ class PreviewManager {
       max-width: 100% !important;
       width: 100% !important;
       padding: 18mm 20mm 20mm !important;
-      font-size: 9pt !important;
-      line-height: 1.45 !important;
+      font-size: 9.5pt !important;
+      line-height: 1.55 !important;
       min-height: 100vh !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: space-between !important;
+    }
+    .doc-page h2 {
+      font-size: 10pt !important;
+      margin: 6px 0 10px !important;
+    }
+    .doc-page h3 {
+      font-size: 9.5pt !important;
+      margin: 8px 0 4px !important;
+    }
+    .doc-page p {
+      margin-bottom: 6px !important;
+    }
+    .doc-page ul {
+      margin: 6px 0 8px 20px !important;
+    }
+    .doc-page ul li {
+      margin-bottom: 5px !important;
+    }
+    .doc-page .page-header {
+      margin-bottom: 20px !important;
+      padding-bottom: 14px !important;
+    }
+    .doc-page .signature-block {
+      margin-top: 28px !important;
+    }
+    .doc-page .compiler-block {
+      margin-top: 18px !important;
     }
     .cover-page {
       box-shadow: none !important;
@@ -133,6 +160,8 @@ class PreviewManager {
       max-width: 100% !important;
       width: 100% !important;
       padding: 18mm 20mm 20mm !important;
+      font-size: 9.5pt !important;
+      line-height: 1.55 !important;
       min-height: 100vh !important;
       display: flex !important;
       flex-direction: column !important;
