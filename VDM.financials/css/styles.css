@@ -1168,6 +1168,11 @@ header p {
   background: var(--white);
   width: 100%;
   max-width: 740px;
+  /* Lock to A4 aspect ratio (297/210 = 1.4143) so the preview page is always
+     exactly one A4 sheet tall — no more giant blank gaps on short pages. */
+  height: calc(740px * (297 / 210));
+  min-height: calc(740px * (297 / 210));
+  max-height: calc(740px * (297 / 210));
   margin: 0 auto 32px;
   padding: 52px 64px 60px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.08);
@@ -1178,7 +1183,7 @@ header p {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 1100px;
+  overflow: hidden;
 }
 
 .doc-page[contenteditable="true"]:focus,
@@ -1753,6 +1758,9 @@ header p {
   background: var(--white);
   width: 100%;
   max-width: 740px;
+  height: calc(740px * (297 / 210));
+  min-height: calc(740px * (297 / 210));
+  max-height: calc(740px * (297 / 210));
   margin: 0 auto 32px;
   padding: 52px 64px 60px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.08);
@@ -1761,9 +1769,9 @@ header p {
   line-height: 1.55;
   color: #111;
   position: relative;
-  min-height: 1100px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .cover-title-block {
@@ -1953,11 +1961,33 @@ header p {
     margin: 0;
     page-break-after: always;
     max-width: 100%;
-    width: 100%;
-    padding: 18mm 20mm 20mm;
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    padding: 22mm 22mm 22mm 22mm;
     font-size: 9.5pt;
     line-height: 1.55;
-    min-height: unset;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .cover-page .cover-title-block { flex-shrink: 0; }
+  .cover-page .cover-info-section {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .cover-page .cover-section-heading { flex-shrink: 0; }
+  .cover-page .cover-info-table {
+    flex: 1 1 auto;
+    height: 100%;
+  }
+  .cover-page .cover-info-table td {
+    padding-top: 0.9em !important;
+    padding-bottom: 0.9em !important;
+    vertical-align: middle !important;
   }
 
   .doc-page {
@@ -1966,10 +1996,21 @@ header p {
     page-break-after: always;
     page-break-inside: avoid;
     max-width: 100%;
-    width: 100%;
-    padding: 18mm 20mm 20mm;
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    padding: 20mm 22mm 20mm 22mm;
     font-size: 9.5pt;
     line-height: 1.55;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .doc-page .letterhead-footer {
+    margin-top: auto !important;
+    padding-top: 16px !important;
   }
 
   .page-number {
@@ -1977,15 +2018,20 @@ header p {
   }
 
   .letterhead-img {
-    width: calc(100% + 40mm) !important;
-    margin-left: -20mm !important;
-    margin-top: -18mm !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 10px 0 !important;
+    height: auto !important;
+    display: block !important;
+    flex-shrink: 0 !important;
   }
 
   .letterhead-footer-img {
-    width: calc(100% + 40mm) !important;
-    margin-left: -20mm !important;
-    margin-bottom: -20mm !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    height: auto !important;
+    display: block !important;
   }
 
   #document-output {

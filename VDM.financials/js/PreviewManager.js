@@ -15,13 +15,13 @@ class PreviewManager {
    * @param {Function}         generateDocFn         – reference to generateDoc()
    */
   constructor(els, generateDocFn) {
-    this.app            = els.appContainer;
-    this.toggleBar      = els.toggleBar;
-    this.toggleLabel    = els.toggleLabel;
-    this.modeLabel      = els.modeLabel;
+    this.app = els.appContainer;
+    this.toggleBar = els.toggleBar;
+    this.toggleLabel = els.toggleLabel;
+    this.modeLabel = els.modeLabel;
     this.documentOutput = els.documentOutput;
-    this.previewPanel   = els.previewPanel;
-    this.generateDocFn  = generateDocFn;
+    this.previewPanel = els.previewPanel;
+    this.generateDocFn = generateDocFn;
 
     this.previewVisible = false;
   }
@@ -44,7 +44,7 @@ class PreviewManager {
       this.app.classList.remove('form-only');
       this.app.classList.add('split-view');
       if (this.toggleLabel) this.toggleLabel.textContent = 'Hide Preview';
-      if (this.modeLabel)   this.modeLabel.textContent   = 'Preview mode \u2014 document shown alongside the form';
+      if (this.modeLabel) this.modeLabel.textContent = 'Preview mode \u2014 document shown alongside the form';
 
       // Scroll preview to top
       if (this.documentOutput && this.documentOutput.classList.contains('visible')) {
@@ -58,7 +58,7 @@ class PreviewManager {
       this.app.classList.remove('split-view');
       this.app.classList.add('form-only');
       if (this.toggleLabel) this.toggleLabel.textContent = 'Show Preview';
-      if (this.modeLabel)   this.modeLabel.textContent   = 'Editing mode \u2014 fill in the form, then generate';
+      if (this.modeLabel) this.modeLabel.textContent = 'Editing mode \u2014 fill in the form, then generate';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
@@ -93,12 +93,26 @@ class PreviewManager {
       .map(l => l.outerHTML)
       .join('\n');
 
-    const docContent = output.innerHTML;
+    // Resolve ALL relative <img src> to absolute URLs before writing to the
+    // popup window. A popup opened with window.open('') has about:blank as its
+    // base URL, so relative paths like "images/letterhead-header.png" fail to
+    // resolve and the letterhead/footer images disappear. Clone the DOM first
+    // so we don't mutate the live preview, then rewrite every img.src using
+    // the browser's own URL resolution against the current document.
+    const cloned = output.cloneNode(true);
+    cloned.querySelectorAll('img').forEach(img => {
+      // Reading .src returns the already-resolved absolute URL
+      const absolute = img.src;
+      if (absolute) img.setAttribute('src', absolute);
+    });
+    const docContent = cloned.innerHTML;
 
+    const baseHref = window.location.href;
     const printHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <base href="${baseHref}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VDM Financial Statement</title>
   ${allLinks}
@@ -111,20 +125,31 @@ class PreviewManager {
       max-height: none !important;
       overflow: visible !important;
     }
+    /* @page margin is 0 because each .doc-page/.cover-page is its own
+       fixed-size A4 box with its own internal padding. Keeping @page
+       margin at 0 avoids the browser adding its own header/footer space. */
+    @page { margin: 0; size: A4; }
+
+    /* Every logical page is locked to exactly one A4 sheet. overflow:hidden
+       combined with the JS auto-fit below guarantees the letterhead and
+       footer of any given .doc-page always appear on the SAME printed sheet
+       — no matter how much or how little content is between them. */
     .doc-page {
       box-shadow: none !important;
       margin: 0 !important;
       page-break-after: always;
       page-break-inside: avoid;
       max-width: 100% !important;
-      width: 100% !important;
-      padding: 18mm 20mm 20mm !important;
+      width: 210mm !important;
+      height: 297mm !important;
+      min-height: 297mm !important;
+      padding: 20mm 22mm 20mm 22mm !important;
       font-size: 9.5pt !important;
       line-height: 1.55 !important;
-      min-height: 100vh !important;
+      box-sizing: border-box !important;
       display: flex !important;
       flex-direction: column !important;
-      justify-content: space-between !important;
+      overflow: hidden !important;
     }
     .doc-page h2 {
       font-size: 10pt !important;
@@ -153,45 +178,103 @@ class PreviewManager {
     .doc-page .compiler-block {
       margin-top: 18px !important;
     }
+    /* Footer is always pushed to the bottom of its .doc-page container */
+    .doc-page .letterhead-footer {
+      margin-top: auto !important;
+      padding-top: 16px !important;
+    }
+
     .cover-page {
       box-shadow: none !important;
       margin: 0 !important;
       page-break-after: always;
       max-width: 100% !important;
-      width: 100% !important;
-      padding: 18mm 20mm 20mm !important;
+      width: 210mm !important;
+      height: 297mm !important;
+      min-height: 297mm !important;
+      padding: 22mm 22mm 22mm 22mm !important;
       font-size: 9.5pt !important;
       line-height: 1.55 !important;
-      min-height: 100vh !important;
+      box-sizing: border-box !important;
       display: flex !important;
       flex-direction: column !important;
-      justify-content: space-between !important;
+      overflow: hidden !important;
     }
+    /* Distribute the title block and info section so general info fills
+       the cover page evenly top-to-bottom */
+    .cover-page .cover-title-block { flex-shrink: 0 !important; }
+    .cover-page .cover-info-section {
+      flex: 1 1 auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .cover-page .cover-section-heading { flex-shrink: 0 !important; }
+    .cover-page .cover-info-table {
+      flex: 1 1 auto !important;
+      height: 100% !important;
+    }
+    .cover-page .cover-info-table td {
+      padding-top: 0.9em !important;
+      padding-bottom: 0.9em !important;
+      vertical-align: middle !important;
+    }
+
     .page-number { display: none; }
+
+    /* Letterhead and footer sit within the .doc-page padding at natural
+       aspect ratio. No negative margins, no bleed — clean and predictable. */
     .letterhead-img {
-      width: calc(100% + 40mm) !important;
-      margin-left: -20mm !important;
-      margin-top: -18mm !important;
-      object-fit: contain !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 0 10px 0 !important;
+      height: auto !important;
+      display: block !important;
+      flex-shrink: 0 !important;
     }
     .letterhead-footer-img {
-      width: calc(100% + 40mm) !important;
-      margin-left: -20mm !important;
-      margin-bottom: -20mm !important;
-      object-fit: contain !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      height: auto !important;
+      display: block !important;
     }
-    @page { margin: 0; size: A4; }
   </style>
 </head>
 <body>
   ${docContent}
   <scr` + `ipt>
-    // Auto-print once fonts and images have loaded
+    // Auto-print once fonts AND every image has finished loading.
+    // Without the image wait, relative-path <img> tags (letterhead,
+    // footer) may not be painted when print() fires, leaving blank spots.
+    // NOTE: We deliberately do NOT run any zoom/scale auto-fit here. Each
+    // .doc-page / .cover-page is already locked to a fixed 210mm x 297mm
+    // A4 box with overflow:hidden, and the on-screen preview confirms the
+    // content fits. A previous autofit routine using CSS \`zoom\` produced
+    // false positives on flex containers (scrollHeight misreports inside
+    // flex layouts) and \`zoom\` itself is non-standard and renders
+    // inconsistently in PDF output, which caused random pages to come out
+    // shrunken when "Save as PDF" was used.
     window.onload = function() {
-      setTimeout(function() {
-        window.print();
-        setTimeout(function() { window.close(); }, 500);
-      }, 600);
+      var imgs = Array.prototype.slice.call(document.images || []);
+      var pending = imgs.filter(function(img) { return !img.complete; });
+      var fire = function() {
+        setTimeout(function() {
+          window.print();
+          setTimeout(function() { window.close(); }, 500);
+        }, 250);
+      };
+      if (pending.length === 0) { fire(); return; }
+      var remaining = pending.length;
+      var done = function() {
+        remaining--;
+        if (remaining <= 0) fire();
+      };
+      pending.forEach(function(img) {
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      });
+      // Hard fallback in case some image hangs
+      setTimeout(fire, 3000);
     };
   </scr` + `ipt>
 </body>
