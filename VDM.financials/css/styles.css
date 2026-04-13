@@ -1174,7 +1174,7 @@ header p {
   min-height: calc(740px * (297 / 210));
   max-height: calc(740px * (297 / 210));
   margin: 0 auto 32px;
-  padding: 52px 64px 60px;
+  padding: 52px 64px 68px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.08);
   font-family: 'Poppins', sans-serif;
   font-size: 9.5pt;
@@ -1195,7 +1195,7 @@ header p {
 .letterhead-img {
   width: calc(100% + 128px);
   margin-left: -64px;
-  margin-top: -52px;
+  margin-top: -22px;
   display: block;
   margin-bottom: 6px;
   object-fit: contain;
@@ -1762,7 +1762,7 @@ header p {
   min-height: calc(740px * (297 / 210));
   max-height: calc(740px * (297 / 210));
   margin: 0 auto 32px;
-  padding: 52px 64px 60px;
+  padding: 52px 64px 68px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.08);
   font-family: 'Poppins', sans-serif;
   font-size: 9.5pt;
@@ -1879,7 +1879,7 @@ header p {
 .letterhead-footer-img {
   width: calc(100% + 128px);
   margin-left: -64px;
-  margin-bottom: -60px;
+  margin-bottom: -20px;
   display: block;
   object-fit: contain;
   object-position: bottom center;
@@ -1960,6 +1960,7 @@ header p {
     box-shadow: none;
     margin: 0;
     page-break-after: always;
+    break-inside: avoid;
     max-width: 100%;
     width: 210mm;
     height: 297mm;
@@ -1982,11 +1983,12 @@ header p {
   .cover-page .cover-section-heading { flex-shrink: 0; }
   .cover-page .cover-info-table {
     flex: 1 1 auto;
-    height: 100%;
+    height: auto;
+    max-height: 100%;
   }
   .cover-page .cover-info-table td {
-    padding-top: 0.9em !important;
-    padding-bottom: 0.9em !important;
+    padding-top: clamp(0.4em, 1.5vh, 0.9em) !important;
+    padding-bottom: clamp(0.4em, 1.5vh, 0.9em) !important;
     vertical-align: middle !important;
   }
 
@@ -1995,11 +1997,12 @@ header p {
     margin: 0;
     page-break-after: always;
     page-break-inside: avoid;
+    break-inside: avoid;
     max-width: 100%;
     width: 210mm;
     height: 297mm;
     min-height: 297mm;
-    padding: 20mm 22mm 20mm 22mm;
+    padding: 22mm 22mm 25mm 22mm;
     font-size: 9.5pt;
     line-height: 1.55;
     box-sizing: border-box;
@@ -2010,7 +2013,13 @@ header p {
 
   .doc-page .letterhead-footer {
     margin-top: auto !important;
-    padding-top: 16px !important;
+    padding-top: 24px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .doc-page .signature-block,
+  .doc-page .compiler-block {
+    flex-shrink: 0 !important;
   }
 
   .page-number {

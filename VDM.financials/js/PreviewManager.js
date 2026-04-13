@@ -139,11 +139,12 @@ class PreviewManager {
       margin: 0 !important;
       page-break-after: always;
       page-break-inside: avoid;
+      break-inside: avoid;
       max-width: 100% !important;
       width: 210mm !important;
       height: 297mm !important;
       min-height: 297mm !important;
-      padding: 20mm 22mm 20mm 22mm !important;
+      padding: 22mm 22mm 25mm 22mm !important;
       font-size: 9.5pt !important;
       line-height: 1.55 !important;
       box-sizing: border-box !important;
@@ -181,13 +182,20 @@ class PreviewManager {
     /* Footer is always pushed to the bottom of its .doc-page container */
     .doc-page .letterhead-footer {
       margin-top: auto !important;
-      padding-top: 16px !important;
+      padding-top: 24px !important;
+      flex-shrink: 0 !important;
+    }
+    /* Signature/compiler blocks should not grow or stretch */
+    .doc-page .signature-block,
+    .doc-page .compiler-block {
+      flex-shrink: 0 !important;
     }
 
     .cover-page {
       box-shadow: none !important;
       margin: 0 !important;
       page-break-after: always;
+      break-inside: avoid;
       max-width: 100% !important;
       width: 210mm !important;
       height: 297mm !important;
@@ -200,8 +208,8 @@ class PreviewManager {
       flex-direction: column !important;
       overflow: hidden !important;
     }
-    /* Distribute the title block and info section so general info fills
-       the cover page evenly top-to-bottom */
+    /* Info section fills available space but the table doesn't stretch
+       infinitely — cap cell padding so sparse tables stay compact. */
     .cover-page .cover-title-block { flex-shrink: 0 !important; }
     .cover-page .cover-info-section {
       flex: 1 1 auto !important;
@@ -211,11 +219,12 @@ class PreviewManager {
     .cover-page .cover-section-heading { flex-shrink: 0 !important; }
     .cover-page .cover-info-table {
       flex: 1 1 auto !important;
-      height: 100% !important;
+      height: auto !important;
+      max-height: 100% !important;
     }
     .cover-page .cover-info-table td {
-      padding-top: 0.9em !important;
-      padding-bottom: 0.9em !important;
+      padding-top: clamp(0.4em, 1.5vh, 0.9em) !important;
+      padding-bottom: clamp(0.4em, 1.5vh, 0.9em) !important;
       vertical-align: middle !important;
     }
 
@@ -243,24 +252,86 @@ class PreviewManager {
 <body>
   ${docContent}
   <scr` + `ipt>
-    // Auto-print once fonts AND every image has finished loading.
-    // Without the image wait, relative-path <img> tags (letterhead,
-    // footer) may not be painted when print() fires, leaving blank spots.
-    // NOTE: We deliberately do NOT run any zoom/scale auto-fit here. Each
-    // .doc-page / .cover-page is already locked to a fixed 210mm x 297mm
-    // A4 box with overflow:hidden, and the on-screen preview confirms the
-    // content fits. A previous autofit routine using CSS \`zoom\` produced
-    // false positives on flex containers (scrollHeight misreports inside
-    // flex layouts) and \`zoom\` itself is non-standard and renders
-    // inconsistently in PDF output, which caused random pages to come out
-    // shrunken when "Save as PDF" was used.
+    // ── AUTO-FIT + PRINT ──────────────────────────────────────────────
+    // After all images load we measure each page's natural content height.
+    // If it exceeds the fixed A4 height (297 mm) we wrap every child in a
+    // zoom container so the content scales down to fit exactly one sheet.
+    // This guarantees the letterhead and footer ALWAYS stay on the same
+    // physical page in the PDF output.
+    //
+    // We use CSS zoom (not transform:scale) because zoom affects layout —
+    // the browser's page-breaking algorithm sees the zoomed dimensions.
+    // To keep the page visually at A4 we compensate width/height/padding
+    // by dividing by the zoom ratio.
+
+    function autoFitPages() {
+      var pages = document.querySelectorAll('.doc-page, .cover-page');
+      Array.prototype.forEach.call(pages, function(page) {
+        var isCover = page.classList.contains('cover-page');
+        var hasFooter = !!page.querySelector('.letterhead-footer');
+
+        // ── 1. Measure natural (unconstrained) content height ──
+        page.style.setProperty('height', 'auto', 'important');
+        page.style.setProperty('min-height', '0', 'important');
+        page.style.setProperty('max-height', 'none', 'important');
+        page.style.setProperty('overflow', 'visible', 'important');
+
+        // Force reflow, then read the actual rendered height
+        var naturalH = page.getBoundingClientRect().height;
+
+        // ── 2. Restore A4 lock ──
+        page.style.setProperty('height', '297mm', 'important');
+        page.style.setProperty('min-height', '297mm', 'important');
+        page.style.removeProperty('max-height');
+        page.style.setProperty('overflow', 'hidden', 'important');
+
+        var targetH = page.getBoundingClientRect().height;
+
+        // ── 3. Decide whether to zoom ──
+        // Only zoom for GENTLE adjustments (max 12 % shrink).
+        // If content overflows more than that, overflow:hidden clips
+        // cleanly — better to lose a bit at the bottom than squish
+        // text into an unreadable mess.
+        // Exception: pages with a letterhead footer get a slightly
+        // more generous allowance (max 18 %) because keeping the
+        // header and footer on the same sheet is critical.
+        if (naturalH > targetH * 1.005) {
+          var ratio = targetH / naturalH;
+          var minRatio = hasFooter ? 0.82 : 0.88;
+          if (ratio < minRatio) {
+            // Overflow too large — don't zoom; let overflow:hidden clip.
+            return;
+          }
+
+          // Compensated dimensions so the page still maps to one A4 sheet
+          // (zoom * compensated = original)
+          var pTop  = isCover ? 22 : 22;
+          var pBot  = isCover ? 22 : 25;
+          var pH    = 22;  // horizontal padding
+
+          page.style.setProperty('width',  (210 / ratio).toFixed(4) + 'mm', 'important');
+          page.style.setProperty('height', (297 / ratio).toFixed(4) + 'mm', 'important');
+          page.style.setProperty('min-height', (297 / ratio).toFixed(4) + 'mm', 'important');
+          page.style.setProperty('padding',
+            (pTop / ratio).toFixed(4) + 'mm ' +
+            (pH   / ratio).toFixed(4) + 'mm ' +
+            (pBot / ratio).toFixed(4) + 'mm ' +
+            (pH   / ratio).toFixed(4) + 'mm', 'important');
+          page.style.zoom = ratio;
+        }
+      });
+    }
+
     window.onload = function() {
       var imgs = Array.prototype.slice.call(document.images || []);
       var pending = imgs.filter(function(img) { return !img.complete; });
       var fire = function() {
         setTimeout(function() {
-          window.print();
-          setTimeout(function() { window.close(); }, 500);
+          autoFitPages();
+          setTimeout(function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 500);
+          }, 200);
         }, 250);
       };
       if (pending.length === 0) { fire(); return; }

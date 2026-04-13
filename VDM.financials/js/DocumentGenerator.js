@@ -286,7 +286,8 @@ class DocumentGenerator {
 </div>
   </div>`;
 
-  // ── PAGE 1: CA DECLARATION ──
+  // ── PAGE 1: CA DECLARATION (text) ──
+  // Split across two pages so the signature block is never cut off.
   const page1 = `
   <div class="doc-page">
 ${caLetterhead()}
@@ -304,9 +305,14 @@ ${caLetterhead()}
 </ul>
 <p>A distinguishing characteristic of CA's(SA) are their responsibilities and duties which extend beyond the needs of individual clients and also includes the public as a whole.</p>
 <p>Accordingly, this declaration serves to confirm that the above mentioned financial statements have been prepared by a CA(SA) who has observed and complied with the SAICA Code.</p>
-${compilerBlock(compilerSigner, dateSigned)}
 ${letterheadFooter()}
 <div class="page-number">${pg1}</div>
+  </div>
+
+  <div class="doc-page">
+${caLetterhead()}
+${compilerBlock(compilerSigner, dateSigned)}
+${letterheadFooter()}
   </div>`;
 
   // ── PAGE 2: DIRECTORS' RESPONSIBILITIES ──
