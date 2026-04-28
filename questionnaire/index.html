@@ -2256,6 +2256,14 @@
     }
 
     async function generateWordDocs() {
+      // Only generate Word documents if "Income Tax" service is selected
+      const svcNames = ['svc', 'svc_bc', 'svc_ind', 'svc_sch', 'svc_tr'];
+      const incomeTaxSelected = svcNames.some(n =>
+        Array.from(document.querySelectorAll(`input[name="${n}"]:checked`))
+          .some(cb => /Income Tax/i.test(cb.value))
+      );
+      if (!incomeTaxSelected) return;
+
       const safeName = (val('ei_name') || 'client').replace(/[^a-zA-Z0-9_\- ]/g, '').trim();
       try {
         if (state.entityType !== 'individual') {
