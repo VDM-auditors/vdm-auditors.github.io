@@ -1545,6 +1545,13 @@
       <!-- STEP 4 -->
       <div id="step4" class="hidden">
         <div id="signingContainer"></div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-body">
+            <label for="recipient_email" style="display:block;font-weight:600;margin-bottom:6px">Send completed questionnaire to:</label>
+            <input type="email" id="recipient_email" class="svc-other-input" style="width:100%" placeholder="e.g. riekie@vdmaudit.co.za" value="riekie@vdmaudit.co.za" required>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:6px">This is the email address your completed questionnaire will be sent to.</p>
+          </div>
+        </div>
         <div class="submit-area">
           <button class="btn-submit" onclick="submitForm()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -1941,7 +1948,7 @@
       // Generate Word documents (Public Officer appointment + Power of Attorney)
       generateWordDocs();
 
-      setTimeout(() => { const to = 'riekie@vdmaudit.co.za'; const subject = encodeURIComponent(`Client Questionnaire — ${entityName}`); const body = encodeURIComponent(`Dear VDM Accounting,\n\nPlease find my completed client questionnaire attached.\n\nEntity Name: ${entityName}\nDate: ${today}\n\nKind regards,\n${val('ei_contact') || entityName}`); window.location.href = `mailto:${to}?subject=${subject}&body=${body}`; }, 1500);
+      setTimeout(() => { const to = (val('recipient_email') || 'riekie@vdmaudit.co.za').trim(); const subject = encodeURIComponent(`Client Questionnaire — ${entityName}`); const body = encodeURIComponent(`Dear VDM Accounting,\n\nPlease find my completed client questionnaire attached.\n\nEntity Name: ${entityName}\nDate: ${today}\n\nKind regards,\n${val('ei_contact') || entityName}`); window.location.href = `mailto:${to}?subject=${subject}&body=${body}`; }, 1500);
 
       document.getElementById('mainForm').style.display = 'none';
       document.getElementById('successScreen').style.display = 'block';
