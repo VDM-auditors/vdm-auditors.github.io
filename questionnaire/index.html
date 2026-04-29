@@ -1886,7 +1886,7 @@
     function radioVal(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; }
     function taxVal(prefix) { const el = document.querySelector(`input[name="tax_${prefix}"]:checked`); return el ? el.value.toUpperCase() : 'NO'; }
 
-    function submitForm() {
+    async function submitForm() {
       const { jsPDF } = window.jspdf;
       const LOGO_SRC = document.querySelector('.header-logo').src;
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -1964,9 +1964,7 @@
       doc.save(`VDM_Questionnaire_${safeName}_${today.replace(/\//g, '-')}.pdf`);
 
       // Generate Word documents (Public Officer appointment + Power of Attorney)
-      generateWordDocs();
-
-      setTimeout(() => { const to = val('recipient_email').trim(); const subject = encodeURIComponent(`Client Questionnaire — ${entityName}`); const body = encodeURIComponent(`Dear VDM Accounting,\n\nPlease find my completed client questionnaire attached.\n\nEntity Name: ${entityName}\nDate: ${today}\n\nKind regards,\n${val('ei_contact') || entityName}`); window.location.href = `mailto:${to}?subject=${subject}&body=${body}`; }, 1500);
+      await generateWordDocs();
 
       document.getElementById('mainForm').style.display = 'none';
       document.getElementById('successScreen').style.display = 'block';
