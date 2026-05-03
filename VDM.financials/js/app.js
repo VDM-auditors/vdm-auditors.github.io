@@ -1017,6 +1017,7 @@ function toggleCal(calId)              { calendarPicker.toggleCal(calId); }
 // PreviewManager
 function togglePreview()               { previewManager.togglePreview(); }
 function printDocument()               { previewManager.printDocument(); }
+function exportToWord()                { previewManager.exportToWord(); }
 
 // ExcelImporter
 function importSecInfo(input)          { excelImporter.importSecInfo(input); }

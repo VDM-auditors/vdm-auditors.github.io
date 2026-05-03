@@ -252,63 +252,172 @@ class PreviewManager {
 <body>
   ${docContent}
   <scr` + `ipt>
-    // ── AUTO-FIT + PRINT ──────────────────────────────────────────────
-    // After all images load we measure each page's natural content height.
-    // If it exceeds the fixed A4 height (297 mm) we wrap every child in a
-    // zoom container so the content scales down to fit exactly one sheet.
-    // This guarantees the letterhead and footer ALWAYS stay on the same
-    // physical page in the PDF output.
+    // ── PAGINATOR + PRINT ─────────────────────────────────────────────
+    // For each .doc-page whose content exceeds the locked A4 height,
+    // overflowing children are MOVED into a new continuation .doc-page
+    // placed immediately after it. The continuation page receives a
+    // CLONED letterhead at the top and a CLONED letterhead-footer at
+    // the bottom (same images as the source) so every printed sheet
+    // shows BOTH the header and the footer — never one without the
+    // other. The section heading (h2) and any signature/compiler
+    // blocks are NOT cloned: they appear only on their original page.
     //
-    // We use CSS zoom (not transform:scale) because zoom affects layout —
-    // the browser's page-breaking algorithm sees the zoomed dimensions.
-    // To keep the page visually at A4 we compensate width/height/padding
-    // by dividing by the zoom ratio.
+    // Atomic blocks (.signature-block, .compiler-block, .policy-entry,
+    // .page-header, tables) are kept whole — never split internally.
+    // If a single child is taller than one full page on its own, the
+    // page is left intact and a gentle CSS-zoom fallback shrinks it
+    // enough to fit (last resort, only ~5 % cases).
 
-    function autoFitPages() {
+    function isLeadingNode(el) {
+      if (!el || !el.classList) return false;
+      return el.classList.contains('letterhead-img') ||
+             el.classList.contains('page-header');
+    }
+    function isTrailingNode(el) {
+      if (!el || !el.classList) return false;
+      return el.classList.contains('letterhead-footer');
+    }
+    function isPerPageOnly(el) {
+      // Don't duplicate page numbers onto continuation sheets
+      return el && el.classList && el.classList.contains('page-number');
+    }
+
+    function splitOverflowingPage(page, depth) {
+      if (depth > 25) return; // safety against infinite recursion
+
+      var children = Array.prototype.slice.call(page.children);
+
+      // Identify the leading run (letterhead/page-header) at the top
+      var leadEnd = 0;
+      while (leadEnd < children.length && isLeadingNode(children[leadEnd])) {
+        leadEnd++;
+      }
+      // Identify the trailing run (letterhead-footer) at the bottom
+      var trailStart = children.length;
+      while (trailStart > leadEnd && isTrailingNode(children[trailStart - 1])) {
+        trailStart--;
+      }
+
+      var leading  = children.slice(0, leadEnd);
+      var middle   = children.slice(leadEnd, trailStart);
+      var trailing = children.slice(trailStart);
+
+      if (middle.length < 2) return; // nothing meaningful to split
+
+      // Measure natural overflow with the page temporarily un-locked
+      var prevH  = page.style.height;
+      var prevMn = page.style.minHeight;
+      var prevMx = page.style.maxHeight;
+      var prevOv = page.style.overflow;
+      page.style.setProperty('height', 'auto', 'important');
+      page.style.setProperty('min-height', '0', 'important');
+      page.style.setProperty('max-height', 'none', 'important');
+      page.style.setProperty('overflow', 'visible', 'important');
+
+      var naturalH = page.getBoundingClientRect().height;
+
+      // Restore the A4 lock for child-position measurements
+      page.style.height    = prevH;
+      page.style.minHeight = prevMn;
+      page.style.maxHeight = prevMx;
+      page.style.overflow  = prevOv;
+
+      var lockedH = page.getBoundingClientRect().height;
+      if (naturalH <= lockedH + 1) return; // fits — nothing to do
+
+      // Compute the y-coordinate at which middle content must end:
+      // bottom of the page minus padding minus footer height.
+      var pageRect = page.getBoundingClientRect();
+      var styles = window.getComputedStyle(page);
+      var pBot = parseFloat(styles.paddingBottom) || 0;
+      var trailingH = 0;
+      trailing.forEach(function(t) {
+        trailingH += t.getBoundingClientRect().height;
+      });
+      var maxBottom = pageRect.top + lockedH - pBot - trailingH;
+
+      // Find first middle child whose bottom edge crosses maxBottom
+      var cutoff = -1;
+      for (var i = 0; i < middle.length; i++) {
+        var rect = middle[i].getBoundingClientRect();
+        if (rect.bottom > maxBottom) { cutoff = i; break; }
+      }
+
+      // Need at least one middle element to remain on the source page.
+      // If even the first middle child overflows, we can't split safely
+      // (it would create an empty leading page). Leave for the zoom
+      // fallback to handle.
+      if (cutoff <= 0) return;
+
+      // Build the continuation page — same tag/class/inline-style
+      var newPage = document.createElement('div');
+      newPage.className = page.className;
+      var inlineStyle = page.getAttribute('style');
+      if (inlineStyle) newPage.setAttribute('style', inlineStyle);
+
+      // Clone leading nodes (letterhead, page-header) — visual identity
+      leading.forEach(function(el) {
+        newPage.appendChild(el.cloneNode(true));
+      });
+
+      // Move overflowing middle children into the continuation page.
+      // Strip per-page-only nodes (e.g. .page-number) — they belong to
+      // the original page only.
+      for (var j = cutoff; j < middle.length; j++) {
+        if (isPerPageOnly(middle[j])) {
+          if (middle[j].parentNode) {
+            middle[j].parentNode.removeChild(middle[j]);
+          }
+        } else {
+          newPage.appendChild(middle[j]);
+        }
+      }
+
+      // Clone trailing nodes (footer) onto the continuation page so
+      // BOTH letterhead and footer are always present on every sheet.
+      trailing.forEach(function(el) {
+        newPage.appendChild(el.cloneNode(true));
+      });
+
+      // Insert the continuation page immediately after the source
+      page.parentNode.insertBefore(newPage, page.nextSibling);
+
+      // Recurse — the continuation may itself overflow
+      splitOverflowingPage(newPage, (depth || 0) + 1);
+    }
+
+    function paginatePages() {
+      // Cover pages are not paginated — they're designed as a single sheet
+      var pages = Array.prototype.slice.call(
+        document.querySelectorAll('.doc-page')
+      );
+      pages.forEach(function(p) { splitOverflowingPage(p, 0); });
+    }
+
+    // Last-resort fallback for any page that STILL overflows after
+    // pagination (e.g. one giant atomic child taller than a page).
+    function autoFitResidual() {
       var pages = document.querySelectorAll('.doc-page, .cover-page');
       Array.prototype.forEach.call(pages, function(page) {
         var isCover = page.classList.contains('cover-page');
-        var hasFooter = !!page.querySelector('.letterhead-footer');
 
-        // ── 1. Measure natural (unconstrained) content height ──
         page.style.setProperty('height', 'auto', 'important');
         page.style.setProperty('min-height', '0', 'important');
         page.style.setProperty('max-height', 'none', 'important');
         page.style.setProperty('overflow', 'visible', 'important');
-
-        // Force reflow, then read the actual rendered height
         var naturalH = page.getBoundingClientRect().height;
 
-        // ── 2. Restore A4 lock ──
         page.style.setProperty('height', '297mm', 'important');
         page.style.setProperty('min-height', '297mm', 'important');
         page.style.removeProperty('max-height');
         page.style.setProperty('overflow', 'hidden', 'important');
-
         var targetH = page.getBoundingClientRect().height;
 
-        // ── 3. Decide whether to zoom ──
-        // Only zoom for GENTLE adjustments (max 12 % shrink).
-        // If content overflows more than that, overflow:hidden clips
-        // cleanly — better to lose a bit at the bottom than squish
-        // text into an unreadable mess.
-        // Exception: pages with a letterhead footer get a slightly
-        // more generous allowance (max 18 %) because keeping the
-        // header and footer on the same sheet is critical.
         if (naturalH > targetH * 1.005) {
           var ratio = targetH / naturalH;
-          var minRatio = hasFooter ? 0.82 : 0.88;
-          if (ratio < minRatio) {
-            // Overflow too large — don't zoom; let overflow:hidden clip.
-            return;
-          }
+          if (ratio < 0.80) return; // too extreme — let it clip
 
-          // Compensated dimensions so the page still maps to one A4 sheet
-          // (zoom * compensated = original)
-          var pTop  = isCover ? 22 : 22;
-          var pBot  = isCover ? 22 : 25;
-          var pH    = 22;  // horizontal padding
-
+          var pTop = 22, pBot = isCover ? 22 : 25, pH = 22;
           page.style.setProperty('width',  (210 / ratio).toFixed(4) + 'mm', 'important');
           page.style.setProperty('height', (297 / ratio).toFixed(4) + 'mm', 'important');
           page.style.setProperty('min-height', (297 / ratio).toFixed(4) + 'mm', 'important');
@@ -327,7 +436,8 @@ class PreviewManager {
       var pending = imgs.filter(function(img) { return !img.complete; });
       var fire = function() {
         setTimeout(function() {
-          autoFitPages();
+          paginatePages();
+          autoFitResidual();
           setTimeout(function() {
             window.print();
             setTimeout(function() { window.close(); }, 500);
@@ -359,6 +469,87 @@ class PreviewManager {
     printWindow.document.open();
     printWindow.document.write(printHTML);
     printWindow.document.close();
+  }
+
+  // ── Export to Microsoft Word ─────────────────────────────────────────────
+  // Builds a .doc file (Word-compatible HTML) from the current preview and
+  // triggers a download. Uses the standard "Word HTML" wrapper so MS Word
+  // opens it natively with formatting, images and page breaks preserved.
+
+  exportToWord() {
+    const output = this.documentOutput;
+    if (!output || !output.classList.contains('visible')) {
+      alert('Please generate a document first before exporting to Word.');
+      return;
+    }
+
+    // Collect page styles so the exported document keeps its look.
+    const allStyles = Array.from(document.querySelectorAll('style'))
+      .map(s => s.outerHTML)
+      .join('\n');
+    const allLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+      .map(l => l.outerHTML)
+      .join('\n');
+
+    // Resolve relative <img src> to absolute URLs (same reasoning as print).
+    const cloned = output.cloneNode(true);
+    cloned.querySelectorAll('img').forEach(img => {
+      const absolute = img.src;
+      if (absolute) img.setAttribute('src', absolute);
+    });
+    const docContent = cloned.innerHTML;
+
+    // Word recognises this MIME-style header and the xmlns:w / xmlns:o
+    // declarations, plus the <!--[if gte mso 9]> Word-only @page block which
+    // sets A4 size and margins inside Word.
+    const html = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="UTF-8">
+  <title>VDM Financial Statement</title>
+  <!--[if gte mso 9]>
+  <xml>
+    <w:WordDocument>
+      <w:View>Print</w:View>
+      <w:Zoom>100</w:Zoom>
+      <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+  </xml>
+  <![endif]-->
+  ${allLinks}
+  ${allStyles}
+  <style>
+    @page WordSection1 {
+      size: 210mm 297mm;
+      margin: 22mm 22mm 25mm 22mm;
+      mso-page-orientation: portrait;
+    }
+    div.WordSection1 { page: WordSection1; }
+    body { font-family: Calibri, Arial, sans-serif; }
+    .doc-page, .cover-page { page-break-after: always; }
+    .doc-page:last-child, .cover-page:last-child { page-break-after: auto; }
+  </style>
+</head>
+<body>
+  <div class="WordSection1">
+    ${docContent}
+  </div>
+</body>
+</html>`;
+
+    // Word HTML files are best served as application/msword with a UTF-8 BOM
+    // so non-ASCII characters render correctly when Word opens the file.
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'VDM-Financial-Statement.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   // ── Live update (stub — generate on button) ─────────────────────────────
