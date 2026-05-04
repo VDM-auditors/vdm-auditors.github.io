@@ -472,9 +472,9 @@ class PreviewManager {
   }
 
   // ── Export to Microsoft Word ─────────────────────────────────────────────
-  // Builds a .doc file (Word-compatible HTML) from the current preview and
-  // triggers a download. Uses the standard "Word HTML" wrapper so MS Word
-  // opens it natively with formatting, images and page breaks preserved.
+  // Builds a .doc file (Word-compatible HTML) and triggers a download.
+  // Uses a clean Word-specific stylesheet instead of copying browser CSS
+  // (which has flexbox, CSS variables and CDN fonts that Word ignores).
 
   exportToWord() {
     const output = this.documentOutput;
@@ -483,25 +483,50 @@ class PreviewManager {
       return;
     }
 
-    // Collect page styles so the exported document keeps its look.
-    const allStyles = Array.from(document.querySelectorAll('style'))
-      .map(s => s.outerHTML)
-      .join('\n');
-    const allLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-      .map(l => l.outerHTML)
-      .join('\n');
-
-    // Resolve relative <img src> to absolute URLs (same reasoning as print).
     const cloned = output.cloneNode(true);
+
+    // Resolve all image src values to absolute URLs.
     cloned.querySelectorAll('img').forEach(img => {
-      const absolute = img.src;
-      if (absolute) img.setAttribute('src', absolute);
+      if (img.src) img.setAttribute('src', img.src);
     });
+
+    // Letterhead header images: strip the negative bleed margins.
+    cloned.querySelectorAll('.letterhead-img').forEach(img => {
+      img.style.cssText = 'width:100%;display:block;margin:0 0 8px 0;';
+    });
+
+    // Letterhead footer images: same treatment.
+    cloned.querySelectorAll('.letterhead-footer-img').forEach(img => {
+      img.style.cssText = 'width:100%;display:block;margin:16px 0 0 0;';
+    });
+
+    // .letterhead-footer uses margin-top:auto as a flex child — remove for Word.
+    cloned.querySelectorAll('.letterhead-footer').forEach(el => {
+      el.style.cssText = 'margin-top:24px;text-align:center;';
+    });
+
+    // Strip flex layout from doc/cover pages.
+    cloned.querySelectorAll('.doc-page, .cover-page').forEach(page => {
+      page.style.removeProperty('display');
+      page.style.removeProperty('flex-direction');
+      page.style.removeProperty('height');
+      page.style.removeProperty('min-height');
+      page.style.removeProperty('max-height');
+      page.style.removeProperty('overflow');
+      page.style.removeProperty('box-shadow');
+      page.style.removeProperty('zoom');
+    });
+
+    // Remove page-number elements.
+    cloned.querySelectorAll('.page-number').forEach(el => el.remove());
+
+    // Remove contenteditable attributes left from edit mode.
+    cloned.querySelectorAll('[contenteditable]').forEach(el => {
+      el.removeAttribute('contenteditable');
+    });
+
     const docContent = cloned.innerHTML;
 
-    // Word recognises this MIME-style header and the xmlns:w / xmlns:o
-    // declarations, plus the <!--[if gte mso 9]> Word-only @page block which
-    // sets A4 size and margins inside Word.
     const html = `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
       xmlns:w="urn:schemas-microsoft-com:office:word"
@@ -509,33 +534,137 @@ class PreviewManager {
 <head>
   <meta charset="UTF-8">
   <title>VDM Financial Statement</title>
-  <!--[if gte mso 9]>
-  <xml>
+  <!--[if gte mso 9]><xml>
     <w:WordDocument>
       <w:View>Print</w:View>
       <w:Zoom>100</w:Zoom>
       <w:DoNotOptimizeForBrowser/>
     </w:WordDocument>
-  </xml>
-  <![endif]-->
-  ${allLinks}
-  ${allStyles}
+  </xml><![endif]-->
   <style>
     @page WordSection1 {
       size: 210mm 297mm;
       margin: 22mm 22mm 25mm 22mm;
       mso-page-orientation: portrait;
+      mso-header-margin: 0mm;
+      mso-footer-margin: 0mm;
     }
     div.WordSection1 { page: WordSection1; }
-    body { font-family: Calibri, Arial, sans-serif; }
-    .doc-page, .cover-page { page-break-after: always; }
+
+    body {
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.55;
+      color: #111111;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Word adds ~8pt after every <p> via its Normal style — reset it */
+    p {
+      margin-top: 0;
+      margin-bottom: 5pt;
+      mso-margin-top-alt: auto;
+      mso-margin-bottom-alt: auto;
+      line-height: 1.55;
+      text-align: justify;
+    }
+
+    h2 {
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 10pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 6pt 0 8pt 0;
+      mso-margin-top-alt: auto;
+      mso-margin-bottom-alt: auto;
+      line-height: 1.3;
+    }
+
+    h2.center-heading { text-align: center; }
+
+    h3 {
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 9.5pt;
+      font-style: italic;
+      font-weight: bold;
+      margin: 7pt 0 3pt 0;
+      mso-margin-top-alt: auto;
+      mso-margin-bottom-alt: auto;
+    }
+
+    ul { margin: 4pt 0 6pt 20pt; padding: 0; }
+    ul li { margin-bottom: 4pt; text-align: justify; line-height: 1.55; }
+
+    table { border-collapse: collapse; width: 100%; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    td, th { padding: 4pt; vertical-align: top; line-height: 1.45; }
+    img { border: none; display: block; }
+
+    .doc-page, .cover-page {
+      width: 100%;
+      page-break-after: always;
+      mso-break-type: page-break;
+    }
     .doc-page:last-child, .cover-page:last-child { page-break-after: auto; }
+
+    .page-header {
+      margin-bottom: 16pt;
+      padding-bottom: 10pt;
+      border-bottom: 1px solid #bbbbbb;
+    }
+
+    .co-name { font-size: 11.5pt; font-weight: bold; text-transform: uppercase; margin: 0 0 3pt 0; }
+    .co-reg, .co-trading-as { font-size: 9pt; font-style: italic; margin: 0 0 3pt 0; }
+
+    .underline-heading {
+      font-size: 9.5pt;
+      font-weight: bold;
+      text-decoration: underline;
+      text-transform: uppercase;
+      margin: 10pt 0 5pt 0;
+      mso-margin-top-alt: auto;
+    }
+
+    .signature-block { margin-top: 20pt; }
+    .sig-name { font-weight: bold; font-size: 9pt; margin: 3pt 0 0 0; }
+    .sig-line { display: inline-block; width: 220px; border-bottom: 1px solid #333333; margin-right: 40px; margin-bottom: 16px; }
+    .compiler-block { margin-top: 14pt; font-weight: bold; }
+    .compiler-block p { margin: 0; text-align: left; }
+
+    .policy-entry { margin-bottom: 12pt; }
+
+    .cover-title-block { padding-bottom: 12pt; border-bottom: 2px solid #111111; margin-bottom: 14pt; }
+    .cover-title-block .co-name { font-size: 14pt; }
+    .cover-title-block .co-reg  { font-size: 10pt; }
+    .cover-year { font-size: 11pt; font-weight: bold; margin: 5pt 0 0 0; }
+    .cover-subtitle { font-size: 10pt; margin: 2pt 0 0 0; }
+
+    .cover-section-heading {
+      font-size: 10pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding-bottom: 5pt;
+      border-bottom: 1px solid #cccccc;
+      margin: 0 0 4pt 0;
+    }
+
+    .cover-info-table { width: 100%; border-collapse: collapse; font-size: 9pt; margin-top: 4pt; }
+    .cover-info-table tr { border-bottom: 1px solid #eeeeee; }
+    .cover-info-table tr:last-child { border-bottom: none; }
+    .cover-info-table td { padding: 7pt 4pt; vertical-align: middle; line-height: 1.45; }
+    .cover-info-table td:first-child { font-weight: bold; width: 42%; color: #222222; }
+
+    .cover-footer { margin-top: 18pt; padding-top: 16pt; border-top: 1px solid #cccccc; font-size: 8.5pt; color: #555555; text-align: center; }
+
+    .page-number { display: none; mso-hide: all; }
   </style>
 </head>
 <body>
-  <div class="WordSection1">
-    ${docContent}
-  </div>
+<div class="WordSection1">
+${docContent}
+</div>
 </body>
 </html>`;
 
