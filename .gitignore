@@ -1,0 +1,48 @@
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-error.log*
+
+# Build & Dist
+dist/
+build/
+*.min.js
+*.min.css
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# Temp & Cache
+.cache/
+tmp/
+temp/
+*.tmp
+
+# Sensitive Test Data
+VDM.financials/Dummy data/
+
+# Git worktrees (local development)
+.git/worktrees/
