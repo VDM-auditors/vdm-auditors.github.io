@@ -1215,6 +1215,7 @@ ${postalHtml}
 <p>We, the undersigned, being duly authorized to sign for or on behalf of the entity, herewith accept the above terms of the engagement.</p>
 ${engSigBlock}
 <p style="margin-top:18px;">${dateSigned}</p>
+${letterheadFooter()}
   </div>`;
   }
 

@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "vdm-financials",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "VDM.financials", "-l", "8080"],
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8080", "--directory", "VDM.financials"],
       "port": 8080
     }
   ]

@@ -41,6 +41,26 @@ function generateDoc() {
   if (output) {
     output.innerHTML = html;
     output.classList.add('visible');
+    // Paginate after images load so measurements are accurate
+    const imgs = Array.from(output.querySelectorAll('img'));
+    const pending = imgs.filter(img => !img.complete);
+    let paginated = false;
+    const runPaginate = () => {
+      if (paginated) return;
+      paginated = true;
+      requestAnimationFrame(() => previewManager.paginatePreview());
+    };
+    if (pending.length === 0) {
+      runPaginate();
+    } else {
+      let remaining = pending.length;
+      const onDone = () => { if (--remaining <= 0) runPaginate(); };
+      pending.forEach(img => {
+        img.addEventListener('load', onDone, { once: true });
+        img.addEventListener('error', onDone, { once: true });
+      });
+      setTimeout(runPaginate, 2000);
+    }
   }
   if (placeholder) placeholder.style.display = 'none';
   document.getElementById('btn-print')?.classList.add('visible');

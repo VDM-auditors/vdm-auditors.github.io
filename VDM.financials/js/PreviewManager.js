@@ -275,7 +275,8 @@ class PreviewManager {
     }
     function isTrailingNode(el) {
       if (!el || !el.classList) return false;
-      return el.classList.contains('letterhead-footer');
+      return el.classList.contains('letterhead-footer') ||
+             el.classList.contains('page-number');
     }
     function isPerPageOnly(el) {
       // Don't duplicate page numbers onto continuation sheets
@@ -375,8 +376,9 @@ class PreviewManager {
 
       // Clone trailing nodes (footer) onto the continuation page so
       // BOTH letterhead and footer are always present on every sheet.
+      // Skip page-number — it belongs only to its original page.
       trailing.forEach(function(el) {
-        newPage.appendChild(el.cloneNode(true));
+        if (!isPerPageOnly(el)) newPage.appendChild(el.cloneNode(true));
       });
 
       // Insert the continuation page immediately after the source
@@ -469,6 +471,13 @@ class PreviewManager {
     printWindow.document.open();
     printWindow.document.write(printHTML);
     printWindow.document.close();
+  }
+
+  // ── Preview Pagination ───────────────────────────────────────────────────
+  // Delegates to PagePaginator to split overflowing .doc-page elements.
+
+  paginatePreview() {
+    new PagePaginator(this.documentOutput).paginate();
   }
 
   // ── Export to Microsoft Word ─────────────────────────────────────────────
