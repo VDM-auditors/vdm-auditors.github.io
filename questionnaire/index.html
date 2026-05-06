@@ -707,6 +707,21 @@
       cursor: crosshair;
     }
 
+    .consent-section { margin-bottom: 16px; }
+    .consent-section .card-body { padding: 16px 20px; }
+    .consent-block { margin-bottom: 16px; }
+    .consent-block h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin: 0 0 6px; }
+    .consent-block p { font-size: 12px; line-height: 1.6; color: var(--text-muted); margin: 0; }
+    .consent-check-row {
+      display: flex; align-items: flex-start; gap: 10px; margin-top: 14px;
+      padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      cursor: pointer; background: var(--card); transition: all 0.15s;
+    }
+    .consent-check-row:hover { border-color: var(--accent); background: var(--accent-bg); }
+    .consent-check-row input[type="checkbox"] { margin-top: 2px; accent-color: var(--navy); width: 18px; height: 18px; flex-shrink: 0; cursor: pointer; }
+    .consent-check-row label { font-size: 13px; font-weight: 600; color: var(--navy); cursor: pointer; line-height: 1.4; }
+    .consent-check-row.checked { border-color: var(--navy); background: rgba(31,45,69,0.06); }
+
     .npo-option {
       display: flex;
       align-items: flex-start;
@@ -1544,12 +1559,47 @@
 
       <!-- STEP 4 -->
       <div id="step4" class="hidden">
+        <div class="card consent-section">
+          <div class="card-header">Disclosure &amp; Consent</div>
+          <div class="card-body">
+            <div class="consent-block">
+              <h4>Disclosure of Information and Authority</h4>
+              <p>You hereby authorise and give consent to us to disclose, submit and provide any information, documents or records relating to your affairs to any third party where this is required or reasonably necessary in order to perform the services agreed to in terms of this engagement. This includes, without limitation, disclosures to the South African Revenue Service (SARS), the Companies and Intellectual Property Commission (CIPC), the Financial Intelligence Centre, banks, financial institutions, auditors, professional advisers and any other regulatory or statutory authority.<br><br>This authority shall apply notwithstanding any duty of confidentiality otherwise owed by us, provided that such disclosure is made in good faith and for purposes related to the services rendered.</p>
+            </div>
+            <div class="consent-block">
+              <h4>Protection of Personal Information</h4>
+              <p>We are committed to protecting your personal information in accordance with the Protection of Personal Information Act (POPIA). We collect and process your information only for the purposes of providing accounting, tax, and related services as agreed. Your information will be kept confidential and secure and will only be shared with third parties (such as SARS, CIPC, banks, or other regulators) where required by law or necessary to perform our services. You have the right to access, correct, or object to the processing of your personal information. For any POPIA-related queries, please contact us at admin@vdmaudit.co.za.</p>
+            </div>
+            <div class="consent-check-row" id="consentRow" onclick="toggleConsent()">
+              <input type="checkbox" id="consentCheckbox">
+              <label for="consentCheckbox">I have read and agree to the above Disclosure of Information and Protection of Personal Information terms.</label>
+            </div>
+          </div>
+        </div>
         <div id="signingContainer"></div>
         <div class="card" style="margin-top:16px">
-          <div class="card-body" style="text-align:center;padding:20px 24px">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#4A90D9" stroke-width="1.5" style="width:36px;height:36px;margin-bottom:10px"><path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <p style="font-weight:600;font-size:15px;margin:0 0 8px">Important: After downloading, please email the documents to the VDM Auditors contact person you are in communication with.</p>
-            <p style="font-size:13px;color:var(--text-muted);margin:0">The completed questionnaire and supporting documents will be saved to your Downloads folder. Please attach them to an email and send to your designated contact at VDM Audit.</p>
+          <div class="card-body">
+            <label for="recipient_email" style="display:block;font-weight:600;margin-bottom:6px">Send completed questionnaire to:</label>
+            <select id="recipient_email" class="svc-other-input" style="width:100%" required>
+              <option value="" disabled selected>— Select a person —</option>
+              <option value="bernadette@vdmaudit.co.za">Bernadette Meyer — bernadette@vdmaudit.co.za</option>
+              <option value="chanel@vdmaudit.co.za">Chanel Theunissen — chanel@vdmaudit.co.za</option>
+              <option value="chelandri@vdmaudit.co.za">Chelandri Potgieter — chelandri@vdmaudit.co.za</option>
+              <option value="elanie@vdmaudit.co.za">Elanie Steenkamp — elanie@vdmaudit.co.za</option>
+              <option value="hanro@vdmaudit.co.za">Hanro de Beer — hanro@vdmaudit.co.za</option>
+              <option value="henniejnr@vdmaudit.co.za">Hennie van der Merwe — henniejnr@vdmaudit.co.za</option>
+              <option value="hester@vdmaudit.co.za">Hester du Toit — hester@vdmaudit.co.za</option>
+              <option value="jessica@vdmaudit.co.za">Jessica De Lange — jessica@vdmaudit.co.za</option>
+              <option value="juane@vdmaudit.co.za">Juane van Zyl — juane@vdmaudit.co.za</option>
+              <option value="leandri@vdmaudit.co.za">Leandri van Staden — leandri@vdmaudit.co.za</option>
+              <option value="megan@vdmaudit.co.za">Megan Bam — megan@vdmaudit.co.za</option>
+              <option value="reinette@vdmaudit.co.za">Reinette de Beer — reinette@vdmaudit.co.za</option>
+              <option value="riekie@vdmaudit.co.za">Riekie Wolmarans — riekie@vdmaudit.co.za</option>
+              <option value="sanmari@vdmaudit.co.za">San-Mari Cronje — sanmari@vdmaudit.co.za</option>
+              <option value="takunda@vdmaudit.co.za">Takunda Gate — takunda@vdmaudit.co.za</option>
+              <option value="tarnisha@vdmaudit.co.za">Tarnisha Beukes — tarnisha@vdmaudit.co.za</option>
+            </select>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:6px">This is the email address your completed questionnaire will be sent to.</p>
           </div>
         </div>
         <div class="submit-area">
@@ -1566,12 +1616,13 @@
 
     <div class="success-screen" id="successScreen">
       <div class="success-icon">📄</div>
-      <h2 class="success-title">Download Complete!</h2>
+      <h2 class="success-title">Almost Done!</h2>
       <p class="success-sub">
-        Your documents have been saved to your Downloads folder.<br><br>
-        <strong>Please email the downloaded documents to the VDM Auditors contact person you are in communication with.</strong><br><br>
-        <span style="font-size:13px;color:#A0AFC0;">Can't find the files? Check your Downloads folder.<br>
-          The PDF file name starts with <em>VDM_Questionnaire_</em></span>
+        Your PDF has been downloaded to your device.<br><br>
+        <strong>Your email app should have opened automatically.</strong><br>
+        Please attach the downloaded PDF to the email and click Send.<br><br>
+        <span style="font-size:13px;color:#A0AFC0;">Can't find the PDF? Check your Downloads folder.<br>
+          The file name starts with <em>VDM_Questionnaire_</em></span>
       </p>
     </div>
 
@@ -1847,6 +1898,12 @@
       sigPeople.forEach(({ idx }) => setTimeout(() => initSigCanvas(idx), 120));
     }
 
+    function toggleConsent() {
+      const cb = document.getElementById('consentCheckbox');
+      cb.checked = !cb.checked;
+      document.getElementById('consentRow').classList.toggle('checked', cb.checked);
+    }
+
     const sigPads = {};
     function initSigCanvas(idx) {
       const canvas = document.getElementById('sig_canvas_' + idx); if (!canvas) return;
@@ -1867,7 +1924,69 @@
     function radioVal(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; }
     function taxVal(prefix) { const el = document.querySelector(`input[name="tax_${prefix}"]:checked`); return el ? el.value.toUpperCase() : 'NO'; }
 
+    function collectAllFormData() {
+      const data = {};
+      data._subject = 'VDM Questionnaire — ' + (val('ei_name') || 'New Client');
+      data.entity_type = state.entityType;
+      data.date = val('ei_date');
+      data.entity_name = val('ei_name');
+      data.registration_number = val('ei_regno');
+      data.tax_number = val('ei_tax');
+      data.vat_number = val('ei_vat');
+      data.uif_reference = val('ei_uif');
+      data.paye_reference = val('ei_paye');
+      data.physical_address = val('ei_physical');
+      data.registered_address = val('ei_registered');
+      data.postal_address = val('ei_postal');
+      data.postal_registered = val('ei_postal_reg');
+      data.business_activity = val('ei_business');
+      data.responsible_director = val('ei_resp_dir');
+      data.contact_person = val('ei_contact');
+      data.entity_email = val('ei_email');
+      data.entity_email_contact = val('ei_email_contact');
+      data.entity_tel = val('ei_tel');
+      data.entity_tel_contact = val('ei_tel_contact');
+      data.ci_responsible = val('ci_responsible');
+      data.ci_tel = val('ci_tel');
+      data.ci_email = val('ci_email');
+      data.ci_debtors_email = val('ci_debtors_email');
+      data.ci_secretarial_email = val('ci_secretarial_email');
+      data.services = collectServices().join(', ');
+      data.recipient_email = val('recipient_email');
+      data.consent_given = document.getElementById('consentCheckbox').checked ? 'Yes' : 'No';
+
+      const allInputs = document.querySelectorAll('#mainForm input[type="text"], #mainForm input[type="email"], #mainForm input[type="date"], #mainForm input[type="number"], #mainForm input[type="tel"], #mainForm select, #mainForm textarea');
+      allInputs.forEach(el => {
+        if (el.id && !data[el.id] && el.value && el.value.trim()) {
+          data[el.id] = el.value.trim();
+        }
+      });
+      const allRadios = document.querySelectorAll('#mainForm input[type="radio"]:checked');
+      allRadios.forEach(el => { if (el.name) data['radio_' + el.name] = el.value; });
+
+      return data;
+    }
+
+    async function submitToFormspree(formData) {
+      try {
+        await fetch('https://formspree.io/f/mnjwvwaj', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+      } catch (e) { /* silent — PDF + email is the primary flow */ }
+    }
+
     async function submitForm() {
+      if (!document.getElementById('consentCheckbox').checked) {
+        alert('Please read and accept the Disclosure of Information and Protection of Personal Information terms before submitting.');
+        document.getElementById('consentRow').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      const formData = collectAllFormData();
+      submitToFormspree(formData);
+
       const { jsPDF } = window.jspdf;
       const LOGO_SRC = document.querySelector('.header-logo').src;
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -1925,8 +2044,24 @@
       else if (state.entityType === 'bodycorp') { sectionHeader('Body Corporate / HOA Trustees', MIDBLUE); for (let i = 1; i <= state.counts.bc_trustees; i++) { personHeader(`Trustee ${i}`, MIDBLUE); renderPersonalBlock(`bct_${i}`); if (i < state.counts.bc_trustees) divider(); } sectionHeader('Body Corporate Details', MIDBLUE); fieldRow([['Scheme Number', val('bc_scheme_nr')], ['Bank Name', val('bc_bank')]]); fieldRow([['Managing Agent', val('bc_agent')], ['Managing Agent Contact', val('bc_agent_tel')]]); const bcNotes = val('bc_notes'); if (bcNotes) fieldFull('Special Notes', bcNotes); }
       else if (state.entityType === 'school') { sectionHeader('School / Institution Details', MIDBLUE); personHeader('School Information', MIDBLUE); fieldRow([['Name of Principal', val('sch_principal')], ['School Accounts Email', val('sch_email')]]); fieldRow([['Head of Financial Committee', val('sch_fin_head')], ['Tel — Financial Committee', val('sch_fin_tel')]]); spacer(4); }
 
+      // Consent & Disclosure
+      newPage(); sectionHeader('Disclosure & Consent', NAVY);
+      checkY(60);
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...NAVY);
+      doc.text('Disclosure of Information and Authority', margin, y); y += 5;
+      doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(74, 85, 104);
+      const disclosureText = 'You hereby authorise and give consent to us to disclose, submit and provide any information, documents or records relating to your affairs to any third party where this is required or reasonably necessary in order to perform the services agreed to in terms of this engagement. This includes, without limitation, disclosures to the South African Revenue Service (SARS), the Companies and Intellectual Property Commission (CIPC), the Financial Intelligence Centre, banks, financial institutions, auditors, professional advisers and any other regulatory or statutory authority. This authority shall apply notwithstanding any duty of confidentiality otherwise owed by us, provided that such disclosure is made in good faith and for purposes related to the services rendered.';
+      const dLines = doc.splitTextToSize(disclosureText, colW); doc.text(dLines, margin, y); y += dLines.length * 4 + 6;
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...NAVY);
+      doc.text('Protection of Personal Information', margin, y); y += 5;
+      doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(74, 85, 104);
+      const popiaText = 'We are committed to protecting your personal information in accordance with the Protection of Personal Information Act (POPIA). We collect and process your information only for the purposes of providing accounting, tax, and related services as agreed. Your information will be kept confidential and secure and will only be shared with third parties (such as SARS, CIPC, banks, or other regulators) where required by law or necessary to perform our services. You have the right to access, correct, or object to the processing of your personal information. For any POPIA-related queries, please contact us at admin@vdmaudit.co.za.';
+      const pLines = doc.splitTextToSize(popiaText, colW); doc.text(pLines, margin, y); y += pLines.length * 4 + 8;
+      doc.setFillColor(...OFFWHITE); doc.roundedRect(margin, y, colW, 9, 1, 1, 'F'); doc.setDrawColor(...ACCENT); doc.setLineWidth(0.4); doc.roundedRect(margin, y, colW, 9, 1, 1, 'D');
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...GREEN); doc.text('✓  CLIENT HAS READ AND AGREED TO THE ABOVE TERMS', margin + 4, y + 6); y += 14;
+
       // Signing
-      newPage(); sectionHeader('Signatures', NAVY);
+      sectionHeader('Signatures', NAVY);
       let pdfSigPeople = [];
       if (state.entityType === 'company') { for (let i = 1; i <= state.counts.directors; i++)pdfSigPeople.push({ role: 'Director', idx: i - 1 }); }
       else if (state.entityType === 'cc') { for (let i = 1; i <= state.counts.members; i++)pdfSigPeople.push({ role: 'Member', idx: i - 1 }); }
