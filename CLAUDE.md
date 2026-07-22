@@ -4,9 +4,14 @@
 
 | Module | Guide |
 |--------|-------|
-| Financial Statements app | [VDM.financials/CLAUDE.md](VDM.financials/CLAUDE.md) |
 | Wills wizard | [Wills/CLAUDE.md](Wills/CLAUDE.md) |
 | Client questionnaire | [questionnaire/CLAUDE.md](questionnaire/CLAUDE.md) |
+
+> **Moved out:** the Financial Statements generator that used to live in
+> `VDM.financials/` is now the `web/` directory of the **VDM-auditors/PolicyGenerator**
+> repo, where it has been rebuilt as an Electron desktop app. Do not re-add it here.
+> Its full pre-migration history is preserved on the `archive/pages-site` branch of
+> that repo.
 
 ---
 
@@ -19,21 +24,6 @@ vdm-auditors.github.io/
 ├── index.html              # Password-gated landing page (links to all tools)
 ├── Audit_Logo.jpg          # Primary logo used in lock screen
 ├── logo.jpg                # Secondary logo asset
-├── VDM.financials/         # Financial statements generator app
-│   ├── index.html          # Main app shell
-│   ├── css/styles.css      # Layout + print styles
-│   ├── js/
-│   │   ├── app.js          # Bootstrap: creates instances, wires globals
-│   │   ├── config.js       # Pure data: ENTITY_CONFIG, accountingPolicies, letterheads
-│   │   ├── DocumentGenerator.js  # HTML document builder (largest file)
-│   │   ├── EntityManager.js      # Entity state, directors, loan certs
-│   │   ├── PreviewManager.js     # Split-view / form-only toggle, print
-│   │   ├── CalendarPicker.js     # Year-end date picker
-│   │   ├── ExcelImporter.js      # SecInfo Excel import (uses BaseImporter)
-│   │   ├── BaseImporter.js       # Shared importer utilities
-│   │   └── utils.js              # getVal, formatNumber, toTitleCase helpers
-│   ├── images/             # Letterhead header/footer PNGs
-│   └── Dummy data/         # Test PDFs — NOT committed to git
 ├── Wills/
 │   ├── index.html          # Self-contained Wills wizard (HTML+CSS+JS)
 │   └── logo.png
@@ -41,16 +31,6 @@ vdm-auditors.github.io/
 │   ├── index.html          # Self-contained client intake form (HTML+CSS+JS)
 │   ├── logo.png
 │   └── README.md
-```
-
-### Data flow — VDM.financials
-
-```
-User fills form (index.html)
-  → EntityManager.js   (holds entity state, directors, loan certs)
-  → DocumentGenerator.js (builds A4 HTML pages from state)
-  → PreviewManager.js  (renders preview panel / triggers window.print)
-  → ExcelImporter.js   (optional: populates form from SecInfo .xlsx)
 ```
 
 ### Data flow — questionnaire / Wills
@@ -80,7 +60,6 @@ User fills multi-step wizard (index.html, self-contained)
 ```bash
 # Preview locally — open any HTML file directly in browser
 start index.html
-start VDM.financials/index.html
 start Wills/index.html
 start questionnaire/index.html
 
@@ -108,8 +87,7 @@ git push origin main
 - NEVER embed secrets, API keys, or passwords in client-side JS
 - NEVER auto-send email without explicit user confirmation (submit button + confirm step)
 - NEVER run destructive git commands (`--force`, `reset --hard`, `checkout .`) without explicit user request
-- NEVER create new files in the repo root — place code in its sub-directory (`VDM.financials/`, `Wills/`, `questionnaire/`)
+- NEVER create new files in the repo root — place code in its sub-directory (`Wills/`, `questionnaire/`)
 - NEVER allow any single file to exceed 500 lines (split into modules)
-- NEVER commit the `VDM.financials/Dummy data/` directory — it contains sensitive test PDFs
 - NEVER commit `.env` files or any credentials file
 - NEVER modify `Audit_Logo.jpg` or `logo.jpg` without explicit instruction — they are used across all pages

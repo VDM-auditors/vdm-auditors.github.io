@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "vdm-financials",
+      "name": "vdm-site",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8080", "--directory", "VDM.financials"],
+      "runtimeArgs": ["-m", "http.server", "8080"],
       "port": 8080
     }
   ]
