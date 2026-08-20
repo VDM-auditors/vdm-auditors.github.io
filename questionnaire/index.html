@@ -1035,6 +1035,218 @@
       line-height: 1.5;
     }
 
+    /* ── Attachments (step 4) ─────────────────────────────────────── */
+    .attach-slot {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      background: #FCFDFF;
+      transition: border-color .15s, background .15s;
+    }
+
+    .attach-slot.dragging {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .attach-slot-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .attach-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .attach-count {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .attach-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .attach-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--navy);
+      color: #FFFFFF;
+      border: 1px solid var(--navy);
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    .attach-btn:hover { opacity: .88; }
+
+    .attach-btn.ghost {
+      background: #FFFFFF;
+      color: var(--navy);
+      border-color: var(--border);
+    }
+
+    .attach-previews {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .attach-thumb {
+      position: relative;
+      width: 96px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #FFFFFF;
+      overflow: hidden;
+    }
+
+    .attach-thumb img,
+    .attach-thumb-pdf {
+      display: block;
+      width: 100%;
+      height: 74px;
+      object-fit: cover;
+    }
+
+    .attach-thumb-pdf {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FBF3F3;
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .attach-thumb-name {
+      font-size: 10px;
+      color: var(--text-muted);
+      padding: 5px 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-top: 1px solid var(--border);
+    }
+
+    .attach-thumb-x {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(13, 31, 60, .78);
+      color: #FFFFFF;
+      font-size: 11px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .attach-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(13, 31, 60, .58);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .attach-modal-box {
+      position: relative;
+      background: #FFFFFF;
+      border-radius: var(--radius);
+      border-top: 3px solid var(--accent);
+      box-shadow: var(--shadow-lg);
+      max-width: 380px;
+      width: 100%;
+      padding: 26px 24px 22px;
+      text-align: center;
+    }
+
+    .attach-modal-box h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .attach-modal-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .attach-qr {
+      display: flex;
+      justify-content: center;
+      min-height: 208px;
+      align-items: center;
+    }
+
+    .attach-modal-status {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--success);
+      margin-top: 14px;
+      min-height: 18px;
+    }
+
+    .attach-modal-status.err { color: var(--danger); }
+
+    .attach-modal-link {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      line-height: 1.5;
+      word-break: break-all;
+    }
+
+    .attach-modal-link span {
+      display: inline-block;
+      margin-top: 3px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .attach-modal-fine {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      line-height: 1.45;
+    }
+
+    .attach-modal-x {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      border: none;
+      background: none;
+      font-size: 15px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
     .btn-apply {
       display: inline-flex;
       align-items: center;
@@ -1165,7 +1377,8 @@
         <div class="step-pill active" id="pill1" onclick="navToStep(1)">1 — Entity Type</div>
         <div class="step-pill" id="pill2" onclick="navToStep(2)">2 — Entity Info</div>
         <div class="step-pill" id="pill3" onclick="navToStep(3)">3 — Details</div>
-        <div class="step-pill" id="pill4" onclick="navToStep(4)">4 — Sign &amp; Submit</div>
+        <div class="step-pill" id="pill4" onclick="navToStep(4)">4 — Attachments</div>
+        <div class="step-pill" id="pill5" onclick="navToStep(5)">5 — Sign &amp; Submit</div>
       </div>
 
       <!-- STEP 1 — Entity Type -->
@@ -1556,12 +1769,22 @@
         <div style="display:flex; justify-content:space-between; margin-top:4px">
           <button class="btn-apply" style="background:var(--border); color:var(--text)" onclick="goStep(2)">←
             Back</button>
-          <button class="btn-apply" onclick="goStep(4)">Continue → Sign &amp; Submit</button>
+          <button class="btn-apply" onclick="goStep(4)">Continue → Attachments</button>
         </div>
       </div>
 
-      <!-- STEP 4 -->
+      <!-- STEP 4 — Attachments -->
       <div id="step4" class="hidden">
+        <div id="attachmentsContainer"></div>
+        <div style="display:flex; justify-content:space-between; margin-top:4px">
+          <button class="btn-apply" style="background:var(--border); color:var(--text)" onclick="goStep(3)">←
+            Back</button>
+          <button class="btn-apply" onclick="goStep(5)">Continue → Sign &amp; Submit</button>
+        </div>
+      </div>
+
+      <!-- STEP 5 — Sign & Submit -->
+      <div id="step5" class="hidden">
         <div class="card consent-section">
           <div class="card-header">Disclosure &amp; Consent</div>
           <div class="card-body">
@@ -1619,8 +1842,8 @@
     };
 
     function updateProgress() {
-      document.getElementById('progressBar').style.width = (currentStep / 4 * 100) + '%';
-      for (let i = 1; i <= 4; i++) {
+      document.getElementById('progressBar').style.width = (currentStep / 5 * 100) + '%';
+      for (let i = 1; i <= 5; i++) {
         const pill = document.getElementById('pill' + i);
         if (i === currentStep) pill.className = 'step-pill active';
         else if (i < currentStep || i <= maxStepReached) pill.className = 'step-pill done';
@@ -1632,14 +1855,15 @@
     let currentStep = 1;
 
     function goStep(n) {
-      if (n === 4) buildSigningStep();
+      if (n === 4) VDMAttach.build(state);
+      if (n === 5) buildSigningStep();
       if (n === 2 && state.entityType) {
         updateEntityInfoLabels(state.entityType);
         document.getElementById('step2_extra').classList.remove('hidden');
         document.getElementById('step2_nav').style.display = 'flex';
         document.getElementById('step2_nav').classList.remove('hidden');
       }
-      ['step1', 'step2', 'step3', 'step4'].forEach((s, i) => {
+      ['step1', 'step2', 'step3', 'step4', 'step5'].forEach((s, i) => {
         document.getElementById(s).classList.toggle('hidden', i + 1 !== n);
       });
       currentStep = n;
@@ -1970,6 +2194,7 @@
       }
 
       const formData = collectAllFormData();
+      Object.assign(formData, VDMAttach.summary());
       submitToFormspree(formData);
 
       const { jsPDF } = window.jspdf;
@@ -2056,6 +2281,11 @@
       else if (state.entityType === 'school') { pdfSigPeople.push({ role: 'Head of Financial Committee', idx: 0 }); }
       else if (state.entityType === 'bodycorp') { for (let i = 1; i <= state.counts.bc_trustees; i++)pdfSigPeople.push({ role: 'Trustee', idx: i - 1 }); }
       pdfSigPeople.forEach(({ role, idx }) => signingBlock(role, idx));
+
+      // Attachments — ID documents and any additional uploads
+      try {
+        await VDMAttach.appendToPdf(doc, { W, H: 297, margin });
+      } catch (e) { console.error('Attachment rendering error:', e); }
 
       // Footer
       const pageCount = doc.getNumberOfPages();
@@ -2402,6 +2632,7 @@
     // Init
     updateProgress();
   </script>
+  <script src="attachments.js"></script>
 </body>
 
 </html>

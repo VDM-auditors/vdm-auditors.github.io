@@ -28,7 +28,9 @@ vdm-auditors.github.io/
 │   ├── index.html          # Self-contained Wills wizard (HTML+CSS+JS)
 │   └── logo.png
 ├── questionnaire/
-│   ├── index.html          # Self-contained client intake form (HTML+CSS+JS)
+│   ├── index.html          # Client intake form wizard (HTML+CSS+JS)
+│   ├── attachments.js      # Step 4 — uploads, QR/WebRTC phone capture, PDF embedding
+│   ├── upload.html         # Phone-side capture page (opened via QR code)
 │   ├── logo.png
 │   └── README.md
 ```
@@ -50,6 +52,9 @@ User fills multi-step wizard (index.html, self-contained)
 | Google Fonts (root, Wills, questionnaire) | `https://fonts.googleapis.com` |
 | jsPDF 2.5.1 | `https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js` |
 | docx 8.5.0 | `https://unpkg.com/docx@8.5.0/build/index.umd.js` |
+| PeerJS 1.5.4 (questionnaire phone link) | `https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js` |
+| qrcodejs 1.0.0 | `https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js` |
+| pdf.js 3.11.174 | `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js` |
 | Report-an-issue form | `https://forms.gle/GRYHkhGMrYoMonrF6` |
 | Live site | `https://vdm-auditors.github.io/` |
 

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VDM — Send a Document</title>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap"
+    rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0D1F3C;
+      --accent: #C8A951;
+      --bg: #F2F5FA;
+      --text-muted: #5A6E8A;
+      --border: #D4DCE8;
+      --success: #1B6B2E;
+      --danger: #B52A2A;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--navy);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.5;
+      padding: 20px 16px 40px;
+    }
+
+    .wrap { max-width: 460px; margin: 0 auto; }
+
+    .head {
+      background: var(--navy);
+      border-bottom: 3px solid var(--accent);
+      border-radius: 10px 10px 0 0;
+      padding: 18px 20px;
+      text-align: center;
+    }
+
+    .head img { height: 44px; margin-bottom: 8px; }
+    .head h1 { font-family: 'DM Serif Display', serif; color: #fff; font-size: 20px; font-weight: 400; }
+    .head p { color: var(--accent); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      padding: 22px 20px 26px;
+      box-shadow: 0 4px 20px rgba(13, 31, 60, .1);
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: #F7F9FC;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #C6CEDA; flex: none; }
+    .status.ok .dot { background: var(--success); }
+    .status.ok { color: var(--success); border-color: #BFE0C7; background: #F1F9F3; }
+    .status.err .dot { background: var(--danger); }
+    .status.err { color: var(--danger); border-color: #EFC9C9; background: #FDF3F3; }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 8px;
+      background: var(--navy);
+      color: #fff;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .btn.ghost { background: #fff; color: var(--navy); border: 1.5px solid var(--border); }
+    .btn:disabled { opacity: .45; }
+
+    .note { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 14px; }
+
+    .sent { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .sent h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); margin-bottom: 8px; }
+    .sent-item { display: flex; align-items: center; gap: 10px; font-size: 13px; padding: 7px 0; }
+    .sent-item img { width: 42px; height: 42px; object-fit: cover; border-radius: 5px; border: 1px solid var(--border); }
+    .sent-item .pdfbox { width: 42px; height: 42px; border-radius: 5px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--danger); }
+    .sent-item .tick { margin-left: auto; color: var(--success); font-weight: 700; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="head">
+      <img src="logo.png" alt="VDM" onerror="this.style.display='none'">
+      <h1>Send a Document</h1>
+      <p>Client Questionnaire</p>
+    </div>
+    <div class="card">
+      <div class="status" id="status"><span class="dot"></span><span id="statusText">Connecting to your computer…</span></div>
+
+      <label class="btn" id="btnCamera">
+        📷 Take a Photo
+        <input type="file" accept="image/*" capture="environment" hidden onchange="pick(this)">
+      </label>
+      <label class="btn ghost" id="btnFile">
+        📁 Choose an Image or PDF
+        <input type="file" accept="image/*,application/pdf" multiple hidden onchange="pick(this)">
+      </label>
+
+      <p class="note">The document is sent straight to the computer that showed the QR code. It is not uploaded to any VDM server.</p>
+
+      <div class="sent" id="sentWrap" style="display:none">
+        <h2>Sent</h2>
+        <div id="sentList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MAX_IMAGE_PX = 1800, JPEG_QUALITY = 0.82, CHUNK = 48 * 1024;
+    const hostId = location.hash.replace(/^#/, '');
+    let conn = null, ready = false;
+
+    function setStatus(text, cls) {
+      document.getElementById('statusText').textContent = text;
+      document.getElementById('status').className = 'status' + (cls ? ' ' + cls : '');
+    }
+
+    function setEnabled(on) {
+      ready = on;
+      document.querySelectorAll('.btn input').forEach(i => i.disabled = !on);
+      document.querySelectorAll('.btn').forEach(b => b.style.opacity = on ? 1 : .45);
+    }
+
+    setEnabled(false);
+
+    if (!hostId) {
+      setStatus('This link is incomplete. Please scan the QR code again from your computer.', 'err');
+    } else {
+      const peer = new Peer(null, { debug: 0 });
+      peer.on('open', () => {
+        conn = peer.connect(hostId, { reliable: true });
+        conn.on('open', () => { setStatus('Connected to your computer.', 'ok'); setEnabled(true); });
+        conn.on('close', () => { setStatus('Disconnected. Scan the QR code again.', 'err'); setEnabled(false); });
+        conn.on('error', () => { setStatus('Connection problem. Scan the QR code again.', 'err'); setEnabled(false); });
+      });
+      peer.on('error', () => { setStatus('Could not reach your computer. Make sure the QR window is still open, then scan again.', 'err'); setEnabled(false); });
+    }
+
+    function readAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result); r.onerror = reject; r.readAsDataURL(file);
+      });
+    }
+
+    function downscale(dataUrl) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, MAX_IMAGE_PX / Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          resolve(c.toDataURL('image/jpeg', JPEG_QUALITY));
+        };
+        img.onerror = () => reject(new Error('decode failed'));
+        img.src = dataUrl;
+      });
+    }
+
+    async function pick(input) {
+      const files = [...input.files];
+      input.value = '';
+      for (const f of files) await send(f);
+    }
+
+    async function send(file) {
+      if (!ready || !conn || !conn.open) { setStatus('Not connected yet — please wait a moment.', 'err'); return; }
+      const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+      setStatus('Preparing ' + file.name + '…');
+      let dataUrl;
+      try {
+        dataUrl = await readAsDataURL(file);
+        if (!isPdf) dataUrl = await downscale(dataUrl);
+      } catch (e) {
+        setStatus('That file could not be read. Please try another.', 'err');
+        return;
+      }
+      const id = Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      conn.send({ t: 'start', id, name: file.name || 'document', mime: isPdf ? 'application/pdf' : 'image/jpeg' });
+      for (let i = 0; i < dataUrl.length; i += CHUNK) {
+        conn.send({ t: 'chunk', id, d: dataUrl.slice(i, i + CHUNK) });
+        setStatus('Sending… ' + Math.min(100, Math.round((i + CHUNK) / dataUrl.length * 100)) + '%');
+        await new Promise(r => setTimeout(r, 0));
+      }
+      conn.send({ t: 'end', id });
+      setStatus('✓ Sent — check your computer screen.', 'ok');
+      addSent(file.name, isPdf ? null : dataUrl);
+    }
+
+    function addSent(name, thumb) {
+      document.getElementById('sentWrap').style.display = 'block';
+      const row = document.createElement('div');
+      row.className = 'sent-item';
+      row.innerHTML = (thumb ? `<img src="${thumb}" alt="">` : `<div class="pdfbox">PDF</div>`) +
+        `<span>${name.replace(/[&<>"]/g, '')}</span><span class="tick">✓</span>`;
+      document.getElementById('sentList').appendChild(row);
+    }
+  </script>
+</body>
+
+</html>

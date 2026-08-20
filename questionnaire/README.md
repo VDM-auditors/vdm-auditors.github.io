@@ -6,19 +6,38 @@ A professional, fully self-contained client onboarding form for **VDM Audit** (E
 
 ## Overview
 
-This form guides new and existing clients through a structured 4-step onboarding process, collecting all information required for registration and compliance purposes. On completion, it generates a professionally formatted PDF that is automatically emailed to the VDM Audit team.
+This form guides new and existing clients through a structured 5-step onboarding process, collecting all information required for registration and compliance purposes. On completion, it generates a professionally formatted PDF that is automatically emailed to the VDM Audit team.
 
 ---
 
 ## Features
 
-### 4-Step Wizard
+### 5-Step Wizard
 | Step | Description |
 |------|-------------|
-| **1 — Entity Info** | Date, entity name, registration and tax reference numbers, addresses, responsible persons |
-| **2 — Entity Type** | Select organisation type, contact details, and services required |
+| **1 — Entity Type** | Select organisation type, contact details, and services required |
+| **2 — Entity Info** | Date, entity name, registration and tax reference numbers, addresses, responsible persons |
 | **3 — Details** | Entity-specific people and information (directors, trustees, members, etc.) |
-| **4 — Sign & Submit** | Signature capture and final declaration for each responsible person |
+| **4 — Attachments** | Upload an ID document for each person, plus any additional supporting documents |
+| **5 — Sign & Submit** | Signature capture and final declaration for each responsible person |
+
+### Attachments
+
+Every person captured in step 3 gets their own upload slot, and there is an
+**Additional Attachments** slot for share certificates, proof of address, trust deeds
+or anything else. Images and PDFs are accepted (max 12 MB per file) and each one is
+appended to the generated PDF as its own page.
+
+There are three ways to add a document:
+
+- **Upload** — choose a file, or drag one onto the slot
+- **Take Photo** — on a phone or tablet, opens the camera directly
+- **Scan with Phone** — on a computer, shows a QR code; scan it with the phone camera,
+  photograph the document on the phone, and it appears on the computer instantly
+
+Documents are never uploaded to a VDM server. The phone sends the photo directly to
+the computer over an encrypted peer-to-peer connection, and everything stays in the
+browser until it is written into the PDF.
 
 ### Supported Entity Types
 
