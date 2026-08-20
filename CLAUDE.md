@@ -30,6 +30,8 @@ vdm-auditors.github.io/
 ├── questionnaire/
 │   ├── index.html          # Client intake form wizard (HTML+CSS+JS)
 │   ├── attachments.js      # Step 4 — uploads, QR/WebRTC phone capture, PDF embedding
+│   ├── mandate.js          # Step 5 — CIPC beneficial ownership mandate + live preview
+│   ├── mandate-pdf.js      # Step 5 — mandate page rendering into the jsPDF document
 │   ├── upload.html         # Phone-side capture page (opened via QR code)
 │   ├── logo.png
 │   └── README.md

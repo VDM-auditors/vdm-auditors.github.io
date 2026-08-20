@@ -1352,10 +1352,9 @@
   <div class="form-header">
     <div class="header-banner">
       <div class="banner-rule"></div>
-      <!-- The logo is the way back to the VDM menu, in every app in the pack. -->
-      <a href="https://vdm-menu.chraetenlategan.workers.dev/" title="Back to the VDM menu" style="display:inline-flex;line-height:0">
-        <img src="logo.png" class="header-logo" alt="VDM Audit Logo">
-      </a>
+      <!-- No link on the logo: this page is sent to clients and must not lead them
+           into the internal VDM menu. -->
+      <img src="logo.png" class="header-logo" alt="VDM Audit Logo">
       <div class="banner-rule right"></div>
     </div>
     <div class="header-inner">
@@ -1378,7 +1377,8 @@
         <div class="step-pill" id="pill2" onclick="navToStep(2)">2 — Entity Info</div>
         <div class="step-pill" id="pill3" onclick="navToStep(3)">3 — Details</div>
         <div class="step-pill" id="pill4" onclick="navToStep(4)">4 — Attachments</div>
-        <div class="step-pill" id="pill5" onclick="navToStep(5)">5 — Sign &amp; Submit</div>
+        <div class="step-pill" id="pill5" onclick="navToStep(5)">5 — Mandate</div>
+        <div class="step-pill" id="pill6" onclick="navToStep(6)">6 — Sign &amp; Submit</div>
       </div>
 
       <!-- STEP 1 — Entity Type -->
@@ -1779,12 +1779,22 @@
         <div style="display:flex; justify-content:space-between; margin-top:4px">
           <button class="btn-apply" style="background:var(--border); color:var(--text)" onclick="goStep(3)">←
             Back</button>
-          <button class="btn-apply" onclick="goStep(5)">Continue → Sign &amp; Submit</button>
+          <button class="btn-apply" onclick="goStep(5)">Continue → Mandate</button>
         </div>
       </div>
 
-      <!-- STEP 5 — Sign & Submit -->
+      <!-- STEP 5 — CIPC Beneficial Ownership Mandate -->
       <div id="step5" class="hidden">
+        <div id="mandateContainer"></div>
+        <div style="display:flex; justify-content:space-between; margin-top:4px">
+          <button class="btn-apply" style="background:var(--border); color:var(--text)" onclick="goStep(4)">←
+            Back</button>
+          <button class="btn-apply" onclick="goStep(6)">Continue → Sign &amp; Submit</button>
+        </div>
+      </div>
+
+      <!-- STEP 6 — Sign & Submit -->
+      <div id="step6" class="hidden">
         <div class="card consent-section">
           <div class="card-header">Disclosure &amp; Consent</div>
           <div class="card-body">
@@ -1842,8 +1852,8 @@
     };
 
     function updateProgress() {
-      document.getElementById('progressBar').style.width = (currentStep / 5 * 100) + '%';
-      for (let i = 1; i <= 5; i++) {
+      document.getElementById('progressBar').style.width = (currentStep / 6 * 100) + '%';
+      for (let i = 1; i <= 6; i++) {
         const pill = document.getElementById('pill' + i);
         if (i === currentStep) pill.className = 'step-pill active';
         else if (i < currentStep || i <= maxStepReached) pill.className = 'step-pill done';
@@ -1856,14 +1866,15 @@
 
     function goStep(n) {
       if (n === 4) VDMAttach.build(state);
-      if (n === 5) buildSigningStep();
+      if (n === 5) VDMMandate.build(state);
+      if (n === 6) buildSigningStep();
       if (n === 2 && state.entityType) {
         updateEntityInfoLabels(state.entityType);
         document.getElementById('step2_extra').classList.remove('hidden');
         document.getElementById('step2_nav').style.display = 'flex';
         document.getElementById('step2_nav').classList.remove('hidden');
       }
-      ['step1', 'step2', 'step3', 'step4', 'step5'].forEach((s, i) => {
+      ['step1', 'step2', 'step3', 'step4', 'step5', 'step6'].forEach((s, i) => {
         document.getElementById(s).classList.toggle('hidden', i + 1 !== n);
       });
       currentStep = n;
@@ -2193,8 +2204,16 @@
         return;
       }
 
+      const mandateError = VDMMandate.validate();
+      if (mandateError) {
+        alert(mandateError);
+        goStep(5);
+        return;
+      }
+
       const formData = collectAllFormData();
       Object.assign(formData, VDMAttach.summary());
+      Object.assign(formData, VDMMandate.summary());
       submitToFormspree(formData);
 
       const { jsPDF } = window.jspdf;
@@ -2281,6 +2300,11 @@
       else if (state.entityType === 'school') { pdfSigPeople.push({ role: 'Head of Financial Committee', idx: 0 }); }
       else if (state.entityType === 'bodycorp') { for (let i = 1; i <= state.counts.bc_trustees; i++)pdfSigPeople.push({ role: 'Trustee', idx: i - 1 }); }
       pdfSigPeople.forEach(({ role, idx }) => signingBlock(role, idx));
+
+      // Mandate — CIPC beneficial ownership resolution, if the client included it
+      try {
+        VDMMandate.appendToPdf(doc, { W, margin });
+      } catch (e) { console.error('Mandate rendering error:', e); }
 
       // Attachments — ID documents and any additional uploads
       try {
@@ -2633,6 +2657,8 @@
     updateProgress();
   </script>
   <script src="attachments.js"></script>
+  <script src="mandate-pdf.js"></script>
+  <script src="mandate.js"></script>
 </body>
 
 </html>

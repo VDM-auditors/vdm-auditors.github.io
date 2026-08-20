@@ -12,6 +12,8 @@ Client onboarding intake form for VDM Audit. Fully self-contained single HTML fi
 questionnaire/
 ├── index.html      # Wizard application: HTML + CSS + JS
 ├── attachments.js  # Step 4 — file uploads, phone (QR/WebRTC) capture, PDF embedding
+├── mandate.js      # Step 5 — CIPC beneficial ownership mandate: fields, live preview, signature
+├── mandate-pdf.js  # Step 5 — draws the mandate page into the jsPDF document
 ├── upload.html     # Phone-side capture page opened by scanning the QR code
 ├── logo.png        # VDM Audit logo used in form header and generated PDF
 └── README.md       # User-facing documentation
@@ -21,11 +23,11 @@ questionnaire/
 
 | Layer | Description |
 |-------|-------------|
-| `<style>` | All CSS — responsive layout, 5-step wizard, attachment slots, signature pad, print styles |
-| `<body>` | 5-step wizard form, attachment containers, signature canvas per signatory, submit / send section |
+| `<style>` | All CSS — responsive layout, 6-step wizard, attachment slots, signature pad, print styles |
+| `<body>` | 6-step wizard form, attachment containers, signature canvas per signatory, submit / send section |
 | `<script>` | All JS — wizard navigation, PDF generation (jsPDF), docx generation, mailto dispatch |
 
-### 5-step wizard flow
+### 6-step wizard flow
 
 | Step | Content |
 |------|---------|
@@ -33,7 +35,28 @@ questionnaire/
 | 2 — Entity Info | Date, entity name, registration/tax numbers, addresses, responsible persons |
 | 3 — Details | Entity-specific people (directors, trustees, members, etc.) |
 | 4 — Attachments | One ID-document slot per person + free-form additional attachments (`attachments.js`) |
-| 5 — Sign & Submit | Signature capture (canvas) per person, declaration, send |
+| 5 — Mandate | CIPC beneficial ownership resolution — live A4 preview, place/date, signatory, signature (`mandate.js`) |
+| 6 — Sign & Submit | Signature capture (canvas) per person, declaration, send |
+
+### Mandate (step 5)
+
+`mandate.js` owns the step. It reuses the entity details from step 2 and the people from
+step 3 — nothing is re-typed — and renders a live A4 preview of the resolution that
+updates on every keystroke. The client picks the town, the day / month / year (prefilled
+with today, all three editable), the signing director, and signs on a canvas.
+
+Two things on the resolution are **constant and must not become inputs**: the Agent
+(Leon van der Merwe, ID 680813 5004 08 3, `cipro@vdmaudit.co.za`, CIPC code HLVDM3) and
+the right-hand witness block (HIRSCHBERG, RINA — ID 541130 0131 08 7 — WITNESS).
+
+Ticked by default for **company / CC / NPO** — the types that actually file beneficial
+ownership with the CIPC. Trust, school and body corporate can opt in, but note the
+boilerplate still reads "board of directors". Never shown for `individual`: a board
+resolution has no meaning there.
+
+On submit the mandate is drawn by `mandate-pdf.js` as one page of the questionnaire PDF,
+placed after the signing blocks and before the attachment pages. `VDMMandate.validate()`
+blocks submission if the mandate is included but unsigned or incomplete.
 
 ### Attachments (step 4)
 
@@ -69,13 +92,13 @@ page per image; PDF attachments are rasterised page-by-page with pdf.js (rendere
 ### Data flow
 
 ```
-User completes 5-step wizard (DOM inputs + attachments + canvas signatures)
+User completes 6-step wizard (DOM inputs + attachments + mandate + canvas signatures)
   ↓
 JS collects all values into a data object
   ↓
 jsPDF (CDN) generates A4 PDF entirely in browser
   (includes logo banner, entity badge, all form fields, signatures,
-   and one appended page per attachment)
+   the mandate page, and one appended page per attachment)
   ↓
 User selects recipient from staff email dropdown
   ↓
@@ -115,7 +138,7 @@ git push origin main
 
 # Test PDF generation
 # 1. Open index.html in browser
-# 2. Complete all 5 steps (use test/dummy data only)
+# 2. Complete all 6 steps (use test/dummy data only)
 # 3. Capture a signature on the canvas
 # 4. Select a recipient, click generate — verify PDF looks correct
 # 5. Do NOT send to real recipients during testing
@@ -124,7 +147,7 @@ git push origin main
 | Task | Steps |
 |------|-------|
 | Local preview | Open `questionnaire/index.html` in browser |
-| Test full flow | Complete all 5 steps → attach a file → capture signature → verify PDF |
+| Test full flow | Complete all 6 steps → attach a file → sign the mandate → capture signature → verify PDF |
 | Test phone capture | Open step 4 → Scan with Phone. From `file://` or `localhost` the QR points at the **deployed** `upload.html` (a phone cannot reach your machine), so `upload.html` must already be pushed for the scan to work. |
 | Deploy | `git push origin main` |
 | Add/remove staff email | Edit the `<select>` options in Step 4 of `index.html` |
@@ -142,3 +165,5 @@ git push origin main
 - NEVER route attachments through a server or third-party store — the phone-to-desktop link is peer-to-peer by design (POPIA)
 - NEVER replace the mailto: send pattern with a server-side send without a full security review
 - NEVER remove the staff email dropdown validation — recipient must be selected before send is enabled
+- NEVER put a link on the header logo — this page is sent to clients and must not lead them into the internal VDM menu
+- NEVER turn the mandate's Agent or witness details into form fields — they are fixed VDM identities
