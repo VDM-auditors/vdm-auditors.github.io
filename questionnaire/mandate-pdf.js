@@ -6,6 +6,45 @@
 (function () {
   'use strict';
 
+  const DASH = '—';
+  const EOL = String.fromCharCode(10);
+  const NEWLINES = /\n+/g;
+
+  const PT = 25.4 / 72;   /* points to mm */
+
+  /* jsPDF centres a single-line field's text in its box. Measured against
+     static text of the same size, the baseline lands this far below the box
+     top; the offset depends on the font size, not on the box height, so a box
+     can be made comfortably tall for clicking without moving its text. */
+  function baselineDrop(fs, h) {
+    return h / 2 + (0.010556 * fs * fs + 0.10644 * fs) * PT;
+  }
+
+  /* An editable value on the mandate page. `baseline` is the y the equivalent
+     doc.text() call would have used, so a field drops straight into the layout
+     in place of static text. Multiline fields are laid out from their top. */
+  function field(doc, name, value, o) {
+    const fs = o.size || 10.5;
+    const f = new window.jspdf.AcroFormTextField();
+    let top, h;
+    if (o.lines) {
+      h = o.lines * fs * 1.19 * PT + 2;
+      top = o.baseline - 0.8095 * fs * PT;
+      f.multiline = true;
+    } else {
+      h = Math.max(fs * PT * 1.6, 4.5);
+      top = o.baseline - baselineDrop(fs, h);
+    }
+    f.Rect = [o.x, top, o.w, h];
+    f.fieldName = name;
+    f.value = value == null ? '' : String(value);
+    f.fontName = 'helvetica';
+    f.fontStyle = o.bold ? 'bold' : 'normal';
+    f.fontSize = fs;
+    f.textAlign = o.align || 'center';
+    doc.addField(f);
+  }
+
   /* Lay out a paragraph that mixes regular and bold runs, justified like the
      printed resolution. Returns the y position after the last line. */
   function richPara(doc, segs, x, y, maxW, lh, size) {
@@ -73,17 +112,26 @@
     doc.setTextColor(0, 0, 0);
 
     let y = 34;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(19);
-    doc.text((d.company || 'ENTITY NAME').toUpperCase(), cx, y, { align: 'center', maxWidth: cw });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5);
+
+    field(doc, 'mandate_company', (d.company || 'ENTITY NAME').toUpperCase(),
+      { x: margin, w: cw, baseline: y, size: 19, bold: true });
     y += 10;
 
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5);
-    doc.text('Registration No.: ' + (d.regNo || '—'), cx, y, { align: 'center' }); y += 6.5;
-    doc.text('Telephone No.: ' + (d.tel || '—'), cx, y, { align: 'center' }); y += 6.5;
+    field(doc, 'mandate_registration', 'Registration No.: ' + (d.regNo || DASH),
+      { x: margin, w: cw, baseline: y }); y += 6.5;
+    field(doc, 'mandate_telephone', 'Telephone No.: ' + (d.tel || DASH),
+      { x: margin, w: cw, baseline: y }); y += 6.5;
 
-    const addrLines = doc.splitTextToSize('Registered Address: ' + (d.address || '—').replace(/\n+/g, ', '), cw);
-    addrLines.forEach(l => { doc.text(l, cx, y, { align: 'center' }); y += 5.2; });
-    y += 4;
+    /* The address wraps. A reader wraps a multiline field on its own metrics and
+       runs past the margin, so the breaks are made here and baked into the
+       value; the field is sized to the text it starts with, and whatever
+       follows on the page must not move. */
+    const addrText = 'Registered Address: ' + (d.address || DASH).replace(NEWLINES, ', ');
+    const addrWrapped = doc.splitTextToSize(addrText, cw - 6);
+    field(doc, 'mandate_address', addrWrapped.join(EOL),
+      { x: margin, w: cw, baseline: y, lines: addrWrapped.length });
+    y += 5.2 * addrWrapped.length + 4;
 
     doc.setFont('helvetica', 'bold');
     doc.text('("the Company")', cx, y, { align: 'center' });
@@ -133,19 +181,20 @@
 
     /* ── Signed at … on this … day of … 20 … ── */
     doc.setLineWidth(0.3);
-    const segLine = (label, text, x, width) => {
+    /* The label stays fixed; the value above the rule is the editable part. */
+    const segLine = (label, name, text, x, width) => {
       doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5);
       doc.text(label, x, y);
       const lx = x + doc.getTextWidth(label) + 1.5;
       doc.line(lx, y + 1.2, lx + width, y + 1.2);
-      if (text) doc.text(text, lx + width / 2, y - 0.4, { align: 'center' });
+      field(doc, name, text, { x: lx, w: width, baseline: y - 0.4 });
       return lx + width + 2;
     };
     let x = margin;
-    x = segLine('Signed at ', d.place, x, 46);
-    x = segLine(' on this ', d.dayOrdinal, x, 15);
-    x = segLine(' day of ', d.month, x, 32);
-    x = segLine(' 20', (d.year || '').slice(-2), x, 10);
+    x = segLine('Signed at ', 'mandate_place', d.place, x, 46);
+    x = segLine(' on this ', 'mandate_day', d.dayOrdinal, x, 15);
+    x = segLine(' day of ', 'mandate_month', d.month, x, 32);
+    x = segLine(' 20', 'mandate_year', (d.year || '').slice(-2), x, 10);
     doc.text('.', x, y);
     y += 24;
 
@@ -165,18 +214,18 @@
     doc.line(rightX, y, rightX + colW, y);
     y += 5;
 
-    const block = (bx, name, idNum, role) => {
+    /* Both blocks are editable, including the witness — VDM may need to send
+       the mandate out under a different witness than the standing one. */
+    const block = (bx, key, name, idNum, role) => {
       let by = y;
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-      doc.text(name, bx + colW / 2, by, { align: 'center', maxWidth: colW });
+      field(doc, key + '_name', name, { x: bx, w: colW, baseline: by, size: 10, bold: true });
       by += 4.8;
-      doc.setFont('helvetica', 'normal');
-      doc.text('IDENTITY NUMBER:  ' + (idNum || '—'), bx + colW / 2, by, { align: 'center', maxWidth: colW });
+      field(doc, key + '_id', 'IDENTITY NUMBER:  ' + (idNum || DASH), { x: bx, w: colW, baseline: by, size: 10 });
       by += 4.8;
-      doc.text(role, bx + colW / 2, by, { align: 'center', maxWidth: colW });
+      field(doc, key + '_capacity', role, { x: bx, w: colW, baseline: by, size: 10 });
     };
-    block(leftX, d.name || '', d.id, d.capacity);
-    block(rightX, WITNESS.name, WITNESS.id, WITNESS.role);
+    block(leftX, 'mandate_signatory', d.name || '', d.id, d.capacity);
+    block(rightX, 'mandate_witness', WITNESS.name, WITNESS.id, WITNESS.role);
   }
 
   window.VDMMandatePdf = { render };

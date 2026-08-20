@@ -58,6 +58,31 @@ On submit the mandate is drawn by `mandate-pdf.js` as one page of the questionna
 placed after the signing blocks and before the attachment pages. `VDMMandate.validate()`
 blocks submission if the mandate is included but unsigned or incomplete.
 
+#### Editable fields and document protection
+
+The mandate page is the **only** editable part of the PDF — it carries 14 AcroForm text
+fields (`mandate_company`, `mandate_registration`, `mandate_telephone`, `mandate_address`,
+`mandate_place`, `mandate_day`, `mandate_month`, `mandate_year`, and `_name` / `_id` /
+`_capacity` for both `mandate_signatory` and `mandate_witness`). Every other page is flat.
+The witness block is editable too, so VDM can send the mandate out under someone other than
+the standing witness.
+
+Fields are positioned by baseline, not by box: `field()` in `mandate-pdf.js` converts the y
+a `doc.text()` call would have used into a box top, using a measured fit of how jsPDF
+centres text in a widget. Changing that fit shifts every value on the page — re-measure
+against static text before touching it. The address is multiline and its line breaks are
+computed with `splitTextToSize` and baked into the value, because a reader wraps a
+multiline field on its own metrics and overruns the margin.
+
+The whole PDF is created with `encryption: { ownerPassword: MANDATE_OWNER_PASSWORD,
+userPermissions: ['print', 'annot-forms'] }`. It **opens with no password**; the password
+is only needed to alter the document. `annot-forms` is what keeps the fields fillable and
+lets a witness drop in a Fill & Sign signature.
+
+This protection is a guardrail against accidental edits, **not security**. The password is
+plainly visible in `index.html`, and jsPDF's handler is 40-bit RC4, which any commodity tool
+strips in seconds. Never describe it to a client as securing the document.
+
 ### Attachments (step 4)
 
 `attachments.js` owns the whole step. It builds one upload slot per person derived from
@@ -156,7 +181,9 @@ git push origin main
 
 ## Prohibitions
 
-- NEVER embed secrets, API keys, or passwords in client-side JS
+- NEVER embed secrets, API keys, or passwords in client-side JS. The one deliberate exception is
+  `MANDATE_OWNER_PASSWORD` — a PDF permissions password that has to be applied in the browser and
+  guards nothing but the document's own wording. Do not treat it as a precedent for real credentials
 - NEVER auto-send email without explicit user confirmation — the mailto: pattern is intentional; user must send manually from their email client
 - NEVER run destructive git commands without explicit user request
 - NEVER create new files in the repo root
@@ -166,4 +193,6 @@ git push origin main
 - NEVER replace the mailto: send pattern with a server-side send without a full security review
 - NEVER remove the staff email dropdown validation — recipient must be selected before send is enabled
 - NEVER put a link on the header logo — this page is sent to clients and must not lead them into the internal VDM menu
-- NEVER turn the mandate's Agent or witness details into form fields — they are fixed VDM identities
+- NEVER turn the mandate's Agent or witness details into wizard inputs — they are fixed VDM identities
+  (they are editable in the generated PDF, which is a separate thing)
+- NEVER add form fields to any page of the PDF other than the mandate page

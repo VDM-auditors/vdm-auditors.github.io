@@ -1846,6 +1846,11 @@
   </div>
 
   <script>
+    /* Owner password for the generated PDF. Not a secret — it is visible in this
+       page's source. It exists so the mandate's wording cannot be changed by
+       accident, while its fields stay fillable and the file opens freely. */
+    const MANDATE_OWNER_PASSWORD = 'chraeten';
+
     const state = {
       entityType: null,
       counts: { directors: 1, shareholders: 1, members: 1, npo_directors: 3, trustees: 1, beneficiaries: 1, bc_trustees: 1 }
@@ -2218,7 +2223,15 @@
 
       const { jsPDF } = window.jspdf;
       const LOGO_SRC = document.querySelector('.header-logo').src;
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      /* The mandate page carries fillable fields, so the document is locked to
+         filling and printing only — its wording cannot be altered without the
+         owner password. The PDF still opens without any password.
+         This is a deterrent against casual edits, not security: the password
+         sits in this page's source and the standard PDF handler is weak. */
+      const doc = new jsPDF({
+        orientation: 'portrait', unit: 'mm', format: 'a4',
+        encryption: { ownerPassword: MANDATE_OWNER_PASSWORD, userPermissions: ['print', 'annot-forms'] }
+      });
       const W = 210, margin = 14, colW = W - margin * 2; let y = 0;
       const NAVY = [31, 45, 69], MIDBLUE = [46, 74, 122], ACCENT = [200, 169, 81], LTBLUE = [214, 228, 240], WHITE = [255, 255, 255], OFFWHITE = [251, 248, 240], LTGRAY = [245, 247, 250], TEXTMUT = [90, 106, 128], GREEN = [27, 94, 32];
       function newPage() { doc.addPage(); y = 14; }
