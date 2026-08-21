@@ -6,6 +6,7 @@
 |--------|-------|
 | Wills wizard | [Wills/CLAUDE.md](Wills/CLAUDE.md) |
 | Client questionnaire | [questionnaire/CLAUDE.md](questionnaire/CLAUDE.md) |
+| New entity registration | [new-entity-registration/CLAUDE.md](new-entity-registration/CLAUDE.md) |
 
 > **Moved out:** the Financial Statements generator that used to live in
 > `VDM.financials/` is now the `web/` directory of the **VDM-auditors/PolicyGenerator**
@@ -35,7 +36,18 @@ vdm-auditors.github.io/
 │   ├── upload.html         # Phone-side capture page (opened via QR code)
 │   ├── logo.png
 │   └── README.md
+├── new-entity-registration/    # Copy of questionnaire/ for entities not yet registered
+│   ├── index.html          # 5-step wizard — no registration/tax numbers, no mandate step
+│   ├── attachments.js      # Step 4 — uploads, QR/WebRTC phone capture, PDF embedding
+│   ├── upload.html         # Phone-side capture page (opened via QR code)
+│   ├── logo.png
+│   ├── CLAUDE.md
+│   └── README.md
 ```
+
+> **Two independent copies:** `questionnaire/` and `new-entity-registration/` share no
+> code. A fix to wizard navigation, attachments, styling or PDF layout in one must be
+> applied to the other by hand.
 
 ### Data flow — questionnaire / Wills
 
