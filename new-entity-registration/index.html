@@ -815,6 +815,81 @@
       height: 18px;
     }
 
+    /* ── Proposed names in order of preference (step 2) ───────────── */
+    .name-choice {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .name-choice .field {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Only the types that actually reserve a name see the ranked list — for
+       everyone else the first row is just a plain name field. */
+    .name-chrome,
+    .name-rank,
+    .name-move,
+    .name-choice.alt {
+      display: none;
+    }
+
+    body.names-reserve .name-chrome {
+      display: block;
+    }
+
+    body.names-reserve .name-rank,
+    body.names-reserve .name-move,
+    body.names-reserve .name-choice.alt {
+      display: flex;
+    }
+
+    .name-rank {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-bottom: 9px;
+    }
+
+    .name-move {
+      gap: 4px;
+      flex-shrink: 0;
+      margin-bottom: 6px;
+    }
+
+    .name-move button {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--navy);
+      font-size: 11px;
+      line-height: 1;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .name-move button:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .name-move button:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
     .section-divider {
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--accent), transparent);
@@ -1579,8 +1654,48 @@
             <div class="form-grid">
               <div class="field span-2"><label>Date <span class="req">*</span></label><input type="date" id="ei_date"
                   required></div>
-              <div class="field span-2"><label id="ei_name_label">Proposed Entity Name <span class="req">*</span></label><input
-                  type="text" id="ei_name" placeholder="Proposed entity name"></div>
+            </div>
+            <div id="name_choices">
+              <p class="svc-group-label name-chrome" style="margin-top:4px">Proposed Names — In Order of Preference</p>
+              <div class="notice name-chrome">ℹ️ Up to four names may be submitted on one name reservation. They are
+                considered strictly in the order listed — the first name that is available is the one reserved. Use the
+                arrows to change the order.</div>
+              <div class="name-choice">
+                <span class="name-rank">1</span>
+                <div class="field"><label id="ei_name_label">Proposed Entity Name <span class="req">*</span></label><input type="text" id="ei_name"
+                    placeholder="Proposed entity name"></div>
+                <div class="name-move">
+                  <button type="button" onclick="moveNameChoice(0, -1)" title="Move up" disabled>▲</button>
+                  <button type="button" onclick="moveNameChoice(0, 1)" title="Move down">▼</button>
+                </div>
+              </div>
+              <div class="name-choice alt">
+                <span class="name-rank">2</span>
+                <div class="field"><label>Second Choice</label><input type="text" id="ei_name_2"
+                    placeholder="Alternative if the first is unavailable"></div>
+                <div class="name-move">
+                  <button type="button" onclick="moveNameChoice(1, -1)" title="Move up">▲</button>
+                  <button type="button" onclick="moveNameChoice(1, 1)" title="Move down">▼</button>
+                </div>
+              </div>
+              <div class="name-choice alt">
+                <span class="name-rank">3</span>
+                <div class="field"><label>Third Choice</label><input type="text" id="ei_name_3"
+                    placeholder="Alternative if the first two are unavailable"></div>
+                <div class="name-move">
+                  <button type="button" onclick="moveNameChoice(2, -1)" title="Move up">▲</button>
+                  <button type="button" onclick="moveNameChoice(2, 1)" title="Move down">▼</button>
+                </div>
+              </div>
+              <div class="name-choice alt">
+                <span class="name-rank">4</span>
+                <div class="field"><label>Fourth Choice</label><input type="text" id="ei_name_4"
+                    placeholder="Final alternative"></div>
+                <div class="name-move">
+                  <button type="button" onclick="moveNameChoice(3, -1)" title="Move up">▲</button>
+                  <button type="button" onclick="moveNameChoice(3, 1)" title="Move down" disabled>▼</button>
+                </div>
+              </div>
             </div>
             <div class="section-divider"></div>
             <div class="form-grid ei_hide_individual">
@@ -1914,9 +2029,27 @@
       showServicesForType(type);
     }
 
+    /* Proposed names, best first. Index 0 is ei_name — the name every other
+       part of the form, the PDF and the file name are built from. */
+    const NAME_CHOICE_IDS = ['ei_name', 'ei_name_2', 'ei_name_3', 'ei_name_4'];
+
+    function nameChoices() {
+      return NAME_CHOICE_IDS.map(id => val(id)).filter(Boolean);
+    }
+
+    function moveNameChoice(i, delta) {
+      const a = document.getElementById(NAME_CHOICE_IDS[i]);
+      const b = document.getElementById(NAME_CHOICE_IDS[i + delta]);
+      if (!a || !b) return;
+      const tmp = a.value; a.value = b.value; b.value = tmp;
+      b.focus();
+    }
+
     function updateEntityInfoLabels(type) {
       document.body.className = document.body.className.replace(/type-\S+/g, '').trim();
       document.body.classList.add('type-' + type);
+      // Only these reserve a name, so only these get the ranked alternatives.
+      document.body.classList.toggle('names-reserve', ['company', 'cc', 'npo', 'trust'].includes(type));
       const nameLabel = document.getElementById('ei_name_label');
       const respLabel = document.getElementById('ei_resp_label');
       const cardTitle = document.getElementById('ei_card_title');
@@ -2132,6 +2265,7 @@
       data.entity_type = state.entityType;
       data.date = val('ei_date');
       data.entity_name = val('ei_name');
+      data.proposed_names = nameChoices().join('  |  ');
       data.physical_address = val('ei_physical');
       data.registered_address = val('ei_registered');
       data.postal_address = val('ei_postal');
@@ -2222,7 +2356,9 @@
       // Entity Information
       const eiTitle = state.entityType === 'individual' ? 'Individual Information' : state.entityType === 'trust' ? 'Trust Entity Information' : state.entityType === 'school' ? 'School / Institution Information' : state.entityType === 'bodycorp' ? 'Body Corporate Information' : 'Entity Information';
       const eiNameLabel = state.entityType === 'individual' ? 'Person Name & Surname' : state.entityType === 'trust' ? 'Proposed Trust Name' : state.entityType === 'school' ? 'School / Institution Name' : state.entityType === 'bodycorp' ? 'Body Corporate / HOA Name' : 'Proposed Entity Name';
-      sectionHeader(eiTitle); fieldRow([['Date', val('ei_date')], [eiNameLabel, val('ei_name')]]);
+      const altNames = ['ei_name_2', 'ei_name_3', 'ei_name_4'].map(id => val(id)).filter(Boolean);
+      sectionHeader(eiTitle); fieldRow([['Date', val('ei_date')], [eiNameLabel + (altNames.length ? ' — 1st Choice' : ''), val('ei_name')]]);
+      for (let i = 0; i < altNames.length; i += 2) fieldRow([['Proposed Name — Choice ' + (i + 2), altNames[i]], [altNames[i + 1] ? 'Proposed Name — Choice ' + (i + 3) : '', altNames[i + 1] || '']]);
       divider();
       fieldFull('Physical Address', val('ei_physical')); fieldFull('Registered Address', val('ei_registered')); fieldFull('Postal Address', val('ei_postal')); fieldFull('Postal (Registered)', val('ei_postal_reg')); fieldFull('Principal Business Activity', val('ei_business')); divider();
       fieldRow([['Responsible Director', val('ei_resp_dir')], ['Contact Person', val('ei_contact')]]); fieldRow([['Email Address', val('ei_email')], ['Email (Contact)', val('ei_email_contact')]]); fieldRow([['Telephone Number', val('ei_tel')], ['Telephone (Contact)', val('ei_tel_contact')]]); spacer(4);

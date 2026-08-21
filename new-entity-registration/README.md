@@ -28,10 +28,24 @@ capture.
 | Step | Description |
 |------|-------------|
 | **1 — Entity Type** | Select organisation type, contact details, and services required |
-| **2 — Entity Info** | Date, proposed entity name, addresses, principal business activity, responsible persons |
+| **2 — Entity Info** | Date, proposed names in order of preference, addresses, principal business activity, responsible persons |
 | **3 — Details** | Entity-specific people (directors, shareholders, members, trustees, beneficiaries) |
 | **4 — Attachments** | Upload an ID document for each person, plus any supporting documents |
 | **5 — Sign & Submit** | Signature capture and final declaration for each responsible person |
+
+---
+
+## Proposed Names — In Order of Preference
+
+A name reservation lets you submit up to **four** candidate names. They are considered
+strictly in the order given: the first one that is still available is the name reserved.
+
+Step 2 asks for all four, numbered 1 to 4. Only the first is required — fill in as many
+alternatives as you like. Each row has ▲ ▼ arrows, so you can change your mind about the
+order without retyping anything.
+
+This appears for **companies, CCs, NPOs and trusts** — the entity types that reserve a
+name. Individuals, schools and body corporates just enter a single name as usual.
 
 ---
 

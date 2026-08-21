@@ -23,7 +23,7 @@ check whether the same change belongs in `questionnaire/` and apply it there too
 |------|------------------|------|
 | Steps | 6 (Mandate is step 5) | **5** — no mandate step |
 | Registration / Tax / VAT / UIF / PAYE fields | present in step 2 | **removed** — they do not exist yet |
-| Entity name | "Entity Name" | "**Proposed** Entity Name" / "Proposed Trust Name" |
+| Entity name | one field, "Entity Name" | up to **four proposed names in priority order** (see below) |
 | PDF encryption | owner-password locked, mandate page fillable | **none** — the PDF is flat, no AcroForm fields |
 | Files | `mandate.js`, `mandate-pdf.js` | not present |
 | PDF filename | `VDM_Questionnaire_…` | `VDM_Entity_Registration_…` |
@@ -54,6 +54,23 @@ new-entity-registration/
 | 3 — Details | Entity-specific people (directors, trustees, members, etc.) |
 | 4 — Attachments | One ID-document slot per person + free-form additional attachments (`attachments.js`) |
 | 5 — Sign & Submit | Signature capture (canvas) per person, declaration, send |
+
+### Proposed names in priority order (step 2)
+
+A name reservation carries up to four candidate names, considered strictly in order — the
+first available one is reserved. Step 2 captures them as a ranked list: `ei_name`,
+`ei_name_2`, `ei_name_3`, `ei_name_4`, listed in `NAME_CHOICE_IDS`. Up/down arrows on each
+row call `moveNameChoice(i, delta)`, which **swaps the input values** rather than moving
+DOM nodes, so the ids stay bound to their rank.
+
+`ei_name` is index 0 and is therefore always the first choice. Keep it that way — the PDF
+title, the mail subject, the download file name and both Word documents all read
+`ei_name` directly, and they must show the name the client actually wants most.
+
+The ranked list only appears for **company, CC, NPO and trust** — the types that reserve a
+name. Everyone else sees row 1 alone as an ordinary name field, driven by the
+`names-reserve` body class set in `updateEntityInfoLabels()`. Note that `individual` uses
+`ei_name` for a person's name, so the row-1 field can never be hidden or renamed away.
 
 ### Attachments (step 4)
 
