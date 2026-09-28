@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VDM — New / Current Client Questionnaire</title>
+  <title>VDM — Client Questionnaire</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
   <link
@@ -399,6 +399,163 @@
       align-items: center;
       justify-content: center;
       min-height: 110px;
+    }
+
+    /* ── Proposed names in order of preference (step 2) ───────────── */
+    .name-choice {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .name-choice .field {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Only the types that actually reserve a name see the ranked list — for
+       everyone else the first row is just a plain name field. */
+    .name-chrome,
+    .name-rank,
+    .name-move,
+    .name-choice.alt {
+      display: none;
+    }
+
+    body.names-reserve .name-chrome {
+      display: block;
+    }
+
+    body.names-reserve .name-rank,
+    body.names-reserve .name-move,
+    body.names-reserve .name-choice.alt {
+      display: flex;
+    }
+
+    .name-rank {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-bottom: 9px;
+    }
+
+    .name-move {
+      gap: 4px;
+      flex-shrink: 0;
+      margin-bottom: 6px;
+    }
+
+    .name-move button {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--navy);
+      font-size: 11px;
+      line-height: 1;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .name-move button:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .name-move button:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    /* ── Trust (step 3, trust.js) ─────────────────────────────────── */
+    .trust-notice { border-color: #8B5E3C; color: #5C3A1E; background: #FBF3EC; }
+    .trust-intro { color: var(--text-muted); font-size: 13px; line-height: 1.55; margin: 0 0 8px; }
+    .trust-intro:last-child { margin-bottom: 0; }
+    .trust-subhead { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 10px; }
+    .trust-check { margin-top: 14px; display: inline-flex; }
+    .field-hint { font-size: 11.5px; color: var(--text-muted); line-height: 1.45; margin: 2px 0 0; }
+    .field-msg { font-size: 11.5px; line-height: 1.45; margin: 2px 0 0; color: var(--danger); }
+    .field.invalid input, .field.invalid textarea, .field.invalid select { border-color: var(--danger); }
+    .field.warn input { border-color: #C8A951; }
+    .field.warn .field-msg { color: #856404; }
+    .guardian-fields[hidden] { display: none; }
+    .trust-blocker { border-color: var(--danger); color: var(--danger); background: #FDF0F0; margin-top: 4px; }
+    .trust-blocker[hidden] { display: none; }
+    .trust-success { margin: 20px auto 0; max-width: 520px; padding: 14px 18px; border-radius: var(--radius-sm); background: #FBF3EC; color: #5C3A1E; font-size: 13px; line-height: 1.55; text-align: left; }
+    .trust-success[hidden] { display: none; }
+
+    /* ── Opening choice: existing client or new entity (mode.js) ───── */
+    body.mode-new .existing-only,
+    body:not(.mode-new) .new-only {
+      display: none !important;
+    }
+
+    .mode-cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 560px) {
+      .mode-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mode-cards .entity-card {
+      padding: 28px 20px 24px;
+    }
+
+    .mode-cards .ec-icon {
+      font-size: 32px;
+    }
+
+    .mode-cards .ec-name {
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .mode-cards .ec-desc {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .mode-intro {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin: 0 0 16px;
+    }
+
+    .mode-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--accent-bg);
+      font-size: 12.5px;
+      color: var(--navy);
+    }
+
+    .mode-bar button {
+      border: none;
+      background: none;
+      color: var(--navy);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
     }
 
     .entity-card:hover {
@@ -1358,9 +1515,9 @@
       <div class="banner-rule right"></div>
     </div>
     <div class="header-inner">
-      <h1 class="header-title">New / Current Client Questionnaire</h1>
-      <p class="header-subtitle">Please ensure that all fields are completed accurately and in full. This information is
-        required for registration and compliance purposes</p>
+      <h1 class="header-title" id="headerTitle">Client Questionnaire</h1>
+      <p class="header-subtitle" id="headerSubtitle">Please ensure that all fields are completed accurately and in full.
+        This information is required for registration and compliance purposes</p>
     </div>
     <div class="progress-bar-wrap">
       <div class="progress-bar-fill" id="progressBar"></div>
@@ -1372,17 +1529,48 @@
 
     <div id="mainForm">
 
-      <div class="step-nav">
-        <div class="step-pill active" id="pill1" onclick="navToStep(1)">1 — Entity Type</div>
+      <!-- STEP 0 — Existing client or new entity (mode.js) -->
+      <div id="step0">
+        <div class="card" style="animation-delay:0.05s">
+          <div class="card-header">What Would You Like Us To Do?</div>
+          <div class="card-body">
+            <p class="mode-intro">Choose the option that fits. The form adapts to your answer — you can change it
+              again on the next page.</p>
+            <div class="entity-cards mode-cards">
+              <div class="entity-card" onclick="VDMMode.choose('existing')" id="mode_existing">
+                <div class="ec-check">✓</div>
+                <div class="ec-icon">🤝</div>
+                <div class="ec-name">New / Existing Client</div>
+                <div class="ec-desc">The company, trust, CC or other entity is already registered, and you would like
+                  VDM to take it on or update the details we hold.</div>
+              </div>
+              <div class="entity-card" onclick="VDMMode.choose('new')" id="mode_new">
+                <div class="ec-check">✓</div>
+                <div class="ec-icon">✨</div>
+                <div class="ec-name">Register a New Entity</div>
+                <div class="ec-desc">The entity does not exist yet — you would like VDM to register a new company,
+                  trust, CC or NPO for you.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav hidden" id="stepNav">
+        <div class="step-pill" id="pill1" onclick="navToStep(1)">1 — Entity Type</div>
         <div class="step-pill" id="pill2" onclick="navToStep(2)">2 — Entity Info</div>
         <div class="step-pill" id="pill3" onclick="navToStep(3)">3 — Details</div>
         <div class="step-pill" id="pill4" onclick="navToStep(4)">4 — Attachments</div>
-        <div class="step-pill" id="pill5" onclick="navToStep(5)">5 — Mandate</div>
-        <div class="step-pill" id="pill6" onclick="navToStep(6)">6 — Sign &amp; Submit</div>
+        <div class="step-pill existing-only" id="pill5" onclick="navToStep(5)">5 — Mandate</div>
+        <div class="step-pill" id="pill6" onclick="navToStep(6)"><span class="existing-only">6</span><span class="new-only">5</span> — Sign &amp; Submit</div>
       </div>
 
       <!-- STEP 1 — Entity Type -->
-      <div id="step1">
+      <div id="step1" class="hidden">
+        <div class="mode-bar">
+          <span id="modeLabel"></span>
+          <button type="button" onclick="VDMMode.showChoice()">Change</button>
+        </div>
         <div class="card" style="animation-delay:0.05s">
           <div class="card-header">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1514,7 +1702,9 @@
                 of the trust).
               </div>
               <div class="form-grid" style="margin-top:16px">
-                <div class="field"><label>Number of Trustees <span class="req">*</span></label>
+                <div class="field"><label>Number of Trustees <span class="req">*</span> <span
+                      style="font-weight:400;font-style:italic;text-transform:none;letter-spacing:0">(besides the
+                      independent trustee)</span></label>
                   <div class="count-selector"><button class="count-btn" onclick="adjustCount('trustees', -1)">−</button>
                     <div class="count-display" id="count_trustees">1</div><button class="count-btn"
                       onclick="adjustCount('trustees', +1)">+</button>
@@ -1579,8 +1769,50 @@
             <div class="form-grid">
               <div class="field span-2"><label>Date <span class="req">*</span></label><input type="date" id="ei_date"
                   required></div>
-              <div class="field span-2"><label id="ei_name_label">Entity Name <span class="req">*</span></label><input
-                  type="text" id="ei_name" placeholder="Registered entity name"></div>
+            </div>
+            <div id="name_choices">
+              <p class="svc-group-label name-chrome" style="margin-top:4px">Proposed Names — In Order of Preference</p>
+              <div class="notice name-chrome">ℹ️ Up to four names may be submitted on one name reservation. They are
+                considered strictly in the order listed — the first name that is available is the one reserved. Use the
+                arrows to change the order.</div>
+              <div class="name-choice">
+                <span class="name-rank">1</span>
+                <div class="field"><label id="ei_name_label">Proposed Entity Name <span class="req">*</span></label><input type="text" id="ei_name"
+                    placeholder="Proposed entity name"></div>
+                <div class="name-move">
+                  <button type="button" onclick="moveNameChoice(0, -1)" title="Move up" disabled>▲</button>
+                  <button type="button" onclick="moveNameChoice(0, 1)" title="Move down">▼</button>
+                </div>
+              </div>
+              <div class="name-choice alt">
+                <span class="name-rank">2</span>
+                <div class="field"><label>Second Choice</label><input type="text" id="ei_name_2"
+                    placeholder="Alternative if the first is unavailable"></div>
+                <div class="name-move">
+                  <button type="button" onclick="moveNameChoice(1, -1)" title="Move up">▲</button>
+                  <button type="button" onclick="moveNameChoice(1, 1)" title="Move down">▼</button>
+                </div>
+              </div>
+              <div class="name-choice alt">
+                <span class="name-rank">3</span>
+                <div class="field"><label>Third Choice</label><input type="text" id="ei_name_3"
+                    placeholder="Alternative if the first two are unavailable"></div>
+                <div class="name-move">
+                  <button type="button" onclick="moveNameChoice(2, -1)" title="Move up">▲</button>
+                  <button type="button" onclick="moveNameChoice(2, 1)" title="Move down">▼</button>
+                </div>
+              </div>
+              <div class="name-choice alt">
+                <span class="name-rank">4</span>
+                <div class="field"><label>Fourth Choice</label><input type="text" id="ei_name_4"
+                    placeholder="Final alternative"></div>
+                <div class="name-move">
+                  <button type="button" onclick="moveNameChoice(3, -1)" title="Move up">▲</button>
+                  <button type="button" onclick="moveNameChoice(3, 1)" title="Move down" disabled>▼</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-grid existing-only">
               <div class="field ei_hide_individual"><label>Registration Number</label><input type="text" id="ei_regno"
                   placeholder="e.g. 2023/123456/07"></div>
               <div class="field"><label>Tax Number</label><input type="text" id="ei_tax" placeholder="e.g. 1234567890">
@@ -1769,7 +2001,7 @@
         <div style="display:flex; justify-content:space-between; margin-top:4px">
           <button class="btn-apply" style="background:var(--border); color:var(--text)" onclick="goStep(2)">←
             Back</button>
-          <button class="btn-apply" onclick="goStep(4)">Continue → Attachments</button>
+          <button class="btn-apply" onclick="leaveDetailsStep()">Continue → Attachments</button>
         </div>
       </div>
 
@@ -1779,7 +2011,7 @@
         <div style="display:flex; justify-content:space-between; margin-top:4px">
           <button class="btn-apply" style="background:var(--border); color:var(--text)" onclick="goStep(3)">←
             Back</button>
-          <button class="btn-apply" onclick="goStep(5)">Continue → Mandate</button>
+          <button class="btn-apply" onclick="goStep(5)">Continue → <span class="existing-only">Mandate</span><span class="new-only">Sign &amp; Submit</span></button>
         </div>
       </div>
 
@@ -1839,12 +2071,19 @@
         Your PDF has been downloaded to your device.<br><br>
         <strong>Please email the downloaded PDF to the person you are in contact with at VDM.</strong><br><br>
         <span style="font-size:13px;color:#A0AFC0;">Can't find the PDF? Check your Downloads folder.<br>
-          The file name starts with <em>VDM_Questionnaire_</em></span>
+          The file name starts with <em id="successFilePrefix">VDM_Questionnaire_</em></span>
       </p>
+      <div class="trust-success" id="trustSuccess" hidden>
+        <strong>For a trust, a second file was also downloaded:</strong> <em id="trustJsonName"></em>.
+        Please attach it to the same email — it lets us draft the trust deed and the Master's forms without
+        retyping your answers.
+        <br><button type="button" class="btn-apply" id="trustJsonAgain" style="margin-top:12px">Download it again</button>
+      </div>
     </div>
 
   </div>
 
+  <script src="mode.js"></script>
   <script>
     /* Owner password for the generated PDF. Not a secret — it is visible in this
        page's source. It exists so the mandate's wording cannot be changed by
@@ -1857,12 +2096,14 @@
     };
 
     function updateProgress() {
-      document.getElementById('progressBar').style.width = (currentStep / 6 * 100) + '%';
+      // A new entity skips step 5 (the mandate), so progress counts only the steps in play.
+      const steps = VDMMode.steps();
+      const pos = steps.indexOf(currentStep) + 1;
+      document.getElementById('progressBar').style.width = (pos / steps.length * 100) + '%';
       for (let i = 1; i <= 6; i++) {
         const pill = document.getElementById('pill' + i);
-        if (i === currentStep) pill.className = 'step-pill active';
-        else if (i < currentStep || i <= maxStepReached) pill.className = 'step-pill done';
-        else pill.className = 'step-pill';
+        pill.classList.toggle('active', i === currentStep);
+        pill.classList.toggle('done', i !== currentStep && (i < currentStep || i <= maxStepReached));
       }
     }
 
@@ -1870,6 +2111,8 @@
     let currentStep = 1;
 
     function goStep(n) {
+      if (n === 5 && VDMMode.isNew()) n = 6;
+      document.getElementById('step0').classList.add('hidden');
       if (n === 4) VDMAttach.build(state);
       if (n === 5) VDMMandate.build(state);
       if (n === 6) buildSigningStep();
@@ -1886,6 +2129,13 @@
       if (n > maxStepReached) maxStepReached = n;
       window.scrollTo({ top: 0, behavior: 'smooth' });
       updateProgress();
+    }
+
+    // A trust's deed and Master's forms cannot be drafted without certain
+    // answers, so a new trust is checked before moving on (trust.js).
+    function leaveDetailsStep() {
+      if (VDMMode.isNew() && state.entityType === 'trust' && !VDMTrust.check()) return;
+      goStep(4);
     }
 
     function navToStep(n) {
@@ -1938,9 +2188,29 @@
       showServicesForType(type);
     }
 
+    /* Proposed names, best first. Index 0 is ei_name — the name every other
+       part of the form, the PDF and the file name are built from. */
+    const NAME_CHOICE_IDS = ['ei_name', 'ei_name_2', 'ei_name_3', 'ei_name_4'];
+
+    function nameChoices() {
+      return NAME_CHOICE_IDS.map(id => val(id)).filter(Boolean);
+    }
+
+    function moveNameChoice(i, delta) {
+      const a = document.getElementById(NAME_CHOICE_IDS[i]);
+      const b = document.getElementById(NAME_CHOICE_IDS[i + delta]);
+      if (!a || !b) return;
+      const tmp = a.value; a.value = b.value; b.value = tmp;
+      b.focus();
+    }
+
     function updateEntityInfoLabels(type) {
       document.body.className = document.body.className.replace(/type-\S+/g, '').trim();
       document.body.classList.add('type-' + type);
+      // Only a new entity reserves a name, and only these types — so only they get the ranked alternatives.
+      document.body.classList.toggle('names-reserve', VDMMode.isNew() && ['company', 'cc', 'npo', 'trust'].includes(type));
+      const proposed = VDMMode.isNew() ? 'Proposed ' : '';
+      const nameState = VDMMode.isNew() ? 'Proposed' : 'Registered';
       const nameLabel = document.getElementById('ei_name_label');
       const respLabel = document.getElementById('ei_resp_label');
       const cardTitle = document.getElementById('ei_card_title');
@@ -1951,10 +2221,10 @@
         if (cardTitle) cardTitle.textContent = 'Individual Information';
         if (nameInput) nameInput.placeholder = 'Full name and surname';
       } else if (type === 'trust') {
-        if (nameLabel) nameLabel.innerHTML = 'Trust Name <span class="req">*</span>';
+        if (nameLabel) nameLabel.innerHTML = proposed + 'Trust Name <span class="req">*</span>';
         if (respLabel) respLabel.textContent = 'Responsible Trustee';
         if (cardTitle) cardTitle.textContent = 'Trust Entity Information';
-        if (nameInput) nameInput.placeholder = 'Registered trust name';
+        if (nameInput) nameInput.placeholder = nameState + ' trust name';
       } else if (type === 'school') {
         if (nameLabel) nameLabel.innerHTML = 'School / Institution Name <span class="req">*</span>';
         if (respLabel) respLabel.textContent = 'Responsible Person';
@@ -1966,10 +2236,10 @@
         if (cardTitle) cardTitle.textContent = 'Body Corporate Information';
         if (nameInput) nameInput.placeholder = 'e.g. Sunridge Body Corporate';
       } else {
-        if (nameLabel) nameLabel.innerHTML = 'Entity Name <span class="req">*</span>';
+        if (nameLabel) nameLabel.innerHTML = proposed + 'Entity Name <span class="req">*</span>';
         if (respLabel) respLabel.textContent = 'Responsible Director';
         if (cardTitle) cardTitle.textContent = 'Entity Information';
-        if (nameInput) nameInput.placeholder = 'Registered entity name';
+        if (nameInput) nameInput.placeholder = nameState + ' entity name';
       }
     }
 
@@ -2075,7 +2345,8 @@
         const hdr = document.createElement('div'); hdr.className = 'card'; hdr.innerHTML = `<div class="card-header" style="background:#2C5F2E">👤 Individual Information</div><div class="card-body"><p style="color:var(--text-muted);font-size:13px">Please complete your personal details below.</p></div>`; container.appendChild(hdr);
         const block = document.createElement('div'); block.className = 'person-block'; block.innerHTML = `<div class="person-block-header" style="background:#2C5F2E">👤 Individual / Sole Proprietor</div><div class="person-block-body">${makeIndividualFields('ind_1')}</div>`; container.appendChild(block);
       }
-      if (state.entityType === 'trust') {
+      if (state.entityType === 'trust' && VDMMode.isNew()) VDMTrust.buildStep(container, state);
+      else if (state.entityType === 'trust') {
         const noteCard = document.createElement('div'); noteCard.className = 'card'; noteCard.innerHTML = `<div class="card-header" style="background:#5C3A1E">⚖️ Trust Registration</div><div class="card-body"><div class="notice" style="border-color:#8B5E3C;color:#5C3A1E;background:#FBF3EC;"><strong>⚠ Important Note:</strong> No new trusts may be registered without an independent trustee.</div></div>`; container.appendChild(noteCard);
         const donorHdr = document.createElement('div'); donorHdr.className = 'card'; donorHdr.innerHTML = `<div class="card-header" style="background:#5C3A1E">Donor Information</div><div class="card-body"><p style="color:var(--text-muted);font-size:13px">Complete details for the trust donor (founder).</p></div>`; container.appendChild(donorHdr);
         const donorBlock = document.createElement('div'); donorBlock.className = 'person-block'; donorBlock.innerHTML = `<div class="person-block-header" style="background:#5C3A1E">🏛️ Donor / Founder</div><div class="person-block-body">${makeTrustPersonFields('donor_1', true, false)}</div>`; container.appendChild(donorBlock);
@@ -2150,17 +2421,25 @@
     function radioVal(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; }
     function taxVal(prefix) { const el = document.querySelector(`input[name="tax_${prefix}"]:checked`); return el ? el.value.toUpperCase() : 'NO'; }
 
+    /* Not called at present: it fed the Formspree copy of each submission, which
+       was removed (28 Sep 2026) so client data only leaves the browser in the PDF
+       the client emails. Kept for when a vetted send path is added. */
     function collectAllFormData() {
       const data = {};
-      data._subject = 'VDM Questionnaire — ' + (val('ei_name') || 'New Client');
+      data._subject = VDMMode.text('subject') + (val('ei_name') || VDMMode.text('fallbackName'));
+      data.form_type = VDMMode.isNew() ? 'New Entity Registration' : 'New / Existing Client';
       data.entity_type = state.entityType;
       data.date = val('ei_date');
       data.entity_name = val('ei_name');
-      data.registration_number = val('ei_regno');
-      data.tax_number = val('ei_tax');
-      data.vat_number = val('ei_vat');
-      data.uif_reference = val('ei_uif');
-      data.paye_reference = val('ei_paye');
+      if (VDMMode.isNew()) {
+        data.proposed_names = nameChoices().join('  |  ');
+      } else {
+        data.registration_number = val('ei_regno');
+        data.tax_number = val('ei_tax');
+        data.vat_number = val('ei_vat');
+        data.uif_reference = val('ei_uif');
+        data.paye_reference = val('ei_paye');
+      }
       data.physical_address = val('ei_physical');
       data.registered_address = val('ei_registered');
       data.postal_address = val('ei_postal');
@@ -2192,16 +2471,6 @@
       return data;
     }
 
-    async function submitToFormspree(formData) {
-      try {
-        await fetch('https://formspree.io/f/mnjwvwaj', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(formData)
-        });
-      } catch (e) { /* silent — PDF + email is the primary flow */ }
-    }
-
     async function submitForm() {
       if (!document.getElementById('consentCheckbox').checked) {
         alert('Please read and accept the Disclosure of Information and Protection of Personal Information terms before submitting.');
@@ -2209,29 +2478,29 @@
         return;
       }
 
-      const mandateError = VDMMandate.validate();
+      const isNew = VDMMode.isNew();
+      const mandateError = isNew ? '' : VDMMandate.validate();
       if (mandateError) {
         alert(mandateError);
         goStep(5);
         return;
       }
 
-      const formData = collectAllFormData();
-      Object.assign(formData, VDMAttach.summary());
-      Object.assign(formData, VDMMandate.summary());
-      submitToFormspree(formData);
 
       const { jsPDF } = window.jspdf;
       const LOGO_SRC = document.querySelector('.header-logo').src;
-      /* The mandate page carries fillable fields, so the document is locked to
-         filling and printing only — its wording cannot be altered without the
-         owner password. The PDF still opens without any password.
-         This is a deterrent against casual edits, not security: the password
-         sits in this page's source and the standard PDF handler is weak. */
-      const doc = new jsPDF({
-        orientation: 'portrait', unit: 'mm', format: 'a4',
-        encryption: { ownerPassword: MANDATE_OWNER_PASSWORD, userPermissions: ['print', 'annot-forms'] }
-      });
+      /* An existing client's PDF carries the fillable mandate page, so the
+         document is locked to filling and printing only — its wording cannot be
+         altered without the owner password. The PDF still opens without any
+         password. This is a deterrent against casual edits, not security: the
+         password sits in this page's source and the standard PDF handler is weak.
+         A new entity has no mandate page, so its PDF is flat and unlocked. */
+      const doc = new jsPDF(isNew
+        ? { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        : {
+          orientation: 'portrait', unit: 'mm', format: 'a4',
+          encryption: { ownerPassword: MANDATE_OWNER_PASSWORD, userPermissions: ['print', 'annot-forms'] }
+        });
       const W = 210, margin = 14, colW = W - margin * 2; let y = 0;
       const NAVY = [31, 45, 69], MIDBLUE = [46, 74, 122], ACCENT = [200, 169, 81], LTBLUE = [214, 228, 240], WHITE = [255, 255, 255], OFFWHITE = [251, 248, 240], LTGRAY = [245, 247, 250], TEXTMUT = [90, 106, 128], GREEN = [27, 94, 32];
       function newPage() { doc.addPage(); y = 14; }
@@ -2240,7 +2509,7 @@
       doc.setFillColor(6, 14, 28); doc.rect(0, 0, W, 42, 'F'); doc.setFillColor(...ACCENT); doc.rect(0, 42, W, 1.5, 'F');
       try { doc.addImage(LOGO_SRC, 'JPEG', margin, 4, 34, 34); } catch (e) { }
       doc.setTextColor(...ACCENT); doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.text('VDM OUDIT / AUDIT', margin + 38, 12); doc.text('Sedert • 1965 • Since', margin + 38, 17);
-      doc.setTextColor(200, 215, 230); doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.text('New / Current Client Questionnaire', margin + 38, 27);
+      doc.setTextColor(200, 215, 230); doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.text(VDMMode.text('title'), margin + 38, 27);
       doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 130, 160); doc.text('Confidential — For Internal Use', margin + 38, 33);
       doc.setTextColor(...ACCENT); doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.text(`Generated: ${today}`, W - margin, 12, { align: 'right' });
       y = 50;
@@ -2266,12 +2535,17 @@
 
       // Entity Information
       const eiTitle = state.entityType === 'individual' ? 'Individual Information' : state.entityType === 'trust' ? 'Trust Entity Information' : state.entityType === 'school' ? 'School / Institution Information' : state.entityType === 'bodycorp' ? 'Body Corporate Information' : 'Entity Information';
-      const eiNameLabel = state.entityType === 'individual' ? 'Person Name & Surname' : state.entityType === 'trust' ? 'Trust Name' : state.entityType === 'school' ? 'School / Institution Name' : state.entityType === 'bodycorp' ? 'Body Corporate / HOA Name' : 'Entity Name';
-      sectionHeader(eiTitle); fieldRow([['Date', val('ei_date')], [eiNameLabel, val('ei_name')]]);
+      const proposed = isNew ? 'Proposed ' : '';
+      const eiNameLabel = state.entityType === 'individual' ? 'Person Name & Surname' : state.entityType === 'trust' ? proposed + 'Trust Name' : state.entityType === 'school' ? 'School / Institution Name' : state.entityType === 'bodycorp' ? 'Body Corporate / HOA Name' : proposed + 'Entity Name';
+      const altNames = isNew ? ['ei_name_2', 'ei_name_3', 'ei_name_4'].map(id => val(id)).filter(Boolean) : [];
+      sectionHeader(eiTitle); fieldRow([['Date', val('ei_date')], [eiNameLabel + (altNames.length ? ' — 1st Choice' : ''), val('ei_name')]]);
+      if (isNew) { for (let i = 0; i < altNames.length; i += 2) fieldRow([['Proposed Name — Choice ' + (i + 2), altNames[i]], [altNames[i + 1] ? 'Proposed Name — Choice ' + (i + 3) : '', altNames[i + 1] || '']]); divider(); }
+      else {
       if (state.entityType !== 'individual') fieldRow([['Registration Number', val('ei_regno')], ['Tax Number', val('ei_tax')]]); else fieldRow([['Tax Number', val('ei_tax')], ['VAT Number', val('ei_vat')]]);
       fieldRow([['VAT Number', val('ei_vat')], ['UIF Reference', val('ei_uif')]]); fieldRow([['PAYE Reference', val('ei_paye')], ['', '']]); divider();
+      }
       fieldFull('Physical Address', val('ei_physical')); fieldFull('Registered Address', val('ei_registered')); fieldFull('Postal Address', val('ei_postal')); fieldFull('Postal (Registered)', val('ei_postal_reg')); fieldFull('Principal Business Activity', val('ei_business')); divider();
-      fieldRow([['Responsible Director', val('ei_resp_dir')], ['Contact Person', val('ei_contact')]]); fieldRow([['Email Address', val('ei_email')], ['Email (Contact)', val('ei_email_contact')]]); fieldRow([['Telephone Number', val('ei_tel')], ['Telephone (Contact)', val('ei_tel_contact')]]); spacer(4);
+      fieldRow([[document.getElementById('ei_resp_label').textContent, val('ei_resp_dir')], ['Contact Person', val('ei_contact')]]); fieldRow([['Email Address', val('ei_email')], ['Email (Contact)', val('ei_email_contact')]]); fieldRow([['Telephone Number', val('ei_tel')], ['Telephone (Contact)', val('ei_tel_contact')]]); spacer(4);
 
       const etLabels = { company: 'COMPANY (Pty Ltd / Ltd)', cc: 'CLOSE CORPORATION (CC)', npo: 'NON-PROFIT ORGANISATION (NPO)', individual: 'INDIVIDUAL / SOLE PROPRIETOR', trust: 'TRUST REGISTRATION', school: 'SCHOOL / EDUCATIONAL INSTITUTION', bodycorp: 'BODY CORPORATE / HOME OWNERS ASSOCIATION' };
       const etColors = { company: MIDBLUE, cc: [27, 58, 106], npo: GREEN, individual: [44, 95, 46], trust: [92, 58, 30], school: MIDBLUE, bodycorp: MIDBLUE };
@@ -2282,6 +2556,7 @@
       else if (state.entityType === 'cc') { sectionHeader('Members Information — Close Corporation'); for (let i = 1; i <= state.counts.members; i++) { personHeader(`Member ${i}`, MIDBLUE); fieldRow([["Member's Interest %", val(`mem_${i}_pct`) ? val(`mem_${i}_pct`) + '%' : '—'], ['', '']]); renderPersonalBlock(`mem_${i}`); if (i < state.counts.members) divider(); } }
       else if (state.entityType === 'npo') { sectionHeader('Directors Information — NPO', GREEN); for (let i = 1; i <= state.counts.npo_directors; i++) { personHeader(`Director ${i}`, GREEN); renderPersonalBlock(`npod_${i}`); if (i < state.counts.npo_directors) divider(); } sectionHeader('NPO Objectives', GREEN); const objMap = { A: 'Community Social Welfare', B: 'Community Youth Development', C: 'Community Health Services', D: 'Community Economic Empowerment and Foundation', E: 'Religious Worship and Other Religious Community Outreach Activities', F: 'Community Development and Educational Development', G: 'Home Owner Association' }; const selObj = radioVal('npo_objective'); fieldRow([['Selected Objective', selObj ? `Option ${selObj}` : '—'], ['Description', objMap[selObj] || '—']]); sectionHeader('Director Appointment Method', GREEN); const apptMap = { '1': 'AGM — within 6 months after Financial Year End', '2': 'Round Robin / Directors Meeting — within 10 working days' }; const selAppt = radioVal('npo_appt'); fieldFull('Selected Method', selAppt ? `Option ${selAppt}: ${apptMap[selAppt]}` : '—'); }
       else if (state.entityType === 'individual') { sectionHeader('Individual Information', [44, 95, 46]); personHeader('Individual / Sole Proprietor', [44, 95, 46]); const p = 'ind_1'; fieldFull('Full Names & Surname', val(p + '_fullname')); fieldRow([['ID Number', val(p + '_id')], ['ID — Date of Issue', val(p + '_id_issue')]]); fieldRow([['Income Tax Number', val(p + '_taxnr')], ['Telephone', val(p + '_tel')]]); fieldFull('Email Address', val(p + '_email')); fieldFull('Postal Address', val(p + '_postal')); fieldFull('Residential Address', val(p + '_residential')); divider(); fieldRow([['Marital Status', val(p + '_marital')], ['Community of Property', val(p + '_cop')]]); fieldRow([['Marriage Date', val(p + '_mardate')], ['', '']]); divider(); fieldFull('Spouse — Full Name', val(p + '_sp_name')); fieldRow([['Spouse — ID Number', val(p + '_sp_id')], ['Spouse — ID Date of Issue', val(p + '_sp_id_issue')]]); fieldRow([['Spouse — Income Tax Nr', val(p + '_sp_tax')], ['Spouse — Telephone', val(p + '_sp_tel')]]); fieldFull('Spouse — Email', val(p + '_sp_email')); divider(); yesNoBadge('Would you like us to file your Personal Income Tax Returns?', taxVal(p)); const notes = val(p + '_notes'); if (notes) { divider(); fieldFull('Special Notes', notes); } }
+      else if (state.entityType === 'trust' && isNew) VDMTrust.renderPdf({ sectionHeader, personHeader, fieldRow, fieldFull, divider, yesNoBadge, spacer, MIDBLUE });
       else if (state.entityType === 'trust') { sectionHeader('Trust Registration', [92, 58, 30]); personHeader('Donor / Founder', [92, 58, 30]); const renderTrustPerson = (prefix) => { fieldFull('Full Names & Surname', val(prefix + '_fullname')); fieldRow([['ID Number', val(prefix + '_id')], ['ID — Date of Issue', val(prefix + '_id_issue')]]); fieldRow([['Income Tax Number', val(prefix + '_taxnr')], ['Telephone', val(prefix + '_tel')]]); fieldRow([['Email Address', val(prefix + '_email')], ['Marital Status', val(prefix + '_marital')]]); fieldFull('Postal Address', val(prefix + '_postal')); fieldFull('Residential Address', val(prefix + '_residential')); const spN = val(prefix + '_sp_name'); if (spN) { divider(); fieldFull('Spouse Name', spN); fieldRow([['Spouse ID', val(prefix + '_sp_id')], ['Spouse — ID Date of Issue', val(prefix + '_sp_id_issue')]]); fieldRow([['Spouse Tax', val(prefix + '_sp_tax')], ['Spouse Tel', val(prefix + '_sp_tel')]]); } yesNoBadge('File Personal Income Tax Returns?', taxVal(prefix)); }; renderTrustPerson('donor_1'); divider(); personHeader('Independent Trustee', [74, 48, 96]); renderTrustPerson('indep_trustee_1'); if (state.counts.trustees > 0) { sectionHeader('Trustees Information', MIDBLUE); for (let i = 1; i <= state.counts.trustees; i++) { personHeader(`Trustee ${i}`, MIDBLUE); renderTrustPerson(`trustee_${i}`); fieldRow([['Beneficiary — Income', radioVal(`trustee_${i}_ben_income`) || '—'], ['Beneficiary — Capital', radioVal(`trustee_${i}_ben_capital`) || '—']]); if (i < state.counts.trustees) divider(); } } if (state.counts.beneficiaries > 0) { sectionHeader('Beneficiaries Information', MIDBLUE); for (let i = 1; i <= state.counts.beneficiaries; i++) { personHeader(`Beneficiary ${i}`, [38, 58, 82]); const p = `ben_${i}`; fieldFull('Full Names & Surname', val(p + '_fullname')); fieldRow([['ID Number', val(p + '_id')], ['ID — Date of Issue', val(p + '_id_issue')]]); fieldRow([['Income Tax Number', val(p + '_taxnr')], ['Telephone', val(p + '_tel')]]); fieldFull('Email Address', val(p + '_email')); fieldRow([['Income Beneficiary', radioVal(p + '_ben_income') || '—'], ['Capital Beneficiary', radioVal(p + '_ben_capital') || '—']]); if (i < state.counts.beneficiaries) divider(); } } sectionHeader('Trust Assets & Notes', [92, 58, 30]); fieldRow([['Main Asset', val('trust_main_asset')], ['Bank Name', val('trust_bank')]]); const tnotes = val('trust_notes'); if (tnotes) fieldFull('Special Notes', tnotes); }
       else if (state.entityType === 'bodycorp') { sectionHeader('Body Corporate / HOA Trustees', MIDBLUE); for (let i = 1; i <= state.counts.bc_trustees; i++) { personHeader(`Trustee ${i}`, MIDBLUE); renderPersonalBlock(`bct_${i}`); if (i < state.counts.bc_trustees) divider(); } sectionHeader('Body Corporate Details', MIDBLUE); fieldRow([['Scheme Number', val('bc_scheme_nr')], ['Bank Name', val('bc_bank')]]); fieldRow([['Managing Agent', val('bc_agent')], ['Managing Agent Contact', val('bc_agent_tel')]]); const bcNotes = val('bc_notes'); if (bcNotes) fieldFull('Special Notes', bcNotes); }
       else if (state.entityType === 'school') { sectionHeader('School / Institution Details', MIDBLUE); personHeader('School Information', MIDBLUE); fieldRow([['Name of Principal', val('sch_principal')], ['School Accounts Email', val('sch_email')]]); fieldRow([['Head of Financial Committee', val('sch_fin_head')], ['Tel — Financial Committee', val('sch_fin_tel')]]); spacer(4); }
@@ -2315,9 +2590,11 @@
       pdfSigPeople.forEach(({ role, idx }) => signingBlock(role, idx));
 
       // Mandate — CIPC beneficial ownership resolution, if the client included it
-      try {
-        VDMMandate.appendToPdf(doc, { W, margin });
-      } catch (e) { console.error('Mandate rendering error:', e); }
+      if (!isNew) {
+        try {
+          VDMMandate.appendToPdf(doc, { W, margin });
+        } catch (e) { console.error('Mandate rendering error:', e); }
+      }
 
       // Attachments — ID documents and any additional uploads
       try {
@@ -2329,7 +2606,16 @@
       for (let p = 1; p <= pageCount; p++) { doc.setPage(p); doc.setFillColor(6, 14, 28); doc.rect(0, 289, W, 8, 'F'); doc.setFillColor(...ACCENT); doc.rect(0, 289, W, 0.8, 'F'); doc.setTextColor(...ACCENT); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold'); doc.text('VDM OUDIT / AUDIT — CONFIDENTIAL CLIENT DOCUMENT', margin, 294); doc.setTextColor(120, 140, 160); doc.setFont('helvetica', 'normal'); doc.text(`Page ${p} of ${pageCount}`, W - margin, 294, { align: 'right' }); }
 
       const entityName = val('ei_name') || 'client'; const safeName = entityName.replace(/[^a-zA-Z0-9_\- ]/g, '').trim();
-      doc.save(`VDM_Questionnaire_${safeName}_${today.replace(/\//g, '-')}.pdf`);
+      doc.save(`${VDMMode.text('filePrefix')}${safeName}_${today.replace(/\//g, '-')}.pdf`);
+      document.getElementById('successFilePrefix').textContent = VDMMode.text('filePrefix');
+
+      // A new trust also gets the data file the trust-doc-generator loads to
+      // draft the deed and the Master's forms without retyping these answers.
+      const isTrust = isNew && state.entityType === 'trust';
+      if (isTrust) setTimeout(() => VDMTrust.downloadJson(safeName), 600);
+      document.getElementById('trustSuccess').hidden = !isTrust;
+      document.getElementById('trustJsonName').textContent = VDMTrust.jsonFileName(safeName);
+      document.getElementById('trustJsonAgain').onclick = () => VDMTrust.downloadJson(safeName);
 
       document.getElementById('mainForm').style.display = 'none';
       document.getElementById('successScreen').style.display = 'block';
@@ -2419,7 +2705,8 @@
 
     async function generatePublicOfficerDoc(safeName) {
       const D = docx;
-      const en = val('ei_name'), rn = val('ei_regno'), tn = val('ei_tax');
+      const en = val('ei_name');
+      const rn = VDMMode.isNew() ? 'To be allocated' : val('ei_regno'), tn = VDMMode.isNew() ? '' : val('ei_tax');
       const ds = val('ei_date');
       const fd = ds ? new Date(ds + 'T00:00:00').toLocaleDateString('en-ZA') : '';
       const dirs = getDirectorsForDocs();
@@ -2562,12 +2849,13 @@
 
       const mainPara = 'I, the undersigned ' + (rp.name || '__________________________') + ', Identity Number(ID): ' + (rp.id || '__________________________') + ', ' + capacityText + ' Leon van der Merwe, Identity Number(ID): 680813 5004 08 3 of Tax Practitioner Firm VDM Chartered Accountants to act on my behalf in respect of the following tax matter(s) detailed below:';
 
+      const ref = id => VDMMode.isNew() ? '' : val(id);
       const taxRefs = [
-        ['INCOME TAX', val('ei_tax')],
-        ['PAYE', val('ei_paye')],
+        ['INCOME TAX', ref('ei_tax')],
+        ['PAYE', ref('ei_paye')],
         ['SDL', ''],
-        ['UIF', val('ei_uif')],
-        ['VAT', val('ei_vat')]
+        ['UIF', ref('ei_uif')],
+        ['VAT', ref('ei_vat')]
       ];
 
       const powers = [
@@ -2669,9 +2957,16 @@
     // Init
     updateProgress();
   </script>
+  <!-- HERE Geocoding & Search key for address autocomplete.
+       Restrict it in the HERE console to the Geocoding & Search API and to
+       the referrer https://vdm-auditors.github.io/* — it is public here.
+       Leave blank to fall back to the keyless Photon/OSM geocoder. -->
+  <script>window.HERE_CONFIG = { apiKey: '' };</script>
+  <script src="address-autocomplete.js"></script>
   <script src="attachments.js"></script>
   <script src="mandate-pdf.js"></script>
   <script src="mandate.js"></script>
+  <script src="trust.js"></script>
 </body>
 
 </html>

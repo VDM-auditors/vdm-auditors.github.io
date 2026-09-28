@@ -77,10 +77,6 @@
       .mandate-grid { grid-template-columns: 360px minmax(0, 1fr); align-items:start; }
     }
     .mandate-note { font-size:12px; line-height:1.6; color:var(--text-muted); margin:0 0 14px; }
-    .mandate-const { background:var(--accent-bg); border:1px solid var(--border); border-radius:var(--radius-sm);
-      padding:10px 12px; font-size:11.5px; line-height:1.7; color:var(--navy); }
-    .mandate-const strong { display:block; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
-      color:var(--accent-dark); margin-bottom:3px; }
     .mandate-date-row { display:grid; grid-template-columns: 70px 1fr 90px; gap:10px; }
     .mandate-preview-wrap { background:#8C99AC; border-radius:var(--radius); padding:18px; overflow:auto; }
     .mandate-sheet { background:#fff; color:#000; max-width:720px; margin:0 auto; padding:46px 44px 56px;
@@ -194,14 +190,6 @@
                     <div class="signature-field"><canvas id="mandate_sig_canvas" height="60"></canvas></div>
                     <button onclick="VDMMandate.clearSig()"
                       style="font-size:11px;color:var(--text-muted);background:none;border:none;cursor:pointer;margin-top:4px">✕ Clear</button>
-                  </div>
-                  <div class="field span-2">
-                    <div class="mandate-const">
-                      <strong>Fixed on this resolution</strong>
-                      Agent: ${esc(AGENT.name)} · ID ${esc(AGENT.id)}<br>
-                      ${esc(AGENT.email)} · CIPC code ${esc(AGENT.code)}<br>
-                      Witness: ${esc(WITNESS.name)} · ID ${esc(WITNESS.id)}
-                    </div>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-# VDM Audit — New / Current Client Questionnaire
+# VDM Audit — Client Questionnaire
 
 A professional, fully self-contained client onboarding form for **VDM Audit** (Est. 1965). Built as a single HTML file that requires no server, no database, and no installation — open it in any browser and it works.
 
@@ -6,20 +6,35 @@ A professional, fully self-contained client onboarding form for **VDM Audit** (E
 
 ## Overview
 
-This form guides new and existing clients through a structured 5-step onboarding process, collecting all information required for registration and compliance purposes. On completion, it generates a professionally formatted PDF that is automatically emailed to the VDM Audit team.
+One link for every client: **https://vdm-auditors.github.io/questionnaire/**
+
+The form opens by asking what the client needs:
+
+- **New / Existing Client** — the entity is already registered and VDM is taking it on (or updating its details).
+- **Register a New Entity** — the company, trust, CC or NPO does not exist yet and VDM is registering it.
+
+The rest of the form adapts to that answer. On completion it generates a formatted PDF,
+which the client emails to their VDM contact.
+
+To skip the opening question, add it to the link: `?mode=existing`, `?mode=new`, or
+`?mode=new&type=trust` to open straight on a new trust.
 
 ---
 
 ## Features
 
-### 5-Step Wizard
+### Wizard
 | Step | Description |
 |------|-------------|
 | **1 — Entity Type** | Select organisation type, contact details, and services required |
-| **2 — Entity Info** | Date, entity name, registration and tax reference numbers, addresses, responsible persons |
-| **3 — Details** | Entity-specific people and information (directors, trustees, members, etc.) |
+| **2 — Entity Info** | Date, entity name, addresses, responsible persons. Existing clients add registration and tax reference numbers; new entities list up to four proposed names in order of preference |
+| **3 — Details** | Entity-specific people and information (directors, trustees, members, etc.). A new trust also answers the questions needed to draft its trust deed |
 | **4 — Attachments** | Upload an ID document for each person, plus any additional supporting documents |
-| **5 — Sign & Submit** | Signature capture and final declaration for each responsible person |
+| **5 — Mandate** | Existing clients only — CIPC beneficial ownership resolution |
+| **Sign & Submit** | Signature capture and final declaration for each responsible person |
+
+A new trust also downloads a `VDM_Trust_Deed_Data_…json` file, to be emailed with the PDF,
+so VDM can draft the deed and the Master's forms without retyping the answers.
 
 ### Attachments
 
@@ -63,14 +78,15 @@ Each entity type shows only the services relevant to it:
 ### PDF Generation
 - Fully formatted A4 PDF generated entirely in the browser using [jsPDF](https://github.com/parallax/jsPDF)
 - Includes VDM Audit logo banner, entity badge, all form data, and captured signatures
-- PDF is attached to an email and sent directly to `riekie@vdmaudit.co.za`
+- The PDF downloads to the client's device; they email it to their VDM contact
 
 ### Other Features
+- **Address autocomplete** — start typing a street address and pick a suggestion; the suburb, city and postal code fill in automatically (powered by HERE address data, falling back to OpenStreetMap; allow location access for more accurate nearby results; needs an internet connection)
 - **Step pill navigation** — click any completed step pill at the top to jump back to it
 - **Signature capture** — canvas-based signature pad per signatory, with clear button
 - **Marital status & spouse details** — toggle-based spouse section per person
 - **Tax instruction toggle** — Yes/No income tax filing instruction per person
-- **Beneficiary designation** — Income and Capital beneficiary flags per trust trustee
+- **Beneficiary designation** — Income and Capital beneficiary flags per trust trustee (existing trusts)
 - **Trust legal notice** — Mandatory independent trustee requirement displayed prominently
 - **Fully responsive** — works on desktop and mobile browsers
 - **No dependencies to install** — all libraries loaded from CDN, works offline once cached
