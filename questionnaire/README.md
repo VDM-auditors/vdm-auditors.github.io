@@ -33,9 +33,6 @@ To skip the opening question, add it to the link: `?mode=existing`, `?mode=new`,
 | **5 — Mandate** | Existing clients only — CIPC beneficial ownership resolution |
 | **Sign & Submit** | Signature capture and final declaration for each responsible person |
 
-A new trust also downloads a `VDM_Trust_Deed_Data_…json` file, to be emailed with the PDF,
-so VDM can draft the deed and the Master's forms without retyping the answers.
-
 ### Attachments
 
 Every person captured in step 3 gets their own upload slot, and there is an

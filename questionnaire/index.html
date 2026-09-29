@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VDM — Client Questionnaire</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js" defer></script>
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap"
     rel="stylesheet">
@@ -490,8 +490,6 @@
     .guardian-fields[hidden] { display: none; }
     .trust-blocker { border-color: var(--danger); color: var(--danger); background: #FDF0F0; margin-top: 4px; }
     .trust-blocker[hidden] { display: none; }
-    .trust-success { margin: 20px auto 0; max-width: 520px; padding: 14px 18px; border-radius: var(--radius-sm); background: #FBF3EC; color: #5C3A1E; font-size: 13px; line-height: 1.55; text-align: left; }
-    .trust-success[hidden] { display: none; }
 
     /* ── Opening choice: existing client or new entity (mode.js) ───── */
     body.mode-new .existing-only,
@@ -1501,9 +1499,10 @@
       pointer-events: none;
     }
   </style>
+  <link rel="stylesheet" href="ui.css">
 </head>
 
-<body>
+<body class="ui-loading">
 
   <!-- HEADER -->
   <div class="form-header">
@@ -1536,17 +1535,21 @@
           <div class="card-body">
             <p class="mode-intro">Choose the option that fits. The form adapts to your answer — you can change it
               again on the next page.</p>
-            <div class="entity-cards mode-cards">
+            <div class="ui-skeleton" aria-hidden="true">
+              <div class="sk-card"><div class="sk sk-circle"></div><div class="sk sk-line title"></div><div class="sk sk-line"></div><div class="sk sk-line short"></div></div>
+              <div class="sk-card"><div class="sk sk-circle"></div><div class="sk sk-line title"></div><div class="sk sk-line"></div><div class="sk sk-line short"></div></div>
+            </div>
+            <div class="entity-cards mode-cards mode-real">
               <div class="entity-card" onclick="VDMMode.choose('existing')" id="mode_existing">
-                <div class="ec-check">✓</div>
-                <div class="ec-icon">🤝</div>
+                <div class="ec-check" data-icon="check"></div>
+                <div class="ec-icon" data-icon="briefcase"></div>
                 <div class="ec-name">New / Existing Client</div>
                 <div class="ec-desc">The company, trust, CC or other entity is already registered, and you would like
                   VDM to take it on or update the details we hold.</div>
               </div>
               <div class="entity-card" onclick="VDMMode.choose('new')" id="mode_new">
-                <div class="ec-check">✓</div>
-                <div class="ec-icon">✨</div>
+                <div class="ec-check" data-icon="check"></div>
+                <div class="ec-icon" data-icon="file-plus"></div>
                 <div class="ec-name">Register a New Entity</div>
                 <div class="ec-desc">The entity does not exist yet — you would like VDM to register a new company,
                   trust, CC or NPO for you.</div>
@@ -1582,44 +1585,44 @@
           <div class="card-body">
             <div class="entity-cards" style="grid-template-columns: repeat(4,1fr); gap:12px">
               <div class="entity-card" onclick="selectEntity('company')" id="ec_company">
-                <div class="ec-check">✓</div>
-                <div class="ec-icon">🏢</div>
+                <div class="ec-check" data-icon="check"></div>
+                <div class="ec-icon" data-icon="building"></div>
                 <div class="ec-name">Company</div>
                 <div class="ec-desc">Pty Ltd / Ltd</div>
               </div>
               <div class="entity-card" onclick="selectEntity('cc')" id="ec_cc">
-                <div class="ec-check">✓</div>
-                <div class="ec-icon">🤝</div>
+                <div class="ec-check" data-icon="check"></div>
+                <div class="ec-icon" data-icon="users"></div>
                 <div class="ec-name">CC</div>
                 <div class="ec-desc">Close Corporation</div>
               </div>
               <div class="entity-card" onclick="selectEntity('npo')" id="ec_npo">
-                <div class="ec-check">✓</div>
-                <div class="ec-icon">🌱</div>
+                <div class="ec-check" data-icon="check"></div>
+                <div class="ec-icon" data-icon="heart"></div>
                 <div class="ec-name">NPO</div>
                 <div class="ec-desc">Non-Profit Organisation</div>
               </div>
               <div class="entity-card" onclick="selectEntity('individual')" id="ec_individual">
-                <div class="ec-check">✓</div>
-                <div class="ec-icon">👤</div>
+                <div class="ec-check" data-icon="check"></div>
+                <div class="ec-icon" data-icon="user"></div>
                 <div class="ec-name">Individual</div>
                 <div class="ec-desc">Personal / Sole</div>
               </div>
               <div class="entity-card" onclick="selectEntity('trust')" id="ec_trust">
-                <div class="ec-check">✓</div>
-                <div class="ec-icon">⚖️</div>
+                <div class="ec-check" data-icon="check"></div>
+                <div class="ec-icon" data-icon="scale"></div>
                 <div class="ec-name">Trust</div>
                 <div class="ec-desc">Trust Registration</div>
               </div>
               <div class="entity-card" onclick="selectEntity('school')" id="ec_school">
-                <div class="ec-check">✓</div>
-                <div class="ec-icon">🏫</div>
+                <div class="ec-check" data-icon="check"></div>
+                <div class="ec-icon" data-icon="school"></div>
                 <div class="ec-name">School</div>
                 <div class="ec-desc">School / Institution</div>
               </div>
               <div class="entity-card" onclick="selectEntity('bodycorp')" id="ec_bodycorp">
-                <div class="ec-check">✓</div>
-                <div class="ec-icon">🏘️</div>
+                <div class="ec-check" data-icon="check"></div>
+                <div class="ec-icon" data-icon="homes"></div>
                 <div class="ec-name">Body Corporate</div>
                 <div class="ec-desc">Sectional Title / HOA</div>
               </div>
@@ -2065,7 +2068,7 @@
     </div>
 
     <div class="success-screen" id="successScreen">
-      <div class="success-icon">📄</div>
+      <div class="success-icon" data-icon="file-check"></div>
       <h2 class="success-title">Almost Done!</h2>
       <p class="success-sub">
         Your PDF has been downloaded to your device.<br><br>
@@ -2073,16 +2076,11 @@
         <span style="font-size:13px;color:#A0AFC0;">Can't find the PDF? Check your Downloads folder.<br>
           The file name starts with <em id="successFilePrefix">VDM_Questionnaire_</em></span>
       </p>
-      <div class="trust-success" id="trustSuccess" hidden>
-        <strong>For a trust, a second file was also downloaded:</strong> <em id="trustJsonName"></em>.
-        Please attach it to the same email — it lets us draft the trust deed and the Master's forms without
-        retyping your answers.
-        <br><button type="button" class="btn-apply" id="trustJsonAgain" style="margin-top:12px">Download it again</button>
-      </div>
     </div>
 
   </div>
 
+  <script src="ui.js"></script>
   <script src="mode.js"></script>
   <script>
     /* Owner password for the generated PDF. Not a secret — it is visible in this
@@ -2486,6 +2484,18 @@
         return;
       }
 
+      await VDMUI.busy('Preparing your PDF…');
+      try {
+        await buildPdf(isNew);
+      } catch (e) {
+        console.error('PDF generation error:', e);
+        alert('Sorry — the PDF could not be created. Please try again, or contact your VDM contact person.');
+      } finally {
+        VDMUI.busy(false);
+      }
+    }
+
+    async function buildPdf(isNew) {
 
       const { jsPDF } = window.jspdf;
       const LOGO_SRC = document.querySelector('.header-logo').src;
@@ -2608,14 +2618,6 @@
       const entityName = val('ei_name') || 'client'; const safeName = entityName.replace(/[^a-zA-Z0-9_\- ]/g, '').trim();
       doc.save(`${VDMMode.text('filePrefix')}${safeName}_${today.replace(/\//g, '-')}.pdf`);
       document.getElementById('successFilePrefix').textContent = VDMMode.text('filePrefix');
-
-      // A new trust also gets the data file the trust-doc-generator loads to
-      // draft the deed and the Master's forms without retyping these answers.
-      const isTrust = isNew && state.entityType === 'trust';
-      if (isTrust) setTimeout(() => VDMTrust.downloadJson(safeName), 600);
-      document.getElementById('trustSuccess').hidden = !isTrust;
-      document.getElementById('trustJsonName').textContent = VDMTrust.jsonFileName(safeName);
-      document.getElementById('trustJsonAgain').onclick = () => VDMTrust.downloadJson(safeName);
 
       document.getElementById('mainForm').style.display = 'none';
       document.getElementById('successScreen').style.display = 'block';

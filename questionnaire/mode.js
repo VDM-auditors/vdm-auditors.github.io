@@ -14,7 +14,7 @@
    Links can skip the choice: ?mode=new or ?mode=existing, and ?type=<entity>
    preselects an entity card (e.g. ?mode=new&type=trust).
 
-   Uses globals from index.html: state, goStep, currentStep, maxStepReached,
+   Uses VDMUI.icon() from ui.js, and globals from index.html: state, goStep, currentStep, maxStepReached,
    selectEntity, updateEntityInfoLabels, updateProgress.
    ──────────────────────────────────────────────────────────────────────── */
 (function () {
@@ -22,7 +22,8 @@
 
   const TEXT = {
     existing: {
-      label: '🤝 <strong>New / Existing Client</strong> — the entity is already registered',
+      icon: 'briefcase',
+      label: '<strong>New / Existing Client</strong> — the entity is already registered',
       title: 'New / Current Client Questionnaire',
       subtitle: 'Please ensure that all fields are completed accurately and in full. This information is required for registration and compliance purposes',
       subject: 'VDM Questionnaire — ',
@@ -30,7 +31,8 @@
       filePrefix: 'VDM_Questionnaire_'
     },
     new: {
-      label: '✨ <strong>Register a New Entity</strong> — the entity does not exist yet',
+      icon: 'file-plus',
+      label: '<strong>Register a New Entity</strong> — the entity does not exist yet',
       title: 'New Entity Registration Questionnaire',
       subtitle: 'Complete this form to register a new entity. Please ensure that all fields are completed accurately and in full — this information is required to register the entity and for compliance purposes',
       subject: 'VDM New Entity Registration — ',
@@ -53,7 +55,7 @@
     ['existing', 'new'].forEach(k => document.getElementById('mode_' + k).classList.toggle('selected', k === m));
     document.getElementById('headerTitle').textContent = text('title');
     document.getElementById('headerSubtitle').textContent = text('subtitle');
-    document.getElementById('modeLabel').innerHTML = text('label');
+    document.getElementById('modeLabel').innerHTML = VDMUI.icon(text('icon')) + text('label');
     document.title = 'VDM — ' + text('title');
     document.getElementById('stepNav').classList.remove('hidden');
     if (state.entityType) updateEntityInfoLabels(state.entityType);

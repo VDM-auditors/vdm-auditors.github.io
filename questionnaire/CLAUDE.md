@@ -20,7 +20,6 @@ difference from there on. On 28 Sep 2026 this replaced the separate
 | Trust, step 3 | plain fields in `index.html` | `trust.js` — deed fields, blocking check |
 | PDF | owner-password locked, fillable mandate page | **flat**, no encryption, no AcroForm fields |
 | PDF title / file | `New / Current Client Questionnaire`, `VDM_Questionnaire_…` | `New Entity Registration Questionnaire`, `VDM_Entity_Registration_…` |
-| Extra download | — | a new trust also gets `VDM_Trust_Deed_Data_<name>.json` |
 | SARS POA / public officer docx | real reference numbers | blank; registration number reads "To be allocated" |
 
 - **Markup** that belongs to one mode carries `existing-only` or `new-only`; the
@@ -42,11 +41,12 @@ difference from there on. On 28 Sep 2026 this replaced the separate
 questionnaire/
 ├── index.html      # Wizard application: HTML + CSS + JS
 ├── mode.js         # Step 0 — existing client vs new entity; ?mode= / ?type= links
+├── ui.js / ui.css  # Line icons (data-icon), step-0 skeleton, PDF busy overlay, card keyboard access
 ├── address-autocomplete.js  # HERE lookup (Photon fallback) on every address field
 ├── attachments.js  # Step 4 — file uploads, phone (QR/WebRTC) capture, PDF embedding
 ├── mandate.js      # Step 5 — CIPC beneficial ownership mandate: fields, live preview, signature
 ├── mandate-pdf.js  # Step 5 — draws the mandate page into the jsPDF document
-├── trust.js        # New trusts only — step-3 fields + check, PDF section, trust-deed JSON
+├── trust.js        # New trusts only — step-3 fields + check, PDF section
 ├── upload.html     # Phone-side capture page opened by scanning the QR code
 ├── logo.png        # VDM Audit logo used in form header and generated PDF
 └── README.md       # User-facing documentation
@@ -103,14 +103,9 @@ a deed, so none of the deed questions apply.
 - **The step-3 check** (`check`, via `leaveDetailsStep()`) blocks on the answers the deed and
   Master's forms cannot do without, and only *warns* on a failed SA ID checksum — a foreign
   trustee's passport number is a legitimate answer.
-- **Output** — the PDF section (`renderPdf`) plus a second download,
-  `VDM_Trust_Deed_Data_<name>.json` (`snapshot`). That file is the shape
-  `trust-doc-generator/js/menu/loader.js` reads, keyed by the ids in
-  `trust-doc-generator/5. Deed/Trust-Deed/js/templates/schema.js`. Mapping: trustee 1/2 →
-  `first_`/`second_trustee_*`, trustees 3+ → `additional_trustees`, the independent trustee
-  block → `independent_trustee_*` directly (so `independent_trustee` is always `null`),
-  beneficiary 1/2 → `husband_`/`wife_beneficiary_*`, beneficiaries 3+ →
-  `rows.additional_beneficiaries`. The client emails the JSON with the PDF.
+- **Output** — the PDF section (`renderPdf`) only. The PDF is the one file the client
+  saves; the trust-deed JSON download was removed on 28 Sep 2026. Its `snapshot()` mapping
+  to trust-doc-generator's deed schema is in git history if it is ever wanted back.
 
 ### Mandate (step 5, existing clients only)
 
@@ -274,9 +269,9 @@ git push origin main
 - NEVER add form fields to any page of the PDF other than the mandate page, and never add
   them or encryption to a new-entity PDF — it has no mandate and is meant to be flat
 - NEVER show registration, tax, VAT, PAYE or UIF fields in new-entity mode — the entity has none
-- NEVER add or rename a key in `VDMTrust.snapshot()` without the same id existing in the deed
-  schema in `trust-doc-generator` — the workspace reports unknown ids and drops them
+- NEVER bring back a JSON (or other data-file) download — the client saves the PDF, not raw data
 - NEVER split this back into separate forms per client type — clerks must have one link
+- NEVER use emoji as card or mode icons — use `data-icon` / `VDMUI.icon()` from `ui.js`, adding a path to `PATHS` if needed
 
 ---
 

@@ -34,11 +34,12 @@ vdm-auditors.github.io/
 └── questionnaire/
     ├── index.html          # The wizard (HTML+CSS+JS) — both modes
     ├── mode.js             # Opening choice: existing client vs new entity; ?mode= / ?type= links
+    ├── ui.js / ui.css      # Line icons, opening skeleton, PDF loading overlay
     ├── address-autocomplete.js  # HERE address lookup (Photon/OSM fallback) — autofills suburb/city/postal code
     ├── attachments.js      # Step 4 — uploads, QR/WebRTC phone capture, PDF embedding
     ├── mandate.js          # Step 5 (existing clients) — CIPC beneficial ownership mandate + live preview
     ├── mandate-pdf.js      # Step 5 — mandate page rendering into the jsPDF document
-    ├── trust.js            # New trusts — deed fields, step-3 check, PDF section, trust-deed JSON
+    ├── trust.js            # New trusts — deed fields, step-3 check, PDF section
     ├── upload.html         # Phone-side capture page (opened via QR code)
     ├── logo.png
     ├── CLAUDE.md

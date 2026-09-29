@@ -1,0 +1,179 @@
+/* ── VDM Questionnaire — icons, skeleton, busy overlay (ui.js) ─────────── */
+
+/* ── Card icons ───────────────────────────────────────────────────────── */
+.ui-icon { width: 100%; height: 100%; display: block; }
+
+.entity-card .ec-icon {
+  width: 44px;
+  height: 44px;
+  padding: 11px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+  box-shadow: inset 0 0 0 1px rgba(200, 169, 81, 0.35);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Descriptions differ in length; keep both icons on one line. */
+.mode-cards .entity-card { justify-content: flex-start; }
+
+.mode-cards .entity-card .ec-icon {
+  width: 60px;
+  height: 60px;
+  padding: 15px;
+  margin-bottom: 14px;
+}
+
+.entity-card:hover .ec-icon {
+  transform: translateY(-2px);
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px var(--accent), 0 4px 12px rgba(200, 169, 81, 0.25);
+}
+
+.entity-card.selected .ec-icon {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(200, 169, 81, 0.6);
+}
+
+.entity-card .ec-check { padding: 4px; }
+.entity-card.selected .ec-check { animation: ui-pop 0.25s ease both; }
+
+.entity-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Cards enter one after another rather than all at once. */
+.entity-cards .entity-card { animation: fadeUp 0.35s ease both; }
+.entity-cards .entity-card:nth-child(2) { animation-delay: 0.05s; }
+.entity-cards .entity-card:nth-child(3) { animation-delay: 0.1s; }
+.entity-cards .entity-card:nth-child(4) { animation-delay: 0.15s; }
+.entity-cards .entity-card:nth-child(5) { animation-delay: 0.2s; }
+.entity-cards .entity-card:nth-child(6) { animation-delay: 0.25s; }
+.entity-cards .entity-card:nth-child(7) { animation-delay: 0.3s; }
+
+.mode-bar .ui-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: -3px;
+  margin-right: 6px;
+  color: var(--accent-dark);
+}
+
+.success-icon {
+  width: 72px;
+  height: 72px;
+  padding: 18px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+  box-shadow: inset 0 0 0 1px rgba(200, 169, 81, 0.45);
+  animation: ui-pop 0.4s ease both;
+}
+
+@keyframes ui-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ── Skeleton for the opening choice ──────────────────────────────────── */
+.ui-skeleton { display: none; }
+body.ui-loading .ui-skeleton { display: grid; }
+body.ui-loading #step0 .mode-real { display: none; }
+
+.ui-skeleton {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 560px) {
+  .ui-skeleton { grid-template-columns: 1fr; }
+}
+
+.sk-card {
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.sk {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, #EDF1F7 25%, #F7F9FC 50%, #EDF1F7 75%);
+  background-size: 200% 100%;
+  animation: ui-shimmer 1.2s ease-in-out infinite;
+}
+
+.sk-circle { width: 60px; height: 60px; border-radius: 50%; margin-bottom: 4px; }
+.sk-line { height: 12px; width: 70%; }
+.sk-line.short { width: 45%; }
+.sk-line.title { height: 16px; width: 55%; }
+
+@keyframes ui-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* ── Busy overlay ─────────────────────────────────────────────────────── */
+.ui-busy {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(13, 31, 60, 0.45);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s;
+}
+
+.ui-busy.show { opacity: 1; visibility: visible; }
+
+.ui-busy-box {
+  background: var(--card);
+  border-radius: var(--radius);
+  border-top: 3px solid var(--accent);
+  box-shadow: var(--shadow-md);
+  padding: 28px 36px;
+  text-align: center;
+  max-width: 340px;
+}
+
+.ui-busy-text {
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.ui-spinner {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid var(--accent-bg);
+  border-top-color: var(--accent);
+  border-right-color: var(--navy);
+  animation: ui-spin 0.8s linear infinite;
+}
+
+@keyframes ui-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .entity-cards .entity-card,
+  .entity-card.selected .ec-check,
+  .success-icon,
+  .sk { animation: none; }
+  .ui-spinner { animation-duration: 2s; }
+  .entity-card:hover .ec-icon { transform: none; }
+}

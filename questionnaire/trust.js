@@ -1,14 +1,10 @@
 /* ── VDM Questionnaire — New-trust module ───────────────────────────────
    Everything the wizard does differently when a NEW trust is registered
    (VDMMode.isNew() — an existing trust keeps the plain fields in index.html):
-   the step-3 fields, the check before leaving step 3, the trust section of
-   the PDF, and the trust-deed data file.
+   the step-3 fields, the check before leaving step 3, and the trust section
+   of the PDF. The PDF is the only output — no data file is downloaded.
 
-   This absorbed the separate trust-deed-questionnaire (28 Sep 2026). That
-   form existed to feed trust-doc-generator, whose workspace loads a JSON file
-   (js/menu/loader.js). snapshot() below writes that same shape, keyed by the
-   deed schema's own field ids, so the auditor loads a trust registered here
-   exactly as they loaded the old questionnaire's export.
+   This absorbed the separate trust-deed-questionnaire (28 Sep 2026).
 
    Uses globals from index.html: makeRadioGroup, selectRadio, makeTaxToggle,
    radioVal, taxVal.
@@ -350,81 +346,5 @@
 
   function isChecked(id) { const el = document.getElementById(id); return Boolean(el && el.checked); }
 
-  /* ── the trust-deed data file ──────────────────────────────────────── */
-
-  // The shape trust-doc-generator/js/menu/loader.js reads. `answers` keys are
-  // the deed schema's field ids (5. Deed/Trust-Deed/js/templates/schema.js);
-  // an id that schema does not define is reported there as unknown, so do not
-  // add one here without adding it there.
-  function snapshot() {
-    const isCapital = b => radioVal(b + '_ben_capital') !== 'No';
-    const hasSecond = counts.beneficiaries >= 2;
-    const trustee = (i, k) => (i <= counts.trustees ? val(`trustee_${i}_${k}`) : '');
-    const answers = {
-      trust_name: val('ei_name'),
-      asset_location: val('trust_asset_town'),
-      trust_duration: val('trust_duration') || 'INDEFINITE',
-      settlor_surname: val('donor_1_surname'),
-      settlor_first_names: val('donor_1_first'),
-      settlor_name: val('donor_1_fullname'),
-      settlor_id: val('donor_1_id'),
-      settlor_nationality: val('donor_1_nationality'),
-      settlor_is_trustee: isChecked('donor_1_is_trustee'),
-      first_trustee_name: trustee(1, 'fullname'),
-      first_trustee_id: trustee(1, 'id'),
-      second_trustee_name: trustee(2, 'fullname'),
-      second_trustee_id: trustee(2, 'id'),
-      // Named by the client in its own block, so the workspace never has to
-      // guess which trustee swears the affidavit.
-      independent_trustee_name: val('indep_trustee_1_fullname'),
-      independent_trustee_id: val('indep_trustee_1_id'),
-      husband_beneficiary_name: val('ben_1_fullname'),
-      husband_beneficiary_id: val('ben_1_id'),
-      husband_beneficiary_is_capital: isCapital('ben_1'),
-      has_second_beneficiary: hasSecond,
-      wife_beneficiary_name: hasSecond ? val('ben_2_fullname') : '',
-      wife_beneficiary_id: hasSecond ? val('ben_2_id') : '',
-      wife_beneficiary_is_capital: hasSecond ? isCapital('ben_2') : true,
-      intestate_heirs_name: val('trust_heirs_name'),
-      intestate_heirs_id: val('trust_heirs_id'),
-    };
-    const extraBens = [];
-    for (let i = 3; i <= counts.beneficiaries; i++) {
-      const b = `ben_${i}`;
-      extraBens.push({
-        beneficiary_type: val(b + '_type') || 'INDIVIDUAL',
-        full_name: val(b + '_fullname'),
-        id_number: val(b + '_id'),
-        date_of_birth: val(b + '_dob'),
-        is_minor: val(b + '_minor') || 'NO',
-        guardian_name: val(b + '_guardian_name'),
-        guardian_id: val(b + '_guardian_id'),
-      });
-    }
-    const extraTrustees = [];
-    for (let i = 3; i <= counts.trustees; i++) extraTrustees.push({ name: trustee(i, 'fullname'), id: trustee(i, 'id') });
-    return {
-      answers,
-      rows: { additional_beneficiaries: extraBens },
-      // Trustees beyond the deed's first and second positions. The workspace
-      // reports these as unplaced for the auditor to decide.
-      additional_trustees: extraTrustees,
-      // Already in independent_trustee_* above; null tells the loader there is
-      // no choice left to resolve.
-      independent_trustee: null,
-    };
-  }
-
-  function jsonFileName(safeName) { return `VDM_Trust_Deed_Data_${safeName || 'trust'}.json`; }
-
-  function downloadJson(safeName) {
-    const blob = new Blob([JSON.stringify(snapshot(), null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = jsonFileName(safeName);
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-
-  window.VDMTrust = { buildStep, check, renderPdf, snapshot, downloadJson, jsonFileName };
+  window.VDMTrust = { buildStep, check, renderPdf };
 })();
